@@ -7,3 +7,7 @@ __pycache__/
 .venv/
 dist/
 build/
+
+# terminal recordings stay on OneDrive
+recordings/
+*.cast
