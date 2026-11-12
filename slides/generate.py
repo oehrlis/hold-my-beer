@@ -87,8 +87,8 @@ ICONS = [
 # illustrations from slides/img/ (own SVGs, see README): (stem de, stem en, aria-label de, aria-label en)
 ROUND_ILL = {
     2: ("distracted-dba", "distracted-dba",
-        "Der DBA schaut der AI nach, die Oracle-Doku ist beleidigt.",
-        "The DBA turns to look at the AI, the Oracle docs are offended."),
+        "Der DBA schaut der AI nach, die Oracle-Doku an seiner Hand ist fassungslos.",
+        "The DBA turns to look at the AI, the Oracle docs holding his hand are stunned."),
     3: ("expanding-brain-de", "expanding-brain-en",
         "Expanding Brain: von SELECT * bis zu: fragt die AI und liest den Plan.",
         "Expanding brain: from SELECT * to: asks the AI and reads the plan."),
