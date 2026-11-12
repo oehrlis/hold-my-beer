@@ -47,7 +47,9 @@ NO_OWNER = "Offen"
 OWNER_CLASS = {"Martin": " ring", "Gemeinsam": " ok2"}
 RESERVE_CLASS = {"Martin": " acc", "Gemeinsam": " ok"}
 LOGO_PX = 150
+OWNER_EN = {"Gemeinsam": "Joint", "Offen": "Open"}  # Stefan/Martin stay as they are
 TODO = '<span class="tag" style="background:var(--warn)">TODO</span>'
+WARNINGS: list[str] = []
 
 e = html.escape
 
@@ -80,16 +82,38 @@ def image_css(src_dir: Path) -> str:
     return "\n".join(rules)
 
 
+def bi(de: str, en: str, raw: bool = False) -> str:
+    """Bilingual text: both spans, deck.css shows the active language. ``raw``: no escaping."""
+    if not raw:
+        de, en = e(de), e(en)
+    return f'<span lang="de">{de}</span><span lang="en">{en}</span>'
+
+
+def en_text(obj: dict, key: str, where: str) -> str:
+    """English field ``<key>_en`` of a pool entry; missing: German text plus a WARN line."""
+    val = obj.get(f"{key}_en")
+    if isinstance(val, str) and val.strip():
+        return " ".join(val.split())
+    msg = f"WARN: {where}: {key}_en missing - English slide shows the German text"
+    if msg not in WARNINGS:  # one line per missing field, even if several slides use it
+        WARNINGS.append(msg)
+    return str(obj.get(key, ""))
+
+
+def owner_bi(owner: str) -> str:
+    return bi(owner, OWNER_EN.get(owner, owner))
+
+
 def grid_class(n: int, default: int) -> str:
     """Theme grid class ``g2``..``g4`` for ``n`` columns, ``default`` outside that range."""
     return f"g{n if n in (2, 3, 4) else default}"
 
 
-def score_tiles(cats: list[str], numbered: bool) -> str:
+def score_tiles(cats: list[tuple[str, str]], numbered: bool) -> str:
     return "\n".join(
         f'    <div class="tile{" ring" if i % 2 else ""}"><span class="n">{i + 1 if numbered else "?"}</span>'
-        f'<span class="l">{e(c)}</span></div>'
-        for i, c in enumerate(cats)
+        f'<span class="l">{bi(de, en)}</span></div>'
+        for i, (de, en) in enumerate(cats)
     )
 
 
@@ -119,7 +143,7 @@ def meta_yaml(title: str, description: str, tags: list[str], layout: str = "html
         "topic": "hold-my-beer",
         "version": "",
         "level": "intermediate",
-        "lang": "de",
+        "lang": "de+en",
         "mandatory": False,
         "updated": dt.date.today().isoformat(),
         "author": "Stefan Oehrli",
@@ -138,20 +162,24 @@ def write_atom(out: Path, name: str, html_text: str, meta: str) -> None:
     (d / "meta.yaml").write_text(meta, encoding="utf-8")
 
 
-def cover(ev: dict, logo: str, css: str) -> str:
+def cover(ev: dict, logo: str, css: str, js: str) -> str:
     # inline SVG, not a data-URI <img>: the talk CLI plan/PPTX path reads <img src> as a file path
     logo_html = f'<div style="width:{LOGO_PX}px;height:{LOGO_PX}px;margin:0 0 18px">{logo}</div>' if logo else ""
+    title = bi(ev["title"], en_text(ev, "title", "event"))
     return f"""<!-- atom: hold-my-beer/cover (generated) -->
 <section class="acn-cover" data-layout="cover">
+  <style>{css}</style>
+  <script>{js}</script>
   <div class="cover">
     <div class="cover-text">
       <div>
         <div class="crumb">{e(ev["name"])} · {e(ev["city"])}</div>
-        <h1>{e(ev["title"])}</h1>
-        <p class="sub">Live-Session ohne festgelegte Inhalte: Ihr wählt das Thema, wir und die AI liefern.</p>
+        <h1>{title}</h1>
+        <p class="sub">{bi("Live-Session ohne festgelegte Inhalte: Ihr wählt das Thema, wir und die AI liefern.",
+                           "A live session without fixed content: you pick the topic, we and the AI deliver.")}</p>
       </div>
       <div class="meta"><strong>Stefan Oehrli · Martin Berger</strong> · {e(ev["short"])} ·
-      {e(str(ev["date"]))}, {e(ev["time"])} · Raum {e(ev["room"])}</div>
+      {e(str(ev["date"]))}, {e(ev["time"])} · {bi("Raum", "Room")} {e(ev["room"])}</div>
     </div>
     <div class="cover-visual">
       <svg class="geometry" viewBox="0 0 600 800" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
@@ -162,13 +190,12 @@ def cover(ev: dict, logo: str, css: str) -> str:
       <div class="stamp">
         {logo_html}
         <div class="lab">HOLD MY BEER</div>
-        <h3>Oracle live, mit AI</h3>
+        <h3>{bi("Oracle live, mit AI", "Oracle live, with AI")}</h3>
       </div>
     </div>
   </div>
-  <style>{css}</style>
   <aside class="notes">Begrüssung, beide kurz auf die Bühne. Titel ist Programm: wir wissen
-  wirklich nicht, welche Themen kommen.</aside>
+  wirklich nicht, welche Themen kommen. Sprache umschalten: Taste L.</aside>
 </section>
 """
 
@@ -178,24 +205,25 @@ def voting(fmt: dict, n_rounds: int, url: str, fb: str) -> str:
     mins = fmt["challenge_minutes"]
     return f"""<!-- atom: hold-my-beer/voting (generated) -->
 <section class="hmb">
-  <div class="sh"><span class="kicker">Voting-App</span><h2>So stimmt ihr ab</h2></div>
+  <div class="sh"><span class="kicker">{bi("Voting-App", "Voting app")}</span><h2>{bi("So stimmt ihr ab", "How to vote")}</h2></div>
   <div style="display:grid;grid-template-columns:3fr 1fr;gap:1.2rem;flex:1 1 auto">
     <div style="display:flex;flex-direction:column;gap:0.6rem">
       <div class="steps" style="margin-top:0">
-        <div class="step"><span class="snum">1</span><h4>QR scannen</h4>
-          <p>Kein Login, keine Namen, keine E-Mail-Adressen</p></div>
+        <div class="step"><span class="snum">1</span><h4>{bi("QR scannen", "Scan the QR code")}</h4>
+          <p>{bi("Kein Login, keine Namen, keine E-Mail-Adressen", "No login, no names, no e-mail addresses")}</p></div>
         <div class="sarr">&rsaquo;</div>
-        <div class="step"><span class="snum">2</span><h4>Option wählen</h4>
-          <p>3 Optionen pro Runde, {secs} s Zeit</p></div>
+        <div class="step"><span class="snum">2</span><h4>{bi("Option wählen", "Pick an option")}</h4>
+          <p>{bi(f"3 Optionen pro Runde, {secs} s Zeit", f"3 options per round, {secs} s")}</p></div>
         <div class="sarr">&rsaquo;</div>
-        <div class="step"><span class="snum">3</span><h4>Ergebnis</h4>
-          <p>live auf dem Beamer</p></div>
+        <div class="step"><span class="snum">3</span><h4>{bi("Ergebnis", "Result")}</h4>
+          <p>{bi("live auf dem Beamer", "live on the projector")}</p></div>
       </div>
       <ul>
-        <li>Eine Stimme pro Gerät und Runde</li>
-        <li>Gleichstand: Stichwahl - nie Zufall</li>
-        <li>{n_rounds} Runden, danach je {mins} min live, dann Scorecard</li>
-        <li>Mobilfunk nutzen, nicht das Konferenz-WLAN</li>
+        <li>{bi("Eine Stimme pro Gerät und Runde", "One vote per device and round")}</li>
+        <li>{bi("Gleichstand: Stichwahl - nie Zufall", "Tie: run-off vote - never random")}</li>
+        <li>{bi(f"{n_rounds} Runden, danach je {mins} min live, dann Scorecard",
+                f"{n_rounds} rounds: {mins} min live each, then the scorecard")}</li>
+        <li>{bi("Mobilfunk nutzen, nicht das Konferenz-WLAN", "Use mobile data, not the conference Wi-Fi")}</li>
       </ul>
     </div>
     {qr_block(url, fb)}
@@ -206,41 +234,45 @@ def voting(fmt: dict, n_rounds: int, url: str, fb: str) -> str:
 """
 
 
-def scorecard(cats: list[str]) -> str:
+def scorecard(cats: list[tuple[str, str]]) -> str:
     tiles = score_tiles(cats, numbered=True)
     return f"""<!-- atom: hold-my-beer/scorecard (generated) -->
 <section class="hmb">
-  <div class="sh"><span class="kicker">Scorecard</span><h2>Was wir nach jeder Runde zählen</h2></div>
+  <div class="sh"><span class="kicker">Scorecard</span><h2>{bi("Was wir nach jeder Runde zählen", "What we count after each round")}</h2></div>
   <div class="{grid_class(len(cats), 4)}">
 {tiles}
   </div>
-  <div class="qbox"><p>Nach jeder Runde: kurz auswerten, ein Strich in der passenden Kategorie.
-  Am Ende zeigt die Scorecard, wer öfter recht hatte - AI oder DBA.</p></div>
+  <div class="qbox"><p>{bi("Nach jeder Runde: kurz auswerten, ein Strich in der passenden Kategorie. "
+                           "Am Ende zeigt die Scorecard, wer öfter recht hatte - AI oder DBA.",
+                           "After each round: a quick review, one tally mark in the matching category. "
+                           "At the end the scorecard shows who was right more often - AI or DBA.")}</p></div>
   <aside class="notes">Scorecard ist der rote Faden. Fehler werden nicht kaschiert, sie werden gezählt.</aside>
 </section>
 """
 
 
 def round_slide(rnd: dict, total: int, secs: int, url: str, fb: str) -> str:
+    num = rnd["number"]
+    name_en = en_text(rnd, "name", f"round {num}")
     cards = []
     for opt in rnd["options"]:
+        where = f"round {num} option {opt['key']}"
         owner = str(opt.get("owner", NO_OWNER))
         cls = OWNER_CLASS.get(owner, "")
+        cat = bi(opt.get("category", ""), en_text(opt, "category", where)) if opt.get("category") else ""
         cards.append(
             f'      <div class="tile opt{cls}" style="display:flex;flex-direction:column;gap:0.5rem;'
             'padding:0.9rem 0.8rem">\n'
             f'        <span class="n">{e(opt["key"])}</span>\n'
-            f'        <h4>{e(opt["title"])}</h4>\n'
-            f'        <span class="l">{e(owner)} · {e(opt.get("category", ""))}'
-            "</span>\n"
+            f'        <h4>{bi(opt["title"], en_text(opt, "title", where))}</h4>\n'
+            f'        <span class="l">{owner_bi(owner)} · {cat}</span>\n'
             "      </div>"
         )
-    num = rnd["number"]
     cards_html = "\n".join(cards)
     return f"""<!-- atom: hold-my-beer/runde-{num} (generated) -->
 <section class="hmb">
-  <div class="sh"><span class="kicker">Runde {num} von {total} · Abstimmung {secs} s</span>
-  <h2>Runde {num} - {e(rnd["name"])}</h2></div>
+  <div class="sh"><span class="kicker">{bi(f"Runde {num} von {total} · Abstimmung {secs} s", f"Round {num} of {total} · voting {secs} s")}</span>
+  <h2>{bi(f"Runde {num} - {rnd['name']}", f"Round {num} - {name_en}")}</h2></div>
   <div style="display:grid;grid-template-columns:3fr 1fr;gap:1.2rem;flex:1 1 auto;align-items:center">
     <div class="g3">
 {cards_html}
@@ -255,26 +287,30 @@ def round_slide(rnd: dict, total: int, secs: int, url: str, fb: str) -> str:
 
 
 def reserve_topics(reserve: list[dict]) -> str:
-    groups: dict[str, list[dict]] = {}
-    for t in reserve:
-        groups.setdefault(str(t.get("owner", NO_OWNER)), []).append(t)
+    groups: dict[str, list[tuple[int, dict]]] = {}
+    for i, t in enumerate(reserve, 1):
+        groups.setdefault(str(t.get("owner", NO_OWNER)), []).append((i, t))
     cols = []
     for owner in OWNERS:
         items = groups.get(owner)
         if not items:
             continue
-        lis = "\n".join(
-            f"          <li>{e(t['title'])} · {e(t.get('category', ''))}</li>"
-            for t in items
-        )
+        lis = []
+        for i, t in items:
+            where = f"reserve[{i}]"
+            cat = t.get("category", "")
+            cat_html = f" · {bi(cat, en_text(t, 'category', where))}" if cat else ""
+            lis.append(f"          <li>{bi(t['title'], en_text(t, 'title', where))}{cat_html}</li>")
+        lis_html = "\n".join(lis)
         cls = RESERVE_CLASS.get(owner, "")
         cols.append(
-            f'      <div class="card{cls}"><h4>{e(owner)}</h4>\n        <ul>\n{lis}\n        </ul></div>'
+            f'      <div class="card{cls}"><h4>{owner_bi(owner)}</h4>\n        <ul>\n{lis_html}\n        </ul></div>'
         )
     cols_html = "\n".join(cols)
+    n = len(reserve)
     return f"""<!-- atom: hold-my-beer/reserve-themen (generated) -->
 <section class="hmb" data-visibility="uncounted">
-  <div class="sh"><span class="kicker">Reserve</span><h2>Reserve-Themen ({len(reserve)})</h2></div>
+  <div class="sh"><span class="kicker">{bi("Reserve", "Backup")}</span><h2>{bi(f"Reserve-Themen ({n})", f"Backup topics ({n})")}</h2></div>
   <div class="{grid_class(len(cols), 3)}">
 {cols_html}
   </div>
@@ -284,21 +320,23 @@ def reserve_topics(reserve: list[dict]) -> str:
 """
 
 
-def scorecard_result(cats: list[str], rounds: list[dict]) -> str:
+def scorecard_result(cats: list[tuple[str, str]], rounds: list[dict]) -> str:
     tiles = score_tiles(cats, numbered=False)
     lis = "\n".join(
-        f"      <li>Runde {r['number']} - {e(r['name'])}: gespielt wurde ____</li>" for r in rounds
+        f"      <li>{bi(f'Runde {r[0]} - {r[1]}: gespielt wurde ____', f'Round {r[0]} - {r[2]}: played ____')}</li>"
+        for r in ((r["number"], r["name"], en_text(r, "name", f"round {r['number']}")) for r in rounds)
     )
     return f"""<!-- atom: hold-my-beer/scorecard-endstand (generated) -->
 <section class="hmb">
-  <div class="sh"><span class="kicker">Fazit</span><h2>Scorecard - Endstand</h2></div>
+  <div class="sh"><span class="kicker">{bi("Fazit", "Wrap-up")}</span><h2>{bi("Scorecard - Endstand", "Scorecard - final score")}</h2></div>
   <div class="{grid_class(len(cats), 4)}">
 {tiles}
   </div>
   <ul>
 {lis}
   </ul>
-  <p class="note">{TODO} Platzhalter: Endstand live eintragen (Scorecard aus /admin bzw. Strichliste).</p>
+  <p class="note">{TODO} {bi("Platzhalter: Endstand live eintragen (Scorecard aus /admin bzw. Strichliste).",
+                             "Placeholder: enter the final score live (scorecard from /admin or tally).")}</p>
   <aside class="notes">Welche Kategorie hat gewonnen, welches Tool war wo stark.</aside>
 </section>
 """
@@ -319,7 +357,13 @@ def main() -> int:
     pool = yaml.safe_load(args.pool.read_text(encoding="utf-8"))
     ev, fmt, rounds = pool["event"], pool["format"], pool["rounds"]
     reserve = pool.get("reserve") or []
-    cats = list(fmt["scorecard"])
+    cats_de = list(fmt["scorecard"])
+    cats_en = fmt.get("scorecard_en")
+    if not (isinstance(cats_en, list) and len(cats_en) == len(cats_de)):
+        WARNINGS.append("WARN: format: scorecard_en missing or not the same length as scorecard"
+                        " - English slides show the German categories")
+        cats_en = cats_de
+    cats = list(zip(cats_de, cats_en))
 
     fb = fallback_qr(url + "/")
     if not fb:
@@ -338,7 +382,8 @@ def main() -> int:
     tags = ["hold-my-beer", "generated"]
     here = Path(__file__).resolve().parent
     css = (here / "deck.css").read_text(encoding="utf-8") + "\n" + image_css(here / "src")
-    write_atom(args.out, "cover", cover(ev, logo, css), meta_yaml("Cover", "Titel, Speaker, Event", tags, "cover"))
+    js = (here / "deck-lang.js").read_text(encoding="utf-8")
+    write_atom(args.out, "cover", cover(ev, logo, css, js), meta_yaml("Cover", "Titel, Speaker, Event", tags, "cover"))
     write_atom(
         args.out, "voting", voting(fmt, len(rounds), url, fb),
         meta_yaml("So stimmt ihr ab", "Voting-App mit Live-QR", tags + ["voting"]),
@@ -362,10 +407,12 @@ def main() -> int:
         meta_yaml("Reserve-Themen", "Reserve-Pool aus dem Pool-YAML", tags + ["reserve"]),
     )
     n_opts = sum(len(r["options"]) for r in rounds)
+    for w in WARNINGS:
+        print(w, file=sys.stderr)
     print(
         f"generated {len(list(args.out.iterdir()))} atoms in {args.out} "
         f"({len(rounds)} rounds, {n_opts} options, {len(reserve)} reserve, voting url {url}, "
-        f"fallback QR {'yes' if fb else 'no'})"
+        f"fallback QR {'yes' if fb else 'no'}, {len(WARNINGS)} missing English text(s))"
     )
     return 0
 

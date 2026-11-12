@@ -1,18 +1,20 @@
-<!-- atom: hold-my-beer/fehlermuster-2-versionssyntax -->
+<!-- atom: hold-my-beer/fehlermuster-2-versionssyntax (DE/EN) -->
 <section class="hmb" data-visibility="uncounted">
-  <div class="sh"><span class="kicker">Reserve · Fehlermuster 2 von 3</span><h2>Versionssyntax</h2></div>
+  <div class="sh"><span class="kicker"><span lang="de">Reserve · Fehlermuster 2 von 3</span><span lang="en">Backup · failure pattern 2 of 3</span></span>
+  <h2><span lang="de">Versionssyntax</span><span lang="en">Version syntax</span></h2></div>
   <div class="g2">
-    <div class="card bad"><h4>Richtig - für ein anderes Release</h4>
+    <div class="card bad"><h4><span lang="de">Richtig - für ein anderes Release</span><span lang="en">Correct - for a different release</span></h4>
       <ul>
-        <li>Traditional und Unified Auditing gemischt, NOAUDIT vergessen</li>
-        <li>sqlnet.ora ENCRYPTION_WALLET_LOCATION statt WALLET_ROOT</li>
-        <li>exp/imp statt Data Pump</li>
-        <li>Listener- und sqlnet.ora-Parameter pro Release verwechselt</li>
-        <li>DBA_-Views ohne CDB-Kontext, PASSWORD_VERSIONS ungenau</li>
+        <li><span lang="de">Traditional und Unified Auditing gemischt, NOAUDIT vergessen</span><span lang="en">Traditional and Unified Auditing mixed, NOAUDIT forgotten</span></li>
+        <li><span lang="de">sqlnet.ora ENCRYPTION_WALLET_LOCATION statt WALLET_ROOT</span><span lang="en">sqlnet.ora ENCRYPTION_WALLET_LOCATION instead of WALLET_ROOT</span></li>
+        <li><span lang="de">exp/imp statt Data Pump</span><span lang="en">exp/imp instead of Data Pump</span></li>
+        <li><span lang="de">Listener- und sqlnet.ora-Parameter pro Release verwechselt</span><span lang="en">Listener and sqlnet.ora parameters mixed up across releases</span></li>
+        <li><span lang="de">DBA_-Views ohne CDB-Kontext, PASSWORD_VERSIONS ungenau</span><span lang="en">DBA_ views without CDB context, PASSWORD_VERSIONS imprecise</span></li>
       </ul></div>
-    <div class="card ok"><h4>Was dagegen hilft</h4>
-      <p>Version und Architektur (CDB/PDB) in den Prompt - und das Ergebnis gegen die
-      Ziel-Version prüfen.</p></div>
+    <div class="card ok"><h4><span lang="de">Was dagegen hilft</span><span lang="en">What helps</span></h4>
+      <p><span lang="de">Version und Architektur (CDB/PDB) in den Prompt - und das Ergebnis gegen die
+      Ziel-Version prüfen.</span><span lang="en">Put version and architecture (CDB/PDB) in the prompt - and check the result
+      against the target version.</span></p></div>
   </div>
   <aside class="notes">Fallback, wenn eine Live-Runde ausfällt.</aside>
 </section>

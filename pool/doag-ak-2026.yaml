@@ -12,6 +12,7 @@ event:
   duration_min: 45
   lang: de
   title: "Denn sie wissen nicht was sie tun - Oracle live mit Oehrli, Berger und KI"
+  title_en: "They Know Not What They Do - Oracle live with Oehrli, Berger and AI"  # proposal
 
 format:
   voting_seconds: 60
@@ -21,77 +22,103 @@ format:
     - AI halluziniert
     - Falsches Problem gelöst
     - DBA-Instinkt gewinnt
+  scorecard_en:
+    - AI right
+    - AI hallucinated
+    - Solved the wrong problem
+    - DBA instinct wins
 
 rounds:
   - number: 1
     name: Warm-up
+    name_en: Warm-up
     options:
       - key: A
         title: 10G-Passwort-Verifier finden und bereinigen
+        title_en: Find and clean up 10G password verifiers
         owner: Stefan
         category: Security
+        category_en: Security
         difficulty: Leicht
         risk: Niedrig
         ai_pitfall: falsche Spalten, PASSWORD_VERSIONS ungenau
       - key: B
         title: Shell Health-Check für Alert-Log und Listener
+        title_en: Shell health check for alert log and listener
         owner: Martin
         category: Betrieb
+        category_en: Operations
         difficulty: Leicht
         risk: Niedrig
         ai_pitfall: kein set -euo pipefail, Oracle-Umgebung nicht gesetzt
       - key: C
         title: Data Pump Export/Import mit Remap
+        title_en: Data Pump export/import with remap
         owner: Gemeinsam
         category: Betrieb
+        category_en: Operations
         difficulty: Leicht
         risk: Niedrig
         ai_pitfall: veraltete exp/imp-Muster
   - number: 2
     name: DBA-Alltag
+    name_en: Everyday DBA work
     options:
       - key: A
         title: Unified Audit Policy für privilegierte User inklusive NOAUDIT
+        title_en: Unified Audit policy for privileged users, including NOAUDIT
         owner: Stefan
         category: Security
+        category_en: Security
         difficulty: Mittel
         risk: Niedrig
         ai_pitfall: Syntax-Mix Traditional/Unified, NOAUDIT vergessen
       - key: B
         title: "AWR/ASH: Slow Query analysieren"
+        title_en: "AWR/ASH: analyze a slow query"
         owner: Martin
         category: Performance
+        category_en: Performance
         difficulty: Mittel
         risk: Mittel
         ai_pitfall: löst das falsche Problem, Index statt Plan-Analyse
       - key: C
         title: Listener und sqlnet.ora Hardening
+        title_en: Listener and sqlnet.ora hardening
         owner: Gemeinsam
         category: Security
+        category_en: Security
         difficulty: Leicht
         risk: Niedrig
         ai_pitfall: Parameter pro Release verwechselt
   - number: 3
     name: Bruchstelle
+    name_en: Breaking point
     options:
       - key: A
         title: TDE-Keystore mit WALLET_ROOT
+        title_en: TDE keystore with WALLET_ROOT
         owner: Stefan
         category: Security
+        category_en: Security
         difficulty: Mittel
         risk: Mittel
         ai_pitfall: alte sqlnet.ora ENCRYPTION_WALLET_LOCATION-Syntax
       - key: B
         title: Data Guard Switchover mit DGMGRL
+        title_en: Data Guard switchover with DGMGRL
         owner: Martin
         category: Hochverfügbarkeit
+        category_en: High availability
         difficulty: Schwer
         risk: Hoch
         ai_pitfall: überspringt VALIDATE und Vorprüfung
       - key: C
         title: "AI-Code-Review: fehlerhaftes PL/SQL untersuchen"
+        title_en: "AI code review: examine faulty PL/SQL"
         owner: Gemeinsam
         category: Code Review
+        category_en: Code review
         difficulty: Mittel
         risk: Niedrig
         ai_pitfall: übersieht Logikfehler
@@ -100,38 +127,62 @@ rounds:
 # The former round "Automation" lives here since the talk runs 3 rounds.
 reserve:
   - title: "Terraform: DB-System auf OCI"
+    title_en: "Terraform: DB system on OCI"
     owner: Stefan
     category: OCI
+    category_en: OCI
   - title: Ansible-Playbook für Patching oder Preinstall
+    title_en: Ansible playbook for patching or preinstall
     owner: Martin
     category: Automation
+    category_en: Automation
   - title: "OEM: Metric Extension oder Incident Rule"
+    title_en: "OEM: metric extension or incident rule"
     owner: Gemeinsam
     category: OEM
+    category_en: OEM
   - title: Privilege Analysis mit DBMS_PRIVILEGE_CAPTURE
+    title_en: Privilege Analysis with DBMS_PRIVILEGE_CAPTURE
     owner: Stefan
     category: Security
+    category_en: Security
   - title: Database Vault Realm für ein Schema
+    title_en: Database Vault realm for a schema
     owner: Stefan
     category: Security
+    category_en: Security
   - title: RMAN RECOVER TABLE oder PDB-Restore
+    title_en: RMAN RECOVER TABLE or PDB restore
     owner: Martin
     category: Betrieb
+    category_en: Operations
   - title: ORA-Fehler aus dem Publikum
+    title_en: ORA- error from the audience
     owner: Gemeinsam
     category: Publikum
+    category_en: Audience
   - title: SQL Firewall Allowlist in Oracle AI Database 26ai
+    title_en: SQL Firewall allow-list in Oracle AI Database 26ai
     owner: Stefan
     category: Security
+    category_en: Security
   - title: Data Safe Assessment interpretieren
+    title_en: Interpret a Data Safe assessment
     owner: Stefan
     category: Security
+    category_en: Security
   - title: OEM-Job mit AI erstellen
+    title_en: Create an OEM job with AI
     owner: Martin
     category: OEM
+    category_en: OEM
   - title: Backup-Strategie automatisieren
+    title_en: Automate a backup strategy
     owner: Martin
     category: Automation
+    category_en: Automation
   - title: Migrationsskript von Oracle Database 19c nach Oracle AI Database 26ai
+    title_en: Migration script from Oracle Database 19c to Oracle AI Database 26ai
     owner: Gemeinsam
     category: Migration
+    category_en: Migration

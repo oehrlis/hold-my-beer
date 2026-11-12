@@ -28,3 +28,9 @@
 .reveal section.hmb .speaker .contact { margin-top: auto; font-size: 20px; color: var(--purple-deep); }
 .reveal section.hmb .prereq { grid-template-columns: 0.95fr 1.15fr 1fr; }
 .reveal section.hmb .prereq .card p { margin: 0.2rem 0 0; }
+/* DE/EN: only the active language is visible (data-deck-lang on <html>, set by deck-lang.js; default de) */
+html:not([data-deck-lang="en"]) .reveal [lang="en"], html[data-deck-lang="en"] .reveal [lang="de"] { display: none !important; }
+.hmb-lang { position: fixed; top: 8px; right: 14px; z-index: 40; background: rgba(255,255,255,0.85); padding: 1px 6px; font-family: var(--sans); font-size: 12px; color: var(--label-gray); letter-spacing: 0.06em; user-select: none; }
+.hmb-lang span { cursor: pointer; padding: 0 2px; }
+.hmb-lang .on { font-weight: 700; color: var(--purple-deep); }
+html.print-pdf .hmb-lang { display: none; }

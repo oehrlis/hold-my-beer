@@ -10,6 +10,7 @@ scorecard, one slide per round, conclusion, thank-you, reserve. No demo content 
 | `src/<atom>/` | hand-written slide atoms (`slide.html` + `meta.yaml`, talk CLI format) |
 | `generate.py` | writes the pool-driven atoms from `pool/<event>.yaml` (cover, voting, scorecard, rounds, reserve) |
 | `deck.css` | talk-local size and layout overrides for `section.hmb`, inlined into the generated cover |
+| `deck-lang.js` | DE/EN switch, inlined into the generated cover |
 | `build/atoms/` | generated atoms - git-ignored, rebuilt by every build |
 | `build.sh` | generate, then assemble the deck with the `talk` CLI |
 | `<event>/` | built deck per event, e.g. `doag-ak-2026/wissen-nicht-was-sie-tun.html` |
@@ -37,11 +38,35 @@ the build uses the placeholder `https://voting.example.org` and says so.
   `source: master/../../hold-my-beer/slides/...`. The talk CLI resolves `master/<path>` below
   `<TALKS_DIR>/master-slides/`, so the relative path lands in this repo next to the talks repo.
 - `build.sh` checks that this path reaches the same checkout it runs from and stops otherwise.
-- All slides are local to this repo; `speaker-stefan` is a German version of the master atom `mandatory/intro`.
+- All slides are local to this repo; `speaker-stefan` replaces the master atom `mandatory/intro`.
 - Photos and badges sit next to their slide in `src/<atom>/`. `generate.py` turns each into a CSS class
   `img-<file stem>` (data URI in the cover's style block), so the standalone deck stays one file.
 - Reserve slides sit after the thank-you slide with `data-visibility="uncounted"`: reachable with the arrow keys,
   not counted in the slide number. The talk CLI's own `reserve: true` drops slides from HTML, so it is not used.
+
+## Language (Sprache)
+
+One deck, German and English. German is the default.
+
+- Switch: key `L`, or click `DE | EN` in the top right corner
+- URL parameter: `wissen-nicht-was-sie-tun.html?lang=en` (or `?lang=de`) - wins over everything else
+- The last choice is kept in the browser (localStorage); the URL parameter overrides it
+- Speaker notes stay German
+- `L` replaces reveal's vim-style "next slide" key; arrow keys and space work as before
+
+How it works: every visible text exists twice, `<span lang="de">...</span><span lang="en">...</span>`.
+`deck-lang.js` sets `data-deck-lang` and `lang` on `<html>`, `deck.css` hides the inactive language. Both files
+are inlined into the generated cover slide, which is always the first slide, so the deck stays one file.
+
+New text:
+
+- In `src/<atom>/slide.html`: write both spans next to each other, German first. Names, URLs and Oracle terms that
+  read the same in both languages need no spans
+- In `generate.py`: use `bi("Deutsch", "English")`
+- Pool texts: add the `*_en` field next to the German one (`title_en`, `name_en`, `category_en`, `scorecard_en`,
+  `event.title_en`). A missing field shows German on the English slide and the build prints a WARN line
+
+Check both languages after a change: open the deck with `?lang=en` and look at every slide.
 
 ## QR code
 
@@ -54,4 +79,4 @@ at build time. The URL is also shown as text. Live and static QR only match if `
 
 - Round slide: show the options and the QR, then switch the projector to the app window `/screen`
   (speaker note on every round slide). Admin control in `/admin` on the laptop, not on the projector.
-- `S` opens the speaker notes, `F` full screen.
+- `S` opens the speaker notes, `F` full screen, `L` switches DE/EN.
