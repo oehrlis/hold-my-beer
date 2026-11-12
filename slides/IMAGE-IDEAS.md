@@ -40,8 +40,12 @@ next to an existing element; nothing on the slides is reserved as an empty box.
 
 ## Top 5
 
-1. "This is fine" mug before a burning `alert.log` (rules slide)
-2. Expanding brain from `SELECT *` to "asks the AI for the plan" (divider round 3)
-3. Distracted boyfriend: DBA, the AI, the docs (divider round 2)
-4. Phone with the voting screen and a foam progress bar (voting slide)
-5. Autopilot switch "OFF" (takeaways)
+All five are done (2026-11-12) - SVGs in `img/`, placement in `README.md` (Illustrations).
+
+1. Done: "This is fine" mug before a burning `alert.log` (rules slide) - `img/this-is-fine.svg`
+2. Done: Expanding brain from `SELECT *` to "asks the AI for the plan" (divider round 3) - `img/expanding-brain-de.svg`,
+   `img/expanding-brain-en.svg`
+3. Done: Distracted boyfriend: DBA, the AI, the docs (divider round 2) - `img/distracted-dba.svg`
+4. Done: Phone with the voting screen and a foam progress bar (voting slide) - `img/phone-voting-de.svg`,
+   `img/phone-voting-en.svg`
+5. Done: Autopilot switch "OFF" (takeaways) - `img/autopilot-off.svg`

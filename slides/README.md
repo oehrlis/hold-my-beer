@@ -14,6 +14,7 @@ scorecard, one slide per round, conclusion, thank-you, reserve. No demo content 
 | `deck-theme.js` | theme switch Accenture / Hold my Beer, inlined into the generated cover |
 | `build/atoms/` | generated atoms - git-ignored, rebuilt by every build |
 | `build.sh` | generate, then assemble the deck with the `talk` CLI |
+| `img/` | own illustrations (SVG, logo style) and their generators, see Illustrations |
 | `IMAGE-IDEAS.md` | illustration and meme ideas per slide (own variants in the logo style, nothing embedded) |
 | `<event>/` | built deck per event, e.g. `doag-ak-2026/wissen-nicht-was-sie-tun.html` |
 
@@ -84,6 +85,34 @@ New text:
   `event.title_en`). A missing field shows German on the English slide and the build prints a WARN line
 
 Check both languages after a change: open the deck with `?lang=en` and look at every slide.
+
+## Illustrations
+
+`img/*.svg` are own drawings in the logo style (navy panel, beer colours, `>_`), no third-party images. Each SVG
+brings its own navy panel, so it reads on the white Accenture canvas and, with a soft shadow, on the navy HMB canvas.
+Text in an image exists per language as `<name>-de.svg` / `<name>-en.svg`. Two of them are generated - change the
+generator, not the SVG, and rerun it: `python3 slides/img/brain.py` (expanding brain), `python3 slides/img/gen_phone.py`
+(voting phone).
+
+| Image | Slide |
+|-------|-------|
+| `this-is-fine.svg` | rules, next to the leitmotiv box (fragment after rule 3) |
+| `distracted-dba.svg` | divider round 2 |
+| `expanding-brain-de.svg` / `-en.svg` | divider round 3 |
+| `phone-voting-de.svg` / `-en.svg` | voting, between the steps and the QR |
+| `autopilot-off.svg` | takeaways, next to the leitmotiv box |
+
+How an image gets onto a slide:
+
+- `generate.py` turns every `img/*.svg` into a CSS class `img-<stem>` (data URI, `aspect-ratio` from the viewBox,
+  corner radius from the panel), inlined in the cover - the standalone deck stays one file, and no `<img>` with a
+  data URI reaches the talk CLI
+- On the slide: a pair of `<div class="ill img-<stem>" lang="de" role="img" aria-label="...">` and the same with
+  `lang="en"`, next to each other; for a language-neutral image both use the same class. The width comes from the
+  layout, the height from the aspect ratio
+- Generated slides: `ill((stem_de, stem_en, label_de, label_en))` in `generate.py`. Round dividers take their image
+  from `ROUND_ILL` (round number -> image); a round without an entry or with a missing file has no image and no
+  placeholder (INFO line)
 
 ## Theme
 

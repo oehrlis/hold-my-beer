@@ -24,6 +24,7 @@ import datetime as dt
 import html
 import io
 import os
+import re
 import shutil
 import sys
 from pathlib import Path
@@ -83,6 +84,19 @@ ICONS = [
     ("", ('<path d="M22 56v-7c-6-4-9-10-8-17 1-10 9-17 19-17 10 0 17 7 17 16l5 9h-5v6c0 3-2 5-5 5h-5v5"/>'
          '<path d="M22 12c2-5 6-6 9-3M31 9c3-4 8-4 10 0M41 10c3-2 7 0 8 4"/>')),
 ]
+# illustrations from slides/img/ (own SVGs, see README): (stem de, stem en, aria-label de, aria-label en)
+ROUND_ILL = {
+    2: ("distracted-dba", "distracted-dba",
+        "Der DBA schaut der AI nach, die Oracle-Doku ist beleidigt.",
+        "The DBA turns to look at the AI, the Oracle docs are offended."),
+    3: ("expanding-brain-de", "expanding-brain-en",
+        "Expanding Brain: von SELECT * bis zu: fragt die AI und liest den Plan.",
+        "Expanding brain: from SELECT * to: asks the AI and reads the plan."),
+}
+VOTING_ILL = ("phone-voting-de", "phone-voting-en",
+              "Handy mit dem Abstimmungsscreen der App, der Countdown läuft als Bier.",
+              "Phone with the voting screen of the app, the countdown runs as beer.")
+IMG_DIR = Path(__file__).resolve().parent / "img"
 WARNINGS: list[str] = []
 
 e = html.escape
@@ -114,6 +128,37 @@ def image_css(src_dir: Path) -> str:
         uri = data_uri(IMAGE_TYPES[img.suffix.lower()], img.read_bytes())
         rules.append(f".reveal section.hmb .img-{img.stem} {{ background-image: url({uri}); }}")
     return "\n".join(rules)
+
+
+def ill_css(img_dir: Path) -> str:
+    """CSS class ``img-<stem>`` per SVG in ``slides/img/``: data URI, aspect ratio from the viewBox and
+    rounded corners from the panel rect (``rx`` of the first full-size rect), so a shadow follows the panel."""
+    rules = []
+    for svg in sorted(img_dir.glob("*.svg")):
+        text = svg.read_text(encoding="utf-8")
+        vb = re.search(r'viewBox="\s*[-\d.]+\s+[-\d.]+\s+([\d.]+)\s+([\d.]+)"', text)
+        if not vb:
+            WARNINGS.append(f"WARN: {svg.name}: no viewBox - skipped, slides show no image")
+            continue
+        w, h = float(vb.group(1)), float(vb.group(2))
+        rx_m = re.search(r'<rect x="[\d.]+" y="[\d.]+" width="' + f"{w - 4:g}" + r'"[^>]*\brx="([\d.]+)"', text)
+        radius = (f"; border-radius: {float(rx_m.group(1)) / w * 100:.2f}% / {float(rx_m.group(1)) / h * 100:.2f}%"
+                  if rx_m else "")
+        uri = data_uri(IMAGE_TYPES[".svg"], svg.read_bytes())
+        rules.append(f".reveal .img-{svg.stem} {{ background-image: url({uri}); aspect-ratio: {w:g} / {h:g}{radius}; }}")
+    return "\n".join(rules)
+
+
+def ill(spec: tuple[str, str, str, str], cls: str = "") -> str:
+    """Illustration as two ``div.ill`` (de/en, deck.css shows the active one); '' if a file is missing."""
+    stem_de, stem_en, label_de, label_en = spec
+    missing = [s for s in (stem_de, stem_en) if not (IMG_DIR / f"{s}.svg").is_file()]
+    if missing:
+        print(f"INFO: illustration {', '.join(missing)}.svg not in {IMG_DIR} - slide without image", file=sys.stderr)
+        return ""
+    extra = f" {cls}" if cls else ""
+    return (f'<div class="ill img-{stem_de}{extra}" lang="de" role="img" aria-label="{e(label_de)}"></div>'
+            f'<div class="ill img-{stem_en}{extra}" lang="en" role="img" aria-label="{e(label_en)}"></div>')
 
 
 def logo_mark_css(logo: Path) -> str:
@@ -266,20 +311,21 @@ def cover(ev: dict, logo: str, css: str, js: str) -> str:
 def voting(fmt: dict, n_rounds: int, url: str, fb: str) -> str:
     secs = fmt["voting_seconds"]
     mins = fmt["challenge_minutes"]
+    phone = ill(VOTING_ILL)
     return f"""<!-- atom: hold-my-beer/voting (generated) -->
 <section class="hmb">
   <div class="sh"><span class="kicker">{bi("Voting-App", "Voting app")}</span><h2>{bi("Handys raus: ihr entscheidet", "Phones out: you decide")}</h2></div>
-  <div style="display:grid;grid-template-columns:3fr 1fr;gap:1.2rem;flex:1 1 auto">
+  <div class="vote-grid{" with-phone" if phone else ""}">
     <div style="display:flex;flex-direction:column;gap:0.6rem">
       <div class="steps" style="margin-top:0">
         <div class="step"><span class="snum">1</span><h4>{bi("QR scannen", "Scan the QR code")}</h4>
-          <p>{bi("Kein Login, keine Namen, keine E-Mail-Adressen", "No login, no names, no e-mail addresses")}</p></div>
+          <p>{bi("Kein Login, keine Namen, keine E-Mail", "No login, no names, no e-mail")}</p></div>
         <div class="sarr">&rsaquo;</div>
         <div class="step"><span class="snum">2</span><h4>{bi("Option wählen", "Pick an option")}</h4>
-          <p>{bi(f"3 Optionen pro Runde, {secs} s Zeit", f"3 options per round, {secs} s")}</p></div>
+          <p>{bi(f"3 Optionen, {secs} s Zeit", f"3 options, {secs} s")}</p></div>
         <div class="sarr">&rsaquo;</div>
         <div class="step"><span class="snum">3</span><h4>{bi("Wir legen los", "We get going")}</h4>
-          <p>{bi(f"Ergebnis live, dann {mins} min Live-Arbeit", f"Result live, then {mins} min of live work")}</p></div>
+          <p>{bi(f"Ergebnis live, dann {mins} min live", f"Live result, then {mins} min live")}</p></div>
       </div>
       <ul>
         <li>{bi("Eine Stimme pro Gerät und Runde", "One vote per device and round")}</li>
@@ -290,6 +336,7 @@ def voting(fmt: dict, n_rounds: int, url: str, fb: str) -> str:
                 "Use mobile data - the conference Wi-Fi has suffered enough")}</li>
       </ul>
     </div>
+    {f'<div class="vote-phone">{phone}</div>' if phone else ""}
     {qr_block(url, fb)}
   </div>
   <aside class="notes">QR zeigen, kurz warten bis die ersten Handys oben sind.
@@ -323,6 +370,7 @@ def round_divider(rnd: dict, total: int, secs: int) -> str:
     if not tag:
         print(f"INFO: no divider tagline for round {num} ({rnd['name']}) - add one to ROUND_TAG", file=sys.stderr)
     tag_html = f'\n      <p class="tagline">{bi(*tag)}</p>' if tag else ""
+    pic = ill(ROUND_ILL[num], "rill") if num in ROUND_ILL else ""  # no mapping or file: no image, no placeholder
     foam = (
         '<svg class="foam" viewBox="0 0 230 70" aria-hidden="true"><g fill="#F0F5F8">'
         '<ellipse cx="115" cy="58" rx="112" ry="14"/><circle cx="40" cy="42" r="26"/><circle cx="88" cy="30" r="30"/>'
@@ -334,16 +382,16 @@ def round_divider(rnd: dict, total: int, secs: int) -> str:
         '<circle cx="96" cy="26" r="7"/></svg>'
     )
     return f"""<!-- atom: hold-my-beer/runde-{num}-start (generated) -->
-<section class="acn-divider hmb-round" data-layout="section-divider">
+<section class="acn-divider hmb-round{" has-ill" if pic else ""}" data-layout="section-divider">
   <div class="rwrap">
     <div class="rnum" aria-hidden="true">{foam}{num}</div>
     <div>
       <p class="rkick">{bi(f"Runde {num} von {total}", f"Round {num} of {total}")}</p>
       <h2>{bi(rnd["name"], name_en)}</h2>{tag_html}
       <p class="prompt">{PS}hmb vote --round {num} --timeout {secs}s{CURSOR}</p>
-      <p class="cue"><span class="live">LIVE</span>{bi("Abstimmung läuft gleich - Handys bereit.", "Voting opens in a moment - phones ready.")}</p>
+      <p class="cue"><span class="live">LIVE</span>{bi("Abstimmung läuft gleich - Handys bereit.", "Voting opens in a moment - phones ready.")}</p>{pic}
     </div>
-    {bubbles}
+    {"" if pic else bubbles}
   </div>
   <aside class="notes">Runde {num} ankündigen, Rundenname und Pointe. Admin: Runde {num} bereit (waiting).
   Weiter zur Optionen-Folie mit QR.</aside>
@@ -485,7 +533,7 @@ def main() -> int:
     args.out.mkdir(parents=True)
     tags = ["hold-my-beer", "generated"]
     here = Path(__file__).resolve().parent
-    css = (here / "deck.css").read_text(encoding="utf-8") + "\n" + image_css(here / "src")
+    css = (here / "deck.css").read_text(encoding="utf-8") + "\n" + image_css(here / "src") + "\n" + ill_css(IMG_DIR)
     if args.logo.is_file():  # footer logo mark of the hmb skin (deck-theme.js, deck.css)
         css += "\n" + logo_mark_css(args.logo)
     js = "\n".join((here / name).read_text(encoding="utf-8") for name in ("deck-lang.js", "deck-theme.js"))

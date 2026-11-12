@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 560" width="320" height="560" role="img" aria-labelledby="t d" xml:lang="de">
+  <title id="t">Abstimmung am Handy</title>
+  <desc id="d">Handy mit dem Abstimmungsscreen der App: Runde 2 - DBA-Alltag, drei Themen A, B, C, Thema A ist gewaehlt, der 60-Sekunden-Countdown laeuft als Bier, das mit Schaumkrone das Glasrohr fuellt, noch 42 Sekunden.</desc>
+  <defs>
+    <linearGradient id="beer" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFC24A"/>
+      <stop offset="1" stop-color="#EF6C00"/>
+    </linearGradient>
+    <clipPath id="tube"><rect x="72" y="166" width="176" height="24" rx="12"/></clipPath>
+  </defs>
+
+  <!-- own panel: works on white and on navy slides -->
+  <rect x="2" y="2" width="316" height="556" rx="24" fill="#1E3446" stroke="#A8C8D8" stroke-width="2"/>
+
+  <!-- phone body (generic, no brand) -->
+  <rect x="45" y="24" width="230" height="512" rx="34" fill="#F0F5F8" stroke="#A8C8D8" stroke-width="4"/>
+  <rect x="41" y="120" width="5" height="38" rx="2" fill="#A8C8D8"/>
+  <rect x="41" y="168" width="5" height="38" rx="2" fill="#A8C8D8"/>
+  <rect x="274" y="140" width="5" height="56" rx="2" fill="#A8C8D8"/>
+  <rect x="56" y="36" width="208" height="488" rx="24" fill="#1E3446"/>
+  <rect x="132" y="44" width="56" height="14" rx="7" fill="#F0F5F8"/>
+
+  <g font-family="Helvetica, Arial, sans-serif">
+  <!-- brand bar: mini mug with >_ and a QR scan hint -->
+  <g stroke-linejoin="round" stroke-linecap="round">
+    <path d="M73 74h20v20a2 2 0 0 1-2 2h-16a2 2 0 0 1-2-2z" fill="url(#beer)" stroke="#A8C8D8" stroke-width="2"/>
+    <path d="M93 78c7 0 7 12 0 12" fill="none" stroke="#A8C8D8" stroke-width="3"/>
+    <path d="M71 74c0-5 4-7 7-5 2-4 8-4 10 0 3-2 7 0 7 5z" fill="#F0F5F8"/>
+    <text x="83" y="92" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="8" font-weight="bold" fill="#1E3446" stroke="none">&gt;_</text>
+  </g>
+  <text x="104" y="89" font-size="11" font-weight="bold" letter-spacing="1.5" fill="#A8C8D8">VOTE</text>
+  <g fill="none" stroke="#A8C8D8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M226 72h-5v5M240 72h5v5M226 96h-5v-5M240 96h5v-5"/>
+    <path d="M227 84h12" stroke="#EF6C00"/>
+  </g>
+  <path d="M60 106h200" stroke="#A8C8D8" stroke-opacity="0.35" stroke-width="2"/>
+
+  <!-- round header -->
+  <text x="72" y="130" font-size="12" font-weight="bold" letter-spacing="2" fill="#A8C8D8">RUNDE 2</text>
+  <text x="72" y="154" font-size="21" font-weight="bold" fill="#FFFFFF">DBA-Alltag</text>
+
+  <!-- 60 s countdown: beer filling a glass tube, foam head at the front -->
+  <g clip-path="url(#tube)">
+    <rect x="72" y="166" width="123" height="24" fill="url(#beer)"/>
+    <path d="M72 175h123" stroke="#B85200" stroke-width="2" stroke-opacity="0.5"/>
+    <g fill="#F0F5F8">
+      <rect x="183" y="166" width="12" height="24"/>
+      <circle cx="193" cy="168" r="7"/>
+      <circle cx="200" cy="175" r="6"/>
+      <circle cx="198" cy="184" r="6.5"/>
+      <circle cx="191" cy="190" r="5"/>
+      <circle cx="181" cy="166" r="4"/>
+    </g>
+    <g fill="#F0F5F8" opacity="0.8">
+      <circle cx="208" cy="172" r="2.2"/><circle cx="210" cy="183" r="1.6"/>
+    </g>
+    <g fill="#FFFFFF" opacity="0.7">
+      <circle cx="90" cy="183" r="2"/><circle cx="118" cy="173" r="1.6"/><circle cx="146" cy="184" r="2"/><circle cx="170" cy="174" r="1.5"/>
+    </g>
+  </g>
+  <rect x="72" y="166" width="176" height="24" rx="12" fill="none" stroke="#A8C8D8" stroke-width="3"/>
+  <text x="72" y="210" font-size="14" font-weight="bold" fill="#FFC24A">noch 42 s</text>
+
+  <!-- three options, A selected -->
+  <g>
+    <rect x="70" y="222" width="180" height="60" rx="12" fill="#FFFFFF" fill-opacity="0.10" stroke="#EF6C00" stroke-width="3.5"/>
+    <circle cx="88" cy="252" r="13" fill="#FFC24A"/>
+    <text x="88" y="258" text-anchor="middle" font-size="15" font-weight="bold" fill="#1E3446">A</text>
+    <text x="108" y="248" font-size="12.5" font-weight="bold" fill="#FFFFFF">Unified Audit Policy</text>
+    <text x="108" y="265" font-size="12.5" fill="#F0F5F8">inkl. NOAUDIT</text>
+    <circle cx="243" cy="229" r="11" fill="#EF6C00" stroke="#1E3446" stroke-width="3"/><path d="M238 229l4 4 6-8" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g>
+    <rect x="70" y="292" width="180" height="60" rx="12" fill="#FFFFFF" fill-opacity="0.06" stroke="#A8C8D8" stroke-opacity="0.55" stroke-width="2.5"/>
+    <circle cx="88" cy="322" r="13" fill="#A8C8D8"/>
+    <text x="88" y="328" text-anchor="middle" font-size="15" font-weight="bold" fill="#1E3446">B</text>
+    <text x="108" y="318" font-size="12.5" font-weight="bold" fill="#FFFFFF">AWR/ASH:</text>
+    <text x="108" y="335" font-size="12.5" fill="#F0F5F8">Slow Query analysieren</text>
+    
+  </g>
+  <g>
+    <rect x="70" y="362" width="180" height="60" rx="12" fill="#FFFFFF" fill-opacity="0.06" stroke="#A8C8D8" stroke-opacity="0.55" stroke-width="2.5"/>
+    <circle cx="88" cy="392" r="13" fill="#A8C8D8"/>
+    <text x="88" y="398" text-anchor="middle" font-size="15" font-weight="bold" fill="#1E3446">C</text>
+    <text x="108" y="388" font-size="12.5" font-weight="bold" fill="#FFFFFF">Listener und</text>
+    <text x="108" y="405" font-size="12.5" fill="#F0F5F8">sqlnet.ora Hardening</text>
+    
+  </g>
+
+  <!-- actions -->
+  <rect x="70" y="434" width="180" height="30" rx="10" fill="none" stroke="#A8C8D8" stroke-width="2"/>
+  <text x="160" y="454" text-anchor="middle" font-size="12" font-weight="bold" fill="#F0F5F8">Zufallsthema für mich</text>
+  <rect x="70" y="472" width="180" height="36" rx="10" fill="#EF6C00"/>
+  <text x="160" y="496" text-anchor="middle" font-size="15" font-weight="bold" fill="#FFFFFF">Stimme abgeben</text>
+  </g>
+  <rect x="130" y="514" width="60" height="4" rx="2" fill="#A8C8D8" fill-opacity="0.6"/>
+</svg>

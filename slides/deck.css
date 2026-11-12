@@ -196,3 +196,20 @@ html[data-deck-theme="hmb"] .reveal .slide-number { background: transparent; col
 html[data-deck-theme="hmb"] .reveal .controls { color: var(--hmb-orange); }
 html[data-deck-theme="hmb"] .reveal .progress { color: var(--hmb-orange); background: rgba(15,29,42,0.6); }
 html[data-deck-theme="hmb"] .hmb-lang, html[data-deck-theme="hmb"] .hmb-theme { background: rgba(15,29,42,0.85); color: var(--label-gray); font-family: var(--hmb-mono); border-radius: 4px; }
+/* ==== illustrations (slides/img/*.svg as img-<stem> classes from generate.py, with aspect-ratio and panel radius) ====
+   Each image is a pair of div.ill (lang de / en, the inactive one is hidden like any text). Flat in acn,
+   lifted off the navy canvas with a soft shadow in hmb (the SVGs bring their own navy panel). */
+.reveal .ill { display: block; width: 100%; background-size: contain; background-repeat: no-repeat; background-position: center; }
+html[data-deck-theme="hmb"] .reveal .ill { box-shadow: 0 10px 28px rgba(0,0,0,0.45), 0 0 0 1px rgba(168,200,216,0.10); }
+/* rules / takeaways: picture next to the leitmotiv box, below the cards */
+.reveal section.hmb .pun-row { display: grid; grid-template-columns: 1fr 330px; gap: 1.2rem; align-items: center; flex: 0 0 auto; margin-bottom: 6px; }
+.reveal section.hmb .pun-row .pun-pic { order: 2; }
+.reveal section.hmb .pun-row .qbox { margin: 0; }
+.reveal section.hmb .slide-body > .g3.short { max-height: none; flex: 1 1 auto; min-height: 0; }
+/* voting: phone between the steps and the QR */
+.reveal section.hmb .vote-grid { display: grid; grid-template-columns: 3fr 1fr; gap: 1.2rem; flex: 1 1 auto; }
+.reveal section.hmb .vote-grid.with-phone { grid-template-columns: 1fr 200px 262px; gap: 1rem; align-items: center; }
+.reveal section.hmb .vote-grid.with-phone .sarr { width: 20px; }
+/* round divider with picture: number column narrower, picture right-aligned under the cue, no bubbles */
+.reveal .slides section.hmb-round.has-ill .rwrap { grid-template-columns: 340px 1fr; }
+.reveal section.hmb-round .rill { width: 440px; margin: 1.3rem 0 0 auto; }
