@@ -102,6 +102,7 @@ OCI: remove the ingress rule for the app port from the security list or NSG. Kee
 
 ## 6. Cloudflare dashboard settings
 
+<!-- markdownlint-disable MD013 MD060 -->
 | Setting | Value | Why |
 |---------|-------|-----|
 | SSL/TLS - Always Use HTTPS | on | QR code and slides point to HTTPS |
@@ -110,6 +111,7 @@ OCI: remove the ingress rule for the app port from the security list or NSG. Kee
 | WAF / managed challenge rules | none matching `hmb.oradba.ch` | same reason |
 | Caching - Cache Rules | none matching `hmb.oradba.ch` (no "Cache Everything" on `*.oradba.ch`) | the app sends `no-store`; a cached `/api/state` freezes the vote |
 | Rate limiting rules | none, or generous | a whole room shares one IP |
+<!-- markdownlint-restore -->
 
 Bot Fight Mode is a zone-wide switch on the free plan and affects all of `oradba.ch`. If it is on for the blog,
 test with real phones (step 7); if attendees get a challenge page, switch it off for the conference day.
