@@ -8,7 +8,7 @@ carries a pool fact or the voting URL is generated here, so the pool stays the
 only place where topic titles are maintained.
 
 QR handover: every QR is ``<img src="{VOTING_URL}/qr.svg">`` from the live app.
-If the image fails to load (app down, no network, placeholder domain), the
+If the image fails to load (app not running yet, no network), the
 ``onerror`` handler swaps in a static QR generated at build time for the same URL.
 
 Run (from the repo root or anywhere):
@@ -39,7 +39,9 @@ except ImportError:  # pragma: no cover - reported at runtime
     HAVE_QR = False
 
 REPO = Path(__file__).resolve().parents[1]
-DEFAULT_URL = "https://voting.example.org"
+DEFAULT_URL = "https://prost.oradba.ch"
+PLACEHOLDER_URL = "https://voting.example.org"  # used when VOTING_URL is set but empty
+IMAGE_TYPES = {".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".svg": "image/svg+xml"}
 OWNERS = ("Stefan", "Martin", "Gemeinsam", "Offen")
 NO_OWNER = "Offen"
 OWNER_CLASS = {"Martin": " ring", "Gemeinsam": " ok2"}
@@ -62,6 +64,20 @@ def fallback_qr(url: str) -> str:
     buf = io.BytesIO()
     img.save(buf)
     return data_uri("image/svg+xml", buf.getvalue())
+
+
+def image_css(src_dir: Path) -> str:
+    """CSS class ``img-<stem>`` per image in ``src/<atom>/`` with the image as data URI.
+
+    Slides show photos and badges as ``<div class="img-<stem>">`` backgrounds, not ``<img>``:
+    the standalone deck stays one file, and the talk CLI plan/PPTX path does not try to
+    resolve a data URI as a file path.
+    """
+    rules = []
+    for img in sorted(p for p in src_dir.glob("*/*") if p.suffix.lower() in IMAGE_TYPES):
+        uri = data_uri(IMAGE_TYPES[img.suffix.lower()], img.read_bytes())
+        rules.append(f".reveal section.hmb .img-{img.stem} {{ background-image: url({uri}); }}")
+    return "\n".join(rules)
 
 
 def grid_class(n: int, default: int) -> str:
@@ -297,6 +313,9 @@ def main() -> int:
     args = ap.parse_args()
 
     url = args.voting_url.rstrip("/")
+    if not url:
+        print(f"WARN: VOTING_URL is empty - placeholder {PLACEHOLDER_URL} on all QR slides", file=sys.stderr)
+        url = PLACEHOLDER_URL
     pool = yaml.safe_load(args.pool.read_text(encoding="utf-8"))
     ev, fmt, rounds = pool["event"], pool["format"], pool["rounds"]
     reserve = pool.get("reserve") or []
@@ -305,8 +324,6 @@ def main() -> int:
     fb = fallback_qr(url + "/")
     if not fb:
         print("WARN: python module qrcode missing - no static fallback QR (live /qr.svg only)", file=sys.stderr)
-    if url == DEFAULT_URL:
-        print(f"WARN: VOTING_URL not set - placeholder {DEFAULT_URL} on all QR slides", file=sys.stderr)
     logo = ""
     if args.logo.is_file():
         svg = args.logo.read_text(encoding="utf-8")
@@ -319,7 +336,8 @@ def main() -> int:
         shutil.rmtree(args.out)
     args.out.mkdir(parents=True)
     tags = ["hold-my-beer", "generated"]
-    css = (Path(__file__).resolve().parent / "deck.css").read_text(encoding="utf-8")
+    here = Path(__file__).resolve().parent
+    css = (here / "deck.css").read_text(encoding="utf-8") + "\n" + image_css(here / "src")
     write_atom(args.out, "cover", cover(ev, logo, css), meta_yaml("Cover", "Titel, Speaker, Event", tags, "cover"))
     write_atom(
         args.out, "voting", voting(fmt, len(rounds), url, fb),

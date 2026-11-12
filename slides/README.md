@@ -22,13 +22,14 @@ Prerequisites: `uv`, the `talk` CLI from ai-toolkit (`make install-cli`), and a 
 this one (`~/Repos/own/oehrlis/talks` and `~/Repos/own/oehrlis/hold-my-beer`).
 
 ```bash
-VOTING_URL=https://<voting-domain> slides/build.sh # standalone HTML into slides/doag-ak-2026/
-VOTING_URL=https://<voting-domain> slides/build.sh --pdf # PDF instead of HTML
+slides/build.sh # standalone HTML into slides/doag-ak-2026/
+slides/build.sh --pdf # PDF instead of HTML
 slides/build.sh --dry-run # slide plan only, no deck written
 TALKS_DIR=~/Repos/own/oehrlis/talks-dinu slides/build.sh # use another talks checkout or worktree
 ```
 
-Without `VOTING_URL` the build uses the placeholder `https://voting.example.org` and says so.
+`VOTING_URL` defaults to `https://prost.oradba.ch`; set it to override. Set but empty (`VOTING_URL= slides/build.sh`),
+the build uses the placeholder `https://voting.example.org` and says so.
 
 ## How it fits together
 
@@ -36,7 +37,9 @@ Without `VOTING_URL` the build uses the placeholder `https://voting.example.org`
   `source: master/../../hold-my-beer/slides/...`. The talk CLI resolves `master/<path>` below
   `<TALKS_DIR>/master-slides/`, so the relative path lands in this repo next to the talks repo.
 - `build.sh` checks that this path reaches the same checkout it runs from and stops otherwise.
-- Stefan's bio comes from the shared master atom `mandatory/intro`; everything else is local to this repo.
+- All slides are local to this repo; `speaker-stefan` is a German version of the master atom `mandatory/intro`.
+- Photos and badges sit next to their slide in `src/<atom>/`. `generate.py` turns each into a CSS class
+  `img-<file stem>` (data URI in the cover's style block), so the standalone deck stays one file.
 - Reserve slides sit after the thank-you slide with `data-visibility="uncounted"`: reachable with the arrow keys,
   not counted in the slide number. The talk CLI's own `reserve: true` drops slides from HTML, so it is not used.
 

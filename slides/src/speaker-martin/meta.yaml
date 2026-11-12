@@ -1,5 +1,5 @@
 title: "Martin Berger"
-description: "Speaker-Folie Martin Berger (TODO: Bio, Foto)"
+description: "Speaker-Folie Martin Berger, deutsch (Quelle: CSPU-Webinar 2026-06 Folie 4, DOAG-Abstract)"
 layout: html-section
 tags: [hold-my-beer, bio, speaker]
 topic: hold-my-beer
@@ -9,6 +9,6 @@ lang: de
 mandatory: false
 updated: 2026-11-12
 author: Stefan Oehrli
-assets: []
+assets: [martin-feuerwehr.jpg, ace-pro.png]
 audience: [dba]
 classification: public

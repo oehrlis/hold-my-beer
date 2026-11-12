@@ -18,3 +18,13 @@
 .reveal section.hmb .tile { justify-content: center; }
 .reveal section.hmb .tile .n { font-size: 64px; }
 .reveal section.hmb .opt { justify-content: center; min-height: 380px; }
+/* speaker slides: photo + badge column, card with facts; images come as img-<stem> classes from generate.py */
+.reveal section.hmb .speaker { display: grid; grid-template-columns: 300px 1fr; gap: 1.4rem; flex: 1 1 auto; max-height: 480px; }
+.reveal section.hmb .speaker .pic { display: flex; flex-direction: column; gap: 0.8rem; }
+.reveal section.hmb .photo { width: 300px; height: 310px; background-size: cover; background-position: center; }
+.reveal section.hmb .badge { width: 300px; height: 110px; background-size: contain; background-repeat: no-repeat; background-position: left center; }
+.reveal section.hmb .speaker .card { display: flex; flex-direction: column; gap: 0.4rem; }
+.reveal section.hmb .speaker .card h4 { font-size: 26px; }
+.reveal section.hmb .speaker .contact { margin-top: auto; font-size: 20px; color: var(--purple-deep); }
+.reveal section.hmb .prereq { grid-template-columns: 0.95fr 1.15fr 1fr; }
+.reveal section.hmb .prereq .card p { margin: 0.2rem 0 0; }

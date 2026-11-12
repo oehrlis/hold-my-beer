@@ -6,7 +6,7 @@
 # Author.....: Stefan Oehrli (oes) stefan.oehrli@oradba.ch
 # Editor.....: Stefan Oehrli
 # Date.......: 2026-11-12
-# Version....: 0.1.0
+# Version....: 0.2.0
 # Purpose....: Build the hold-my-beer frame deck: generate the pool-driven atoms,
 #              then assemble the standalone HTML with the talk CLI.
 # Notes......: Needs uv and the talk CLI (ai-toolkit). VOTING_URL sets the QR target.
@@ -16,6 +16,7 @@
 # ------------------------------------------------------------------------------
 # CHANGE LOG:
 # 2026-11-12  oes  Initial release                                    0.1.0
+# 2026-11-12  oes  Default VOTING_URL https://prost.oradba.ch            0.2.0
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
@@ -25,11 +26,11 @@ set -euo pipefail
 SCRIPT_NAME=$(basename "$0")
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
-VERSION="0.1.0"
+VERSION="0.2.0"
 EVENT=${EVENT:-"doag-ak-2026"}
 TALK_SLUG=${TALK_SLUG:-"wissen-nicht-was-sie-tun"}
 TALKS_DIR=${TALKS_DIR:-"$(cd "${REPO_DIR}/.." && pwd)/talks"}
-VOTING_URL=${VOTING_URL:-"https://voting.example.org"}
+VOTING_URL=${VOTING_URL-"https://prost.oradba.ch"}  # set but empty: placeholder + WARN
 DRY_RUN=${DRY_RUN:-"FALSE"}
 FORMAT="html"
 
@@ -53,7 +54,7 @@ Environment:
   EVENT           output folder below slides/ (default ${EVENT})
 
 Example:
-  VOTING_URL=https://vote.example.ch TALKS_DIR=~/Repos/own/oehrlis/talks ${SCRIPT_NAME}
+  TALKS_DIR=~/Repos/own/oehrlis/talks ${SCRIPT_NAME}
 USAGE
 }
 
