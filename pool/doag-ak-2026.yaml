@@ -1,0 +1,137 @@
+# Topic pool DOAG AK 2026 - single source for the voting app seed and the round slides.
+# Schema: pool/README.md. Draft table and rationale: pool/doag-ak-2026.md.
+# Owner values: Stefan | Martin | Gemeinsam | Offen. Difficulty: Leicht | Mittel | Schwer. Risk: Niedrig | Mittel | Hoch.
+schema: 1
+event:
+  name: DOAG Anwenderkonferenz 2026
+  short: DOAG AK 2026
+  city: Nürnberg
+  date: 2026-11-17
+  time: "15:00-15:45"
+  room: Istanbul
+  duration_min: 45
+  lang: de
+  title: "Denn sie wissen nicht was sie tun - Oracle live mit Oehrli, Berger und KI"
+
+format:
+  voting_seconds: 60
+  challenge_minutes: 5
+  scorecard:
+    - AI richtig
+    - AI halluziniert
+    - Falsches Problem gelöst
+    - DBA-Instinkt gewinnt
+
+rounds:
+  - number: 1
+    name: Warm-up
+    options:
+      - key: A
+        title: 10G-Passwort-Verifier finden und bereinigen
+        owner: Stefan
+        category: Security
+        difficulty: Leicht
+        risk: Niedrig
+        ai_pitfall: falsche Spalten, PASSWORD_VERSIONS ungenau
+      - key: B
+        title: Shell Health-Check für Alert-Log und Listener
+        owner: Martin
+        category: Betrieb
+        difficulty: Leicht
+        risk: Niedrig
+        ai_pitfall: kein set -euo pipefail, Oracle-Umgebung nicht gesetzt
+      - key: C
+        title: Data Pump Export/Import mit Remap
+        owner: Gemeinsam
+        category: Betrieb
+        difficulty: Leicht
+        risk: Niedrig
+        ai_pitfall: veraltete exp/imp-Muster
+  - number: 2
+    name: DBA-Alltag
+    options:
+      - key: A
+        title: Unified Audit Policy für privilegierte User inklusive NOAUDIT
+        owner: Stefan
+        category: Security
+        difficulty: Mittel
+        risk: Niedrig
+        ai_pitfall: Syntax-Mix Traditional/Unified, NOAUDIT vergessen
+      - key: B
+        title: "AWR/ASH: Slow Query analysieren"
+        owner: Martin
+        category: Performance
+        difficulty: Mittel
+        risk: Mittel
+        ai_pitfall: löst das falsche Problem, Index statt Plan-Analyse
+      - key: C
+        title: Listener und sqlnet.ora Hardening
+        owner: Gemeinsam
+        category: Security
+        difficulty: Leicht
+        risk: Niedrig
+        ai_pitfall: Parameter pro Release verwechselt
+  - number: 3
+    name: Bruchstelle
+    options:
+      - key: A
+        title: TDE-Keystore mit WALLET_ROOT
+        owner: Stefan
+        category: Security
+        difficulty: Mittel
+        risk: Mittel
+        ai_pitfall: alte sqlnet.ora ENCRYPTION_WALLET_LOCATION-Syntax
+      - key: B
+        title: Data Guard Switchover mit DGMGRL
+        owner: Martin
+        category: Hochverfügbarkeit
+        difficulty: Schwer
+        risk: Hoch
+        ai_pitfall: überspringt VALIDATE und Vorprüfung
+      - key: C
+        title: "AI-Code-Review: fehlerhaftes PL/SQL untersuchen"
+        owner: Gemeinsam
+        category: Code Review
+        difficulty: Mittel
+        risk: Niedrig
+        ai_pitfall: übersieht Logikfehler
+
+# Reserve: the admin can assign these to a slot of a not yet played round (state waiting).
+# The former round "Automation" lives here since the talk runs 3 rounds.
+reserve:
+  - title: "Terraform: DB-System auf OCI"
+    owner: Stefan
+    category: OCI
+  - title: Ansible-Playbook für Patching oder Preinstall
+    owner: Martin
+    category: Automation
+  - title: "OEM: Metric Extension oder Incident Rule"
+    owner: Gemeinsam
+    category: OEM
+  - title: Privilege Analysis mit DBMS_PRIVILEGE_CAPTURE
+    owner: Stefan
+    category: Security
+  - title: Database Vault Realm für ein Schema
+    owner: Stefan
+    category: Security
+  - title: RMAN RECOVER TABLE oder PDB-Restore
+    owner: Martin
+    category: Betrieb
+  - title: ORA-Fehler aus dem Publikum
+    owner: Gemeinsam
+    category: Publikum
+  - title: SQL Firewall Allowlist in Oracle AI Database 26ai
+    owner: Stefan
+    category: Security
+  - title: Data Safe Assessment interpretieren
+    owner: Stefan
+    category: Security
+  - title: OEM-Job mit AI erstellen
+    owner: Martin
+    category: OEM
+  - title: Backup-Strategie automatisieren
+    owner: Martin
+    category: Automation
+  - title: Migrationsskript von Oracle Database 19c nach Oracle AI Database 26ai
+    owner: Gemeinsam
+    category: Migration

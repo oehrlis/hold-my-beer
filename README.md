@@ -15,12 +15,12 @@ Status: private while in preparation, public after the talk. Nothing customer-re
 
 | Path | Content | Owner |
 |------|---------|-------|
-| `app/` | voting and random-draw web app | Martin |
-| `pool/` | topic pool per event - source for app and slides | both |
+| `app/` | voting web app (Flask, SQLite), imported from Martin's `dswnwst` with history | Martin |
+| `pool/` | topic pool per event (`<event>.yaml`) - single source for app seed and round slides | both |
 | `rounds/` | per topic: task, prompts, expected AI failures, solution, reset | both |
 | `env/` | lab environment and reset script | both |
-| `slides/` | frame slides (built in the talks repo for now, sources may move here) | Stefan |
-| `docs/` | format, storyline, roles, rehearsal notes | both |
+| `slides/` | frame slides: sources, round generator, built deck per event | Stefan |
+| `docs/` | format, storyline, roles, rehearsal notes, [app - slides handover](docs/handover-app-slides.md) | both |
 | `assets/` | logo and images | both |
 
 Terminal recordings (fallback when the network fails) stay out of git - too large, kept on OneDrive.
@@ -35,7 +35,10 @@ Terminal recordings (fallback when the network fails) stay out of git - too larg
 - **Load**: a few hundred devices in one room, short bursts
 - **Fallback**: show of hands or a local random draw on the laptop
 
-Open: stack and hosting, pool format, domain and QR code.
+Decided: Flask + SQLite app ([`app/README.md`](app/README.md)), pool as YAML, QR delivered by the app
+(`/qr.svg`). Open: hosting and domain, random draw from the pool on the projector (the app has voting plus a
+"Zufallsthema für mich" button that votes a random option; a pool draw is the admin's manual choice or a
+reserve topic).
 
 ## License
 
