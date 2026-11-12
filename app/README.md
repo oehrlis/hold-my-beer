@@ -280,7 +280,8 @@ Direkter HTTP-Betrieb auf einem Hochport ist nur ein Test. Besser: DNS-Name auf 
 ### Betrieb hinter Cloudflare
 
 Die App ist nicht Cloudflare-spezifisch, braucht dahinter aber drei Einstellungen. **Empfohlen: Cloudflare Tunnel**
-(`cloudflared` auf dem Host): kein offener Port, keine Firewall-/Cloud-Regel, TLS bei Cloudflare.
+(`cloudflared` auf dem Host): kein offener Port, keine Firewall-/Cloud-Regel, TLS bei Cloudflare. Schritt für
+Schritt für `hmb.oradba.ch`: [`docs/runbook-cloudflare-tunnel.md`](../docs/runbook-cloudflare-tunnel.md).
 
 1. `app.env`: `HOST=127.0.0.1`, `PROXY_FIX_ENABLED=true`, `PROXY_FIX_X_FOR=1`, `SESSION_COOKIE_SECURE=true`,
    `PUBLIC_BASE_URL=https://voting.example.org`; danach `sudo systemctl restart oracle-live-voting`.
