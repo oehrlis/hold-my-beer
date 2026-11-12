@@ -11,6 +11,7 @@ scorecard, one slide per round, conclusion, thank-you, reserve. No demo content 
 | `generate.py` | writes the pool-driven atoms from `pool/<event>.yaml` (cover, voting, scorecard, rounds, reserve) |
 | `deck.css` | talk-local size and layout overrides for `section.hmb`, inlined into the generated cover |
 | `deck-lang.js` | DE/EN switch, inlined into the generated cover |
+| `deck-theme.js` | theme switch Accenture / Hold my Beer, inlined into the generated cover |
 | `build/atoms/` | generated atoms - git-ignored, rebuilt by every build |
 | `build.sh` | generate, then assemble the deck with the `talk` CLI |
 | `IMAGE-IDEAS.md` | illustration and meme ideas per slide (own variants in the logo style, nothing embedded) |
@@ -47,7 +48,8 @@ the build uses the placeholder `https://voting.example.org` and says so.
 
 ## Design
 
-Accenture theme as the base (fonts, brandbar, grid, purple). The beer colours from the logo are accents for live and
+Accenture theme as the base (fonts, brandbar, grid, purple); the Hold my Beer look is a switchable skin on top
+(see Theme). The beer colours from the logo are accents for live and
 AI-warning moments only, defined as `--hmb-*` tokens in `deck.css`:
 
 - orange and gold: round numbers (divider), `LIVE` cue, prompt sign `$`, blinking cursor
@@ -83,6 +85,33 @@ New text:
 
 Check both languages after a change: open the deck with `?lang=en` and look at every slide.
 
+## Theme
+
+One deck, two looks: Accenture (`acn`, default) and Hold my Beer (`hmb`, dark navy shell with the logo and the beer
+colours). Switching is live - slide, fragments and language stay where they are.
+
+- Switch: key `T`, or click `ACN | HMB` next to `DE | EN` in the top right corner
+- URL parameter: `wissen-nicht-was-sie-tun.html?theme=hmb` (or `?theme=acn`), combinable with `lang`
+  (`?lang=en&theme=hmb`) - wins over everything else
+- The last choice is kept in the browser (localStorage); the URL parameter overrides it
+- PDF (`--pdf`) and `?print-pdf` use the theme from the URL or the browser, Accenture without either
+
+How it works: `deck-theme.js` sets `data-deck-theme` on `<html>`. The Accenture theme is the build base and stays
+untouched; the skin in `deck.css` is scoped to `html[data-deck-theme="hmb"]`. It remaps the theme tokens that keep
+their meaning on a dark canvas (`--dark-gray` text, `--label-gray` secondary text, `--neutral-light` surfaces,
+`--divider` lines, `--purple-primary` accent = orange, `--purple-deep` highlight = gold, `--sans` system font, `--ok`)
+and restyles what is not token-driven: canvas and full-bleed layouts (cover, round dividers, closing), tags, quote
+box, terminal boxes, quips, scoreboard, QR (white panel), ACE badges (light plate), footer (logo mark +
+"Hold my beer"), slide number, controls and progress. The logo comes from `generate.py` as `--hmb-logo`.
+
+New components:
+
+- Colour them with the theme tokens above - they then follow both themes without extra rules
+- A hard-coded colour, a light background or `--purple-plum` / `--lavender` / `--white` (they mean background in one
+  place and text in another) needs its own `html[data-deck-theme="hmb"] ...` rule in the theme block of `deck.css`
+- Check both themes and both languages: `?theme=hmb&lang=en`, `?theme=acn&lang=de`, ... - text contrast WCAG AA
+  (4.5:1, large text 3:1) on the navy canvas `#1E3446` and the card surface `#253D52`
+
 ## QR code
 
 Every QR on the slides is the live image `<VOTING_URL>/qr.svg` from the voting app (the app encodes its
@@ -94,4 +123,4 @@ at build time. The URL is also shown as text. Live and static QR only match if `
 
 - Round slide: show the options and the QR, then switch the projector to the app window `/screen`
   (speaker note on every round slide). Admin control in `/admin` on the laptop, not on the projector.
-- `S` opens the speaker notes, `F` full screen, `L` switches DE/EN.
+- `S` opens the speaker notes, `F` full screen, `L` switches DE/EN, `T` switches Accenture / Hold my Beer.

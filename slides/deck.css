@@ -106,3 +106,93 @@ html.print-pdf .reveal .cur { animation: none; }
 .reveal section.hmb .rule .quip { margin-top: auto; }
 .reveal section.hmb .term-hmb .big { font-family: var(--sans); font-size: 25px; font-weight: 600; color: var(--hmb-foam); line-height: 1.3; }
 .reveal section.hmb .slide-body > .g3.short { max-height: 360px; }
+/* ==== theme switch: Accenture (acn, default) <-> Hold my Beer (hmb) - deck-theme.js sets <html data-deck-theme> ====
+   Everything below the indicator is scoped to html[data-deck-theme="hmb"], so acn renders the Accenture theme
+   unchanged. The skin first remaps the theme tokens whose meaning is the same on a dark canvas (text, surfaces,
+   lines, accents), then restyles the components whose colours are not token-driven. New components: style them
+   with tokens (--dark-gray, --label-gray, --neutral-light, --divider, --purple-primary, --purple-deep) and they
+   follow both themes; a hard-coded colour needs its own html[data-deck-theme="hmb"] rule here. */
+.hmb-theme { position: fixed; top: 8px; right: 84px; z-index: 40; background: rgba(255,255,255,0.85); padding: 1px 6px; font-family: var(--sans); font-size: 12px; color: var(--label-gray); letter-spacing: 0.06em; user-select: none; }
+.hmb-theme span { cursor: pointer; padding: 0 2px; }
+.hmb-theme .on { font-weight: 700; color: var(--purple-deep); }
+html.print-pdf .hmb-theme { display: none; }
+.hmb-brand { display: none; }
+html[data-deck-theme="hmb"] {
+  --sans: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: var(--hmb-mono);
+  --dark-gray: #E2ECF2; --label-gray: #A0B9C8; --neutral-light: #253D52; --neutral-mid: #101D29; --divider: #3A5870;
+  --purple-primary: #EF6C00; --purple-deep: #FFC24A; --lavender-2: #C9DCE6;
+  --ok: #6FD4A8; --ok-bg: rgba(111,212,168,0.10); --radius: 6px;
+  --hmb-ink: #0F1D2A; --hmb-line: #2F4A60; --hmb-hot: #FF9E4D; --hmb-peach: #FFB27A;
+  --hmb-canvas: radial-gradient(circle at 100% 0%, rgba(239,108,0,0.08) 0, rgba(239,108,0,0) 34%), linear-gradient(165deg, #223B50 0%, #1E3446 48%, #172A3A 100%);
+  --hmb-field: radial-gradient(circle at 85% 15%, rgba(168,200,216,0.12) 0, rgba(168,200,216,0) 40%), linear-gradient(135deg, #132433 0%, #1E3446 62%, #24425B 100%);
+}
+/* canvas, headings, header */
+html[data-deck-theme="hmb"] .reveal .slides section { background: var(--hmb-canvas); }
+html[data-deck-theme="hmb"] .reveal h1, html[data-deck-theme="hmb"] .reveal h2 { color: var(--hmb-foam); letter-spacing: -0.01em; }
+html[data-deck-theme="hmb"] .reveal .sh .kicker { font-family: var(--hmb-mono); font-size: 15px; letter-spacing: 0.06em; color: var(--hmb-glass); font-weight: 400; }
+html[data-deck-theme="hmb"] .reveal .sh .kicker:not(.cmd)::before { content: ">_"; color: var(--hmb-orange); font-weight: 700; margin-right: 0.6em; letter-spacing: 0; }
+html[data-deck-theme="hmb"] .reveal section.hmb .sh .kicker.cmd { color: var(--hmb-glass); }
+/* building blocks */
+html[data-deck-theme="hmb"] .reveal .card.bad, html[data-deck-theme="hmb"] .reveal section.hmb .card.bad { border-left-color: var(--hmb-orange); background: rgba(239,108,0,0.12); }
+html[data-deck-theme="hmb"] .reveal .card.bad h4, html[data-deck-theme="hmb"] .reveal section.hmb .card.bad h4 { color: var(--hmb-peach); }
+html[data-deck-theme="hmb"] .reveal .tile .n { color: var(--hmb-orange); }
+html[data-deck-theme="hmb"] .reveal .tile.ring .n { color: var(--hmb-gold); }
+html[data-deck-theme="hmb"] .reveal .tile.ok2 .n { color: var(--ok); }
+html[data-deck-theme="hmb"] .reveal .tag { background: rgba(168,200,216,0.14); color: var(--hmb-glass); border: 1px solid rgba(168,200,216,0.35); border-radius: 4px; font-family: var(--hmb-mono); font-weight: 400; }
+html[data-deck-theme="hmb"] .reveal .tag[style*="--warn"] { background: var(--hmb-gold) !important; color: var(--hmb-ink); border-color: var(--hmb-gold); font-weight: 700; }
+html[data-deck-theme="hmb"] .reveal .qbox { background: rgba(255,194,74,0.09); border-left-color: var(--hmb-orange); border-radius: 0 var(--radius) var(--radius) 0; }
+html[data-deck-theme="hmb"] .reveal .qbox p { color: var(--hmb-foam); }
+html[data-deck-theme="hmb"] .reveal .snum { background: var(--hmb-gold); color: var(--hmb-ink); border-radius: 4px; }
+html[data-deck-theme="hmb"] .reveal .prompt { color: var(--hmb-foam); }
+html[data-deck-theme="hmb"] .reveal .live { color: var(--hmb-ink); }
+html[data-deck-theme="hmb"] .reveal section.hmb .quip { color: var(--hmb-hot); }
+html[data-deck-theme="hmb"] .reveal section.hmb .term-hmb { background: var(--hmb-ink); border: 1px solid var(--hmb-line); border-left: 4px solid var(--hmb-orange); border-radius: var(--radius); }
+html[data-deck-theme="hmb"] .reveal section.hmb .rule .cmdline { background: var(--hmb-ink); color: var(--hmb-foam); border-color: var(--hmb-line); border-radius: 4px; }
+html[data-deck-theme="hmb"] .reveal section.hmb .opt h4 { color: var(--hmb-foam); }
+html[data-deck-theme="hmb"] .reveal section.hmb .opt .home { color: var(--hmb-glass); }
+html[data-deck-theme="hmb"] .reveal section.hmb .score .ico { color: var(--hmb-glass); }
+html[data-deck-theme="hmb"] .reveal section.hmb .score .ico.ok { color: var(--ok); }
+html[data-deck-theme="hmb"] .reveal section.hmb .score .ico.warn { color: var(--hmb-hot); }
+html[data-deck-theme="hmb"] .reveal section.hmb .score .tile .l { color: var(--hmb-foam); }
+html[data-deck-theme="hmb"] .reveal section.hmb .score .tile .q { color: var(--hmb-gold); }
+/* QR: dark on white with a quiet zone - white rounded panel around the code */
+html[data-deck-theme="hmb"] .reveal img.qr { box-shadow: 0 0 0 14px #FFFFFF !important; border-radius: 4px; }
+html[data-deck-theme="hmb"] .reveal section.hmb .qr-url { margin-top: 16px; }
+html[data-deck-theme="hmb"] .reveal section.hmb .qr-url strong { color: var(--hmb-foam); }
+/* speaker slides: rounded photo, ACE badge on a light plate (the PNGs have white / transparent grounds) */
+html[data-deck-theme="hmb"] .reveal section.hmb .photo { border-radius: var(--radius); }
+html[data-deck-theme="hmb"] .reveal section.hmb .badge { background-color: var(--hmb-foam); border-radius: var(--radius); background-origin: content-box; background-position: center; padding: 8px 14px; box-sizing: border-box; }
+html[data-deck-theme="hmb"] .reveal section.hmb .speaker .contact { color: var(--hmb-glass); }
+/* full-bleed layouts: navy field instead of purple */
+/* unscoped like the theme rule: reveal copies the section classes onto its full-viewport .slide-background */
+html[data-deck-theme="hmb"] .acn-divider, html[data-deck-theme="hmb"] .acn-closing { background: var(--hmb-field) !important; }
+html[data-deck-theme="hmb"] .reveal section.hmb-round .rkick { color: var(--hmb-glass); font-family: var(--hmb-mono); font-size: 20px; }
+html[data-deck-theme="hmb"] .reveal section.hmb-round .prompt, html[data-deck-theme="hmb"] .reveal .acn-divider .ora600 { background: var(--hmb-ink); border-radius: var(--radius); }
+html[data-deck-theme="hmb"] .reveal section.hmb-round .prompt { border: 1px solid var(--hmb-line); }
+html[data-deck-theme="hmb"] .reveal .acn-divider .dnum { background: var(--hmb-beer); -webkit-background-clip: text; background-clip: text; color: transparent; }
+html[data-deck-theme="hmb"] .reveal .acn-divider .ora600 + .cm { color: var(--hmb-glass); }
+html[data-deck-theme="hmb"] .reveal .acn-closing .lab, html[data-deck-theme="hmb"] .reveal .acn-closing .footer-block .meta, html[data-deck-theme="hmb"] .reveal .acn-closing .prompt { color: var(--hmb-glass); }
+html[data-deck-theme="hmb"] .reveal .acn-closing .lab { font-family: var(--hmb-mono); }
+html[data-deck-theme="hmb"] .reveal .acn-closing .footer-block { border-top-color: rgba(168,200,216,0.28); }
+html[data-deck-theme="hmb"] .reveal .acn-closing .thanks::after { top: 0; bottom: auto; } /* keyline up: the footer brand sits bottom left */
+html[data-deck-theme="hmb"] .reveal .acn-closing .thanks::before { content: ""; position: absolute; right: 96px; top: 150px; width: 250px; height: 250px; background: var(--hmb-logo) center / contain no-repeat; }
+/* cover: navy text rail, ink visual with beer geometry, logo stamp */
+html[data-deck-theme="hmb"] .reveal .acn-cover .crumb { font-family: var(--hmb-mono); letter-spacing: 0.08em; }
+html[data-deck-theme="hmb"] .reveal .acn-cover h1, html[data-deck-theme="hmb"] .reveal .acn-cover .meta strong { color: var(--hmb-foam); }
+html[data-deck-theme="hmb"] .reveal .acn-cover .sub.motto { color: var(--hmb-glass); }
+html[data-deck-theme="hmb"] .reveal .acn-cover .cover-visual { background: linear-gradient(160deg, #0F1D2A 0%, #132636 100%); }
+html[data-deck-theme="hmb"] .reveal .acn-cover .geometry polygon:nth-of-type(1) { fill: #3D6B8A; opacity: 0.40; }
+html[data-deck-theme="hmb"] .reveal .acn-cover .geometry polygon:nth-of-type(2) { fill: var(--hmb-glass); opacity: 0.14; }
+html[data-deck-theme="hmb"] .reveal .acn-cover .geometry line { stroke: var(--hmb-orange); opacity: 0.7; }
+html[data-deck-theme="hmb"] .reveal .acn-cover .cover-visual .stamp .lab { display: none; } /* the logo carries the name */
+html[data-deck-theme="hmb"] .reveal .acn-cover .cover-visual .stamp h3 { color: var(--hmb-foam); }
+html[data-deck-theme="hmb"] .reveal .acn-cover .cover-visual .stamp .quip { color: var(--hmb-glass); }
+/* shell: footer brand, slide number, controls, progress, indicators */
+html[data-deck-theme="hmb"] .hmb-brand { display: inline-flex; align-items: center; gap: 8px; color: var(--hmb-foam); white-space: pre; }
+html[data-deck-theme="hmb"] .hmb-mark { display: inline-block; width: 22px; height: 22px; background: var(--hmb-logo) center / contain no-repeat; }
+html[data-deck-theme="hmb"] .brandbar span { display: inline-flex; align-items: center; }
+html[data-deck-theme="hmb"] .reveal .slide-number { background: transparent; color: var(--label-gray); font-family: var(--hmb-mono); font-size: 13px; }
+html[data-deck-theme="hmb"] .reveal .controls { color: var(--hmb-orange); }
+html[data-deck-theme="hmb"] .reveal .progress { color: var(--hmb-orange); background: rgba(15,29,42,0.6); }
+html[data-deck-theme="hmb"] .hmb-lang, html[data-deck-theme="hmb"] .hmb-theme { background: rgba(15,29,42,0.85); color: var(--label-gray); font-family: var(--hmb-mono); border-radius: 4px; }

@@ -116,6 +116,15 @@ def image_css(src_dir: Path) -> str:
     return "\n".join(rules)
 
 
+def logo_mark_css(logo: Path) -> str:
+    """Logo as data URI (``--hmb-logo``) for the footer mark and closing slide of the Hold my Beer skin.
+
+    A data-URI background, not a second inline copy of the SVG: the cover already inlines the logo,
+    and a second copy would duplicate its gradient ids.
+    """
+    return f":root {{ --hmb-logo: url({data_uri(IMAGE_TYPES['.svg'], logo.read_bytes())}); }}"
+
+
 def bi(de: str, en: str, raw: bool = False) -> str:
     """Bilingual text: both spans, deck.css shows the active language. ``raw``: no escaping."""
     if not raw:
@@ -177,7 +186,7 @@ def qr_block(voting_url: str, fallback: str, size: int = 260) -> str:
     return (
         '<div style="display:flex;flex-direction:column;align-items:center;'
         'justify-content:center;gap:0.4rem">\n'
-        f'      <img src="{e(voting_url)}/qr.svg" alt="QR-Code zur Abstimmung"'
+        f'      <img class="qr" src="{e(voting_url)}/qr.svg" alt="QR-Code zur Abstimmung"'
         f' style="{style}"{onerror}>\n'
         f'      <p class="qr-url"><strong>{e(voting_url)}</strong></p>\n'
         "    </div>"
@@ -249,7 +258,7 @@ def cover(ev: dict, logo: str, css: str, js: str) -> str:
   </div>
   <aside class="notes">Begrüssung, beide kurz auf die Bühne. Titel ist Programm: wir wissen
   wirklich nicht, welche Themen kommen. Leitmotiv einmal laut sagen: AI ist kein Autopilot.
-  Sprache umschalten: Taste L.</aside>
+  Sprache umschalten: Taste L, Theme Accenture / Hold my Beer: Taste T.</aside>
 </section>
 """
 
@@ -477,7 +486,9 @@ def main() -> int:
     tags = ["hold-my-beer", "generated"]
     here = Path(__file__).resolve().parent
     css = (here / "deck.css").read_text(encoding="utf-8") + "\n" + image_css(here / "src")
-    js = (here / "deck-lang.js").read_text(encoding="utf-8")
+    if args.logo.is_file():  # footer logo mark of the hmb skin (deck-theme.js, deck.css)
+        css += "\n" + logo_mark_css(args.logo)
+    js = "\n".join((here / name).read_text(encoding="utf-8") for name in ("deck-lang.js", "deck-theme.js"))
     write_atom(args.out, "cover", cover(ev, logo, css, js), meta_yaml("Cover", "Titel, Speaker, Event", tags, "cover"))
     write_atom(
         args.out, "voting", voting(fmt, len(rounds), url, fb),
