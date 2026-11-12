@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Beamer – {{ config.SESSION_TITLE }}{% endblock %}
+{% block bodyclass %}s-body{% endblock %}
+{% block body %}
+<header class="s-head">
+  {% include "_share_qr.html" %}
+  <span class="brand-tag">ORACLE · DBA · AI</span>
+  <span id="s-round" class="s-round"></span>
+  <span id="net" class="net" role="status" aria-live="polite" hidden>Verbindung gestört</span>
+  <button id="quick-reset" class="btn btn-ghost btn-sm" type="button">Reset</button>
+</header>
+<main id="main" class="s-main" data-public-url="{{ public_url }}">
+  <section id="s-waiting" class="view s-center" hidden>
+    <h1 class="s-h1">{{ config.SESSION_TITLE }}</h1>
+    <p class="s-sub">{{ config.SESSION_SUBTITLE }}</p>
+    <div class="s-qr">
+      <img src="{{ url_for('screen.qr') }}" alt="QR-Code zur Teilnahme" width="320" height="320">
+      <div>
+        <p class="s-scan">Scannen &amp; mitentscheiden</p>
+        <p class="s-url" id="s-url">{{ public_url }}/</p>
+        <p class="s-hint" id="s-wait-text">Gleich geht’s los …</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="s-voting" class="view" hidden>
+    <div class="s-top">
+      <h2 class="s-h2" id="v-title"></h2>
+      <div class="s-timer" role="timer"><span id="v-count">--</span></div>
+    </div>
+    <div id="v-options" class="s-options"></div>
+    <div class="s-bottom">
+      <p class="s-votes"><strong id="v-votes">0</strong> Stimmen eingegangen</p>
+      <p class="s-mini">Mitmachen: <span id="v-url">{{ public_url }}/</span></p>
+    </div>
+  </section>
+
+  <section id="s-closed" class="view s-center" hidden>
+    <h2 class="s-h2" id="cl-title">Voting geschlossen</h2>
+    <p class="s-sub">Das Ergebnis folgt gleich …</p>
+    <p class="s-votes"><strong id="cl-votes">0</strong> Stimmen</p>
+  </section>
+
+  <section id="s-result" class="view" hidden>
+    <h2 class="s-h2" id="x-title">Ergebnis</h2>
+    <div id="x-bars" class="bars s-bars"></div>
+    <p id="x-winner" class="winner s-winner"></p>
+  </section>
+
+  <section id="s-challenge" class="view challenge-focus s-challenge-focus" hidden>
+    <h2 class="s-h1" id="ch-title"></h2>
+    <p class="s-timer s-timer-xl" role="timer" aria-label="Verbleibende Challenge-Zeit"><span id="ch-count">--</span></p>
+  </section>
+
+  <section id="s-score" class="view s-center" hidden>
+    <p class="eyebrow">Scorecard</p>
+    <h2 class="s-h2" id="sc-title"></h2>
+    <ul id="sc-list" class="chips"></ul>
+    <p id="sc-note" class="s-sub"></p>
+  </section>
+
+  <section id="s-closing" class="view" hidden>
+    <h2 class="s-h2">Zusammenfassung</h2>
+    <ol id="cs-list" class="summary s-summary"></ol>
+    <p class="s-sub">Danke fürs Mitmachen!</p>
+  </section>
+</main>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/screen.js') }}"></script>{% endblock %}

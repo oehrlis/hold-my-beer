@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block title %}Admin – {{ config.SESSION_TITLE }}{% endblock %}
+{% block bodyclass %}a-body{% endblock %}
+{% block body %}
+<header class="brand">
+  <span class="brand-tag">ORACLE · DBA · AI &middot; Admin</span>
+  <span id="net" class="net" role="status" aria-live="polite" hidden>Verbindung gestört</span>
+  <form method="post" action="{{ url_for('admin.logout') }}" class="inline">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button class="btn btn-ghost btn-sm" type="submit">Abmelden</button>
+  </form>
+</header>
+<main id="main" class="a-main">
+  <p id="a-msg" class="msg" role="status" aria-live="polite"></p>
+
+  <section class="panel" aria-labelledby="h-status">
+    <h2 id="h-status">Status</h2>
+    <p><span class="pill" id="a-state">–</span> <strong id="a-round">–</strong> <span id="a-count" class="countdown-sm" role="timer"></span></p>
+    <p class="muted">Stimmen: <strong id="a-votes">0</strong></p>
+    <div class="row">
+      <label for="a-round-sel">Runde</label>
+      <select id="a-round-sel"></select>
+      <button class="btn btn-ghost" id="b-activate" type="button">Runde aktivieren</button>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-vote">
+    <h2 id="h-vote">Voting</h2>
+    <div class="row">
+      <label for="a-dur">Dauer (Sekunden)</label>
+      <select id="a-dur">
+        <option>30</option><option>45</option><option selected>60</option><option>90</option><option>120</option>
+      </select>
+      <button class="btn btn-primary" id="b-open" type="button">Voting öffnen</button>
+      <button class="btn btn-warn" id="b-close" type="button">Voting jetzt beenden</button>
+      <button class="btn btn-primary" id="b-publish" type="button">Ergebnis freigeben</button>
+    </div>
+    <div id="a-live" class="bars"></div>
+    <p id="a-winner" class="winner"></p>
+    <div class="row" id="a-tie" hidden>
+      <span class="warn">Gleichstand!</span>
+      <button class="btn btn-warn" id="b-runoff" type="button">Stichwahl auslösen</button>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-ch">
+    <h2 id="h-ch">Challenge</h2>
+    <div class="ch-grid">
+      <div class="ch-main">
+        <fieldset class="row">
+          <legend class="sr">Challenge-Thema</legend>
+          <div id="a-ch-opts" class="row"></div>
+        </fieldset>
+        <label for="a-reason">Begründung (nötig bei Abweichung vom Ergebnis)</label>
+        <input id="a-reason" type="text" maxlength="300" autocomplete="off">
+        <div class="row">
+          <button class="btn btn-ghost" id="b-select" type="button">Thema festlegen</button>
+          <button class="btn btn-primary" id="b-chstart" type="button">Challenge freigeben &amp; Timer starten</button>
+          <button class="btn btn-warn" id="b-chstop" type="button">Challenge stoppen</button>
+        </div>
+        <p id="a-ch-info" class="muted"></p>
+      </div>
+      <aside id="a-ch-timer-box" class="ch-timer" hidden role="timer" aria-label="Challenge-Zeit">
+        <p class="eyebrow">Challenge-Zeit</p>
+        <p class="countdown" id="a-ch-timer">--</p>
+      </aside>
+    </div>
+  </section>
+
+  <section class="panel" id="p-score" aria-labelledby="h-sc">
+    <h2 id="h-sc">Scorecard</h2>
+    <fieldset><legend class="sr">Bewertungen</legend><div id="a-ratings" class="checks"></div></fieldset>
+    <label for="a-note">Bemerkung</label>
+    <input id="a-note" type="text" maxlength="300" autocomplete="off">
+    <div class="row">
+      <button class="btn btn-primary" id="b-score" type="button">Scorecard speichern</button>
+      <button class="btn btn-primary" id="b-next" type="button">Nächste Runde</button>
+      <button class="btn btn-ghost" id="b-closing" type="button">Closing anzeigen</button>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-edit">
+    <h2 id="h-edit">Aufgaben bearbeiten</h2>
+    <p class="muted">Maximal 4 Aufgaben pro Runde (mindestens 2). Änderungen nur im Zustand „waiting“ und solange die Runde keine Stimmen hat.</p>
+    <div class="row">
+      <label for="a-edit-round">Runde</label><select id="a-edit-round"></select>
+    </div>
+    <div id="a-edit-list" class="edit-list"></div>
+    <div class="row"><button class="btn btn-ghost" id="b-addopt" type="button">+ Aufgabe hinzufügen</button></div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-res">
+    <h2 id="h-res">Reserve-Thema zuordnen</h2>
+    <div class="row">
+      <label for="a-res-round">Runde</label><select id="a-res-round"></select>
+      <label for="a-res-opt">Option</label><select id="a-res-opt"><option>A</option><option>B</option><option>C</option><option>D</option></select>
+      <label for="a-res-topic">Thema</label><select id="a-res-topic"></select>
+      <button class="btn btn-ghost" id="b-reserve" type="button">Zuordnen</button>
+    </div>
+  </section>
+
+  <section class="panel danger" aria-labelledby="h-dng">
+    <h2 id="h-dng">Notfall / Reset</h2>
+    <div class="row">
+      <button class="btn btn-danger" id="b-rreset" type="button">Aktuelle Runde zurücksetzen</button>
+      <button class="btn btn-danger" id="b-sreset" type="button">Gesamte Session zurücksetzen</button>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-audit">
+    <h2 id="h-audit">Auditlog</h2>
+    <div class="table-wrap"><table><thead><tr><th>Zeit (UTC)</th><th>Wer</th><th>Aktion</th><th>Details</th></tr></thead>
+    <tbody id="a-audit"></tbody></table></div>
+  </section>
+</main>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/admin.js') }}"></script>{% endblock %}

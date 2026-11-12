@@ -1,0 +1,25 @@
+# /etc/nginx/conf.d/oracle-live-voting.conf  (Beispiel; Domain anpassen)
+# Gunicorn dann nur lokal binden: HOST=127.0.0.1 in app.env, PROXY_FIX_ENABLED=true,
+# SESSION_COOKIE_SECURE=true (oder Zeile entfernen), PUBLIC_BASE_URL=https://voting.example.org
+server {
+    listen 80;
+    server_name voting.example.org;
+    location /.well-known/acme-challenge/ { root /var/www/html; }
+    location / { return 301 https://$host$request_uri; }
+}
+server {
+    listen 443 ssl http2;
+    server_name voting.example.org;
+    ssl_certificate     /etc/letsencrypt/live/voting.example.org/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/voting.example.org/privkey.pem;
+    client_max_body_size 16k;
+
+    location / {
+        proxy_pass http://127.0.0.1:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $remote_addr;   # genau ein Hop, kein Anhaengen fremder Header
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 30s;
+    }
+}

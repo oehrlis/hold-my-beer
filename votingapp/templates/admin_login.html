@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Admin – {{ config.SESSION_TITLE }}{% endblock %}
+{% block bodyclass %}p-body{% endblock %}
+{% block body %}
+<header class="brand"><span class="brand-tag">ORACLE · DBA · AI</span></header>
+<main id="main" class="p-main">
+  <h1>Admin-Anmeldung</h1>
+  <form method="post" action="{{ url_for('admin.login') }}" class="login">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label for="password">Passwort</label>
+    <input id="password" name="password" type="password" autocomplete="current-password" required autofocus>
+    {% if error %}<p class="msg err" role="alert">{{ error }}</p>{% endif %}
+    <button class="btn btn-primary btn-xl" type="submit">Anmelden</button>
+  </form>
+</main>
+{% endblock %}

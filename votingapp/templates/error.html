@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Fehler {{ status }}{% endblock %}
+{% block bodyclass %}p-body{% endblock %}
+{% block body %}
+<main id="main" class="p-main">
+  <h1>Fehler {{ status }}</h1>
+  <p class="lead">{{ message }}</p>
+  <a class="btn btn-primary" href="/">Zur Startseite</a>
+</main>
+{% endblock %}
