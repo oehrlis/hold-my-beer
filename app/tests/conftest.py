@@ -1,3 +1,4 @@
+import itertools
 import re
 from datetime import timedelta
 
@@ -95,11 +96,15 @@ def open_round(admin, duration=60):
     assert admin.admin("open_voting", {"duration": duration}).status_code == 200
 
 
+_REQ = itertools.count(1)
+
+
 def play_to_result(admin, votes):
     """votes: Liste von Optionen, jeweils von einem frischen Client abgegeben."""
     open_round(admin)
     for opt in votes:
         c = Client(admin.app)
-        assert c.post("/api/vote", {"option": opt, "request_id": "r" * 8 + str(id(c))}).status_code == 200
+        # eindeutige request_id: id(c) wurde nach GC wiederverwendet -> sporadisch 400 duplicate_request
+        assert c.post("/api/vote", {"option": opt, "request_id": "r" * 8 + str(next(_REQ))}).status_code == 200
     assert admin.admin("close_voting").status_code == 200
     assert admin.admin("publish_result").status_code == 200

@@ -1,3 +1,4 @@
+{% set share = share_url() %}
 <details class="share-qr">
   <summary aria-label="QR-Code zur Teilnahme anzeigen" title="QR-Code zur Teilnahme anzeigen">
     <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="currentColor">
@@ -5,7 +6,7 @@
     </svg>
   </summary>
   <div class="share-qr-panel">
-    <img src="{{ url_for('screen.share_qr') }}" alt="QR-Code für http://<host-ip>:8080/" width="480" height="480">
-    <a href="http://<host-ip>:8080/">http://<host-ip>:8080/</a>
+    <img src="{{ url_for('screen.share_qr') }}" alt="QR-Code für {{ share }}" width="480" height="480">
+    <a href="{{ share }}">{{ share }}</a>
   </div>
 </details>

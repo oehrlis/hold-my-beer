@@ -2,12 +2,21 @@ import io
 
 import qrcode
 import qrcode.image.svg
-from flask import Blueprint, Response, render_template
+from flask import Blueprint, Response, current_app, render_template
 
 from ..network import public_base_url
 
 bp = Blueprint("screen", __name__)
-SHARE_URL = "http://<host-ip>:8080/"
+
+
+def share_url():
+    """Ziel des Teilen-QR-Codes: SHARE_URL, sonst die Teilnahme-URL."""
+    return (current_app.config.get("SHARE_URL") or public_base_url()) + "/"
+
+
+@bp.app_context_processor
+def _share_ctx():
+    return {"share_url": share_url}  # Funktion, wird nur in _share_qr.html aufgerufen
 
 
 @bp.get("/screen")
@@ -22,7 +31,7 @@ def qr():
 
 @bp.get("/share-qr.svg")
 def share_qr():
-    return _qr_response(SHARE_URL)
+    return _qr_response(share_url())
 
 
 def _qr_response(url):
@@ -30,4 +39,4 @@ def _qr_response(url):
                       box_size=10, border=2)
     buf = io.BytesIO()
     img.save(buf)
-    return Response(buf.getvalue(), mimetype="image/svg+xml", headers={"Cache-Control": "no-cache"})
+    return Response(buf.getvalue(), mimetype="image/svg+xml", headers={"Cache-Control": "no-store"})

@@ -1,15 +1,26 @@
 import click
 
 from .extensions import db
+from .pool import DEFAULT_POOL_FILE
 
 
 def register_cli(app):
     @app.cli.command("seed-data")
-    def seed_command():
-        """Legt Runden, Themen und Reserve-Themen an (idempotent, loescht keine Stimmen)."""
+    @click.option("--pool", "pool_file", default=None, envvar="POOL_FILE",
+                  help="Pool-Datei (YAML). Standard: POOL_FILE bzw. %s ab App-Verzeichnis" % DEFAULT_POOL_FILE)
+    def seed_command(pool_file):
+        """Legt Runden, Themen und Reserve-Themen aus der Pool-Datei an (idempotent, loescht keine Stimmen)."""
+        from .pool import PoolError
         from .services.seed import seed_data
-        seed_data()
-        click.echo("Seed-Daten geladen.")
+        try:
+            rep = seed_data(pool_file or app.config["POOL_FILE"])
+        except PoolError as e:
+            raise click.ClickException(str(e))
+        for w in rep["warnings"]:
+            click.echo("WARNUNG: " + w, err=True)
+        click.echo("Seed-Daten geladen aus %s: %d Runden, %d Optionen, %d Reserve-Themen%s." % (
+            rep["path"], rep["rounds"], rep["options"], rep["reserve"],
+            ", %d Warnung(en)" % len(rep["warnings"]) if rep["warnings"] else ""))
 
     @app.cli.command("backup")
     @click.option("--dest", default=None, help="Zielverzeichnis (Standard: BACKUP_DIR)")

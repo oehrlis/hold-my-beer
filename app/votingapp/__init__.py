@@ -26,6 +26,25 @@ def _sqlite_pragmas(dbapi_conn, _record):
         cur.close()
 
 
+QR_PATHS = ("/qr.svg", "/share-qr.svg")
+NO_STORE_PATHS = QR_PATHS + ("/healthz", "/readyz")
+
+
+def _apply_pool_format(app, overrides):
+    """Uebernimmt voting_seconds/challenge_minutes aus der Pool-Datei (Seed meldet Pool-Fehler hart)."""
+    from .pool import PoolError, load_pool
+    try:
+        fmt = load_pool(app.config["POOL_FILE"])["format"]
+    except PoolError as e:
+        app.logger.warning("WARNUNG: Pool-Format nicht geladen, Standardwerte (Voting %d s, Challenge %d s): %s",
+                           app.config["VOTING_SECONDS"], app.config["CHALLENGE_SECONDS"], e)
+        return
+    if fmt["voting_seconds"] and "VOTING_SECONDS" not in overrides:
+        app.config["VOTING_SECONDS"] = fmt["voting_seconds"]
+    if fmt["challenge_minutes"] and "CHALLENGE_SECONDS" not in overrides:
+        app.config["CHALLENGE_SECONDS"] = fmt["challenge_minutes"] * 60
+
+
 def _wants_json():
     return request.path.startswith(("/api/", "/admin/api/")) or request.is_json
 
@@ -37,7 +56,8 @@ def create_app(overrides=None):
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
 
     if app.config["APP_ENV"] == "production" and app.config["PROXY_FIX_ENABLED"]:
-        app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=0)
+        app.wsgi_app = ProxyFix(app.wsgi_app, x_for=app.config["PROXY_FIX_X_FOR"], x_proto=1, x_host=1, x_prefix=0)
+    _apply_pool_format(app, overrides or {})
 
     db.init_app(app)
     migrate.init_app(app, db)
@@ -62,8 +82,13 @@ def create_app(overrides=None):
         resp.headers["Content-Security-Policy"] = (
             "default-src 'self'; img-src 'self' data:; script-src 'self'; style-src 'self'; "
             "connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'")
-        if _wants_json() or request.path in ("/healthz", "/readyz", "/qr.svg"):
+        # nichts Dynamisches darf in einem Proxy/CDN (Cloudflare) landen: JSON, HTML (CSRF-Token), QR-Codes
+        if _wants_json() or resp.mimetype == "text/html" or request.path in NO_STORE_PATHS:
             resp.headers["Cache-Control"] = "no-store"
+        if request.path in QR_PATHS:
+            # nur die QR-Bilder duerfen fremde Seiten (Folien per file:// oder andere Origin) per <img> laden;
+            # X-Frame-Options/frame-ancestors bleiben unveraendert, Einbetten als iframe bleibt verboten
+            resp.headers["Cross-Origin-Resource-Policy"] = "cross-origin"
         if app.config["SESSION_COOKIE_SECURE"]:
             resp.headers["Strict-Transport-Security"] = "max-age=31536000"
         return resp

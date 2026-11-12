@@ -8,7 +8,7 @@ def test_index_and_screen(client):
     r = client.get("/")
     assert r.status_code == 200 and "Denn sie wissen nicht, was sie tun" in r.get_data(as_text=True)
     assert 'src="/share-qr.svg"' in r.get_data(as_text=True)
-    assert 'href="http://<host-ip>:8080/"' in r.get_data(as_text=True)
+    assert 'class="share-qr"' in r.get_data(as_text=True)
     s = client.get("/screen")
     assert s.status_code == 200 and 'src="/qr.svg"' in s.get_data(as_text=True)
     assert 'src="/share-qr.svg"' in s.get_data(as_text=True)
@@ -68,8 +68,8 @@ def test_csrf_enforced(app):
 
 def test_seed_data_complete_and_idempotent(app, admin):
     with app.app_context():
-        assert Round.query.count() == 4 and RoundOption.query.count() == 12
-        assert Topic.query.filter_by(is_reserve=True).count() == 9
+        assert Round.query.count() == 3 and RoundOption.query.count() == 9
+        assert Topic.query.filter_by(is_reserve=True).count() == 12
         before = Topic.query.count()
     admin.admin("open_voting", {"duration": 30})
     c = Client(app)
@@ -77,7 +77,7 @@ def test_seed_data_complete_and_idempotent(app, admin):
     with app.app_context():
         seed_data()
         seed_data()
-        assert Topic.query.count() == before and Round.query.count() == 4
+        assert Topic.query.count() == before and Round.query.count() == 3
     assert admin.astate()["live"]["counts"]["B"] == 1
 
 

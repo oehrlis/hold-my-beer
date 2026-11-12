@@ -5,7 +5,8 @@ Teilnehmer scannen einen QR-Code, wählen pro Runde eines von drei Oracle-Themen
 Kein Login, keine Namen, keine E-Mail-Adressen.
 
 **Stack:** Python 3 (getestet mit 3.9), Flask (Application Factory, Blueprints), Flask-SQLAlchemy, Flask-Migrate/Alembic,
-Flask-WTF (CSRF), Flask-Limiter, SQLite (WAL), Jinja2, Vanilla-JS, Gunicorn (1 Worker, 8 Threads), pytest.
+Flask-WTF (CSRF), Flask-Limiter, SQLite (WAL), Jinja2, Vanilla-JS, Gunicorn (1 Worker, 8 Threads), PyYAML (Pool-Datei),
+pytest.
 Keine externen Dienste, keine CDN-Abhängigkeiten, keine WebSockets (HTTP-Polling alle 2 s). Läuft nach `pip install` vollständig offline.
 
 Es gibt zwei **getrennte Betriebsarten**: [1. LOCAL WSL2](#1-local-wsl2-primärer-betrieb) und [2. OPTIONAL PUBLIC DEPLOYMENT](#2-optional-public-deployment).
@@ -23,13 +24,14 @@ POST /api/vote, POST /admin/api/<aktion>  (CSRF-Header X-CSRFToken)             
 votingapp/
   __init__.py        Application Factory, Security-Header, Fehlerbehandlung, SQLite-PRAGMAs
   config.py          Development / Testing / Production aus Umgebungsvariablen
+  pool.py            Laden und Prüfen der Pool-Datei (YAML, siehe "Pool-Datei")
   models.py          Round, Topic, RoundOption, SessionState, Vote, Scorecard, AuditLog
   clientid.py        anonyme Client-ID (signiertes Cookie), HMAC-Hash für die DB
   blueprints/        public (/), screen (/screen, /qr.svg), admin (/admin ...), api (/api/..., /healthz, /readyz)
   services/          voting.py (Kernlogik), state_machine.py, views.py, seed.py, backup.py, audit.py
   templates/ static/ HTML, CSS, JS (ohne Inline-Skripte, strikte CSP)
 migrations/          Alembic
-tests/               pytest (39 Tests inkl. Integrationstest)
+tests/               pytest (inkl. Integrationstest und Pool-Tests)
 tools/               loadtest.py, smoke.sh
 deploy/              remote-install.sh, systemd- und Nginx-Beispiel
 wsgi.py              Entry Point  wsgi:app
@@ -59,10 +61,13 @@ Inkognito-Modus, ein anderer Browser oder ein anderes Gerät erzeugen eine neue 
 
 ## 1. LOCAL WSL2 (primärer Betrieb)
 
+Die App liegt im Repo unter `app/`; alle Befehle und Skripte laufen aus diesem Verzeichnis
+(die Skripte wechseln selbst dorthin). Sie laufen unter Linux/WSL2 und macOS (`/proc`/`ss` bzw. `ps`/`lsof`).
+
 ### Installation
 
 ```bash
-cd /pfad/zum/projekt
+cd <repo>/app
 python3 -m venv .venv
 .venv/bin/pip install -r requirements.lock -r requirements-dev.txt   # reproduzierbar; requirements.txt = direkte Abhängigkeiten
 cp .env.example .env            # optional
@@ -75,10 +80,44 @@ cp .env.example .env            # optional
 ```bash
 export FLASK_APP=wsgi:app
 .venv/bin/flask db upgrade        # legt instance/voting.db an (DATABASE_URL überschreibt den Pfad)
-.venv/bin/flask seed-data         # 4 Runden, 12 Themen, 9 Reserve-Themen; idempotent, löscht nie Stimmen/Ergebnisse/Scorecards
+.venv/bin/flask seed-data         # Runden, Themen, Reserve-Themen aus der Pool-Datei; idempotent, löscht nie Stimmen/Ergebnisse/Scorecards
+.venv/bin/flask seed-data --pool ../pool/anderer-event.yaml   # andere Pool-Datei (oder POOL_FILE=...)
 ```
 
-`start.sh` führt beides bei jedem Start automatisch aus.
+`start.sh` führt beides bei jedem Start automatisch aus; Seed-Fehler brechen den Start mit Meldung ab,
+Warnungen werden angezeigt.
+
+### Pool-Datei
+
+Die Themen kommen aus **einer** YAML-Datei, der einzigen Quelle für App (Seed) und Folien (Rundenfolien):
+`pool/doag-ak-2026.yaml` im Repo (Schema: `pool/README.md`). Pfad: `POOL_FILE` oder `flask seed-data --pool`,
+Standard `../pool/doag-ak-2026.yaml`; relative Pfade gelten ab dem App-Verzeichnis.
+
+| Pool | App |
+|---|---|
+| `rounds[].number`, `name` | Runden (DOAG AK 2026: 3 Runden) |
+| `rounds[].options[]` `key`, `title`, `owner`, `category`, `difficulty`, `risk` | Optionen (lückenlos ab A, 2-4) |
+| `rounds[].options[].ai_pitfall` | nicht in der App (nur Folien/Moderation, soll das Publikum nicht vorab sehen) |
+| `reserve[]` `title`, `owner`, `category` | Reserve-Themen |
+| `format.voting_seconds` | Vorauswahl der Voting-Dauer im Admin |
+| `format.challenge_minutes` | Dauer des Challenge-Timers |
+| `format.scorecard` | die ersten vier Scorecard-Bewertungen der App (siehe unten) |
+
+`format.scorecard` muss den ersten vier Bewertungen der App entsprechen: AI richtig, AI halluziniert,
+Falsches Problem gelöst, DBA-Instinkt gewinnt.
+Die Datei wird streng geprüft (Schema, Schlüssel, Werte für Schwierigkeit/Risiko, doppelte Titel, unbekannte
+Scorecard-Kategorien). Fehlt sie oder ist sie ungültig, bricht `flask seed-data` mit Dateiname und Grund ab - es gibt
+**keinen** eingebauten Ersatz-Pool. Die App selbst startet auch ohne Pool, protokolliert dann aber eine WARNUNG und nutzt
+60 s / 5 Minuten.
+
+**Bestehende Datenbank:** Der Seed legt nur Fehlendes an und ändert nie Bestehendes (Admin-Änderungen und
+Reserve-Zuordnungen überleben jeden Neustart). Weicht die DB vom Pool ab - etwa Runde 4 oder die Runde
+"Automation" aus dem früheren eingebauten Seed -, meldet der Seed das als WARNUNG. Angleichen:
+
+- **Für den Talk empfohlen:** frische DB - `./stop.sh`, `flask backup`, `instance/voting.db*` entfernen, `./start.sh`
+  (führt `db upgrade` und Seed aus).
+- oder Admin "Gesamte Session zurücksetzen": löscht alle Stimmen/Scorecards, setzt Rundennamen und Optionen auf den
+  Pool und entfernt Runden, die nicht im Pool stehen.
 
 ### Start, Stop, Status, Logs
 
@@ -108,16 +147,21 @@ Login-Rate-Limit: 5/Minute und 20/Stunde.
 ### Konfiguration (Umgebungsvariablen)
 
 `APP_ENV` (`FLASK_ENV` als Fallback), `SECRET_KEY`, `ADMIN_PASSWORD`, `PUBLIC_BASE_URL` (Ziel des QR-Codes; leer = automatisch erkannte lokale IP),
-`DATABASE_URL`, `HOST`, `PORT`, `PROXY_FIX_ENABLED` (nur Production, genau ein Proxy-Hop), `SESSION_COOKIE_SECURE`
+`SHARE_URL` (Ziel des Teilen-QR-Codes hinter dem Icon; leer = `PUBLIC_BASE_URL`), `POOL_FILE` (siehe Pool-Datei),
+`DATABASE_URL`, `HOST`, `PORT`, `PROXY_FIX_ENABLED` (nur Production), `PROXY_FIX_X_FOR` (Anzahl Proxies, die
+`X-Forwarded-For` anhängen; Standard 1, siehe "Betrieb hinter Cloudflare"), `SESSION_COOKIE_SECURE`
 (Production-Standard `true`; `false` **nur** für den ersten HTTP-Test ohne HTTPS), `BACKUP_DIR`.
 
 ### Tests, Lasttest, Smoke-Test
 
 ```bash
-.venv/bin/python -m pytest -q                      # 39 Tests inkl. Integrationstest einer kompletten Session
+.venv/bin/python -m pytest -q                      # inkl. Integrationstest einer kompletten Session und Pool-Tests
 ./start.sh && .venv/bin/python tools/loadtest.py --clients 150   # nur localhost; anderer Host nur mit --allow-remote
 PORT=5000 tools/smoke.sh                            # curl-Smoke-Test gegen die laufende App
 ```
+
+Die Tests lesen den Repo-Pool (`../pool/doag-ak-2026.yaml`); im Release-Paket laufen sie daher nur mit passendem
+`POOL_FILE`.
 
 Der Lasttest öffnet ein Voting, lässt N Clients gleichzeitig pollen und abstimmen (inkl. Doppelstimme), prüft Gesamtzahl,
 Verteilung, 409er, 5xx/SQLite-Locks und gibt Antwortzeiten aus. Er setzt die Runde danach zurück – nicht kurz vor einer Session ausführen.
@@ -125,7 +169,7 @@ Die gemessenen Latenzen enthalten die Last des Python-Generators selbst.
 
 ### WSL2-Netzwerk und Smartphone-Test
 
-WSL2 läuft standardmäßig im NAT-Modus mit eigener IP (z. B. `172.24.x.x`, Ausgabe von `start.sh`). `http://localhost:<PORT>` funktioniert
+WSL2 läuft standardmässig im NAT-Modus mit eigener IP (z. B. `172.24.x.x`, Ausgabe von `start.sh`). `http://localhost:<PORT>` funktioniert
 im Windows-Browser (localhost-Forwarding). Ein Smartphone im selben WLAN erreicht die WSL2-IP in der Regel **nicht**, weil sie nur innerhalb
 des Windows-Hosts routbar ist. Optionen, jeweils **manuell** durch dich (die App ändert nichts an Windows):
 
@@ -148,9 +192,10 @@ Reset im Admin: „Aktuelle Runde zurücksetzen“ / „Gesamte Session zurücks
 
 ### Admin-Ablauf einer Runde
 
-Runde aktivieren → Dauer wählen, *Voting öffnen* → Countdown läuft serverseitig → (automatisch oder manuell) *schließen* →
+Runde aktivieren → Dauer wählen, *Voting öffnen* → Countdown läuft serverseitig → (automatisch oder manuell) *schliessen* →
 Stimmen/Gewinner/Gleichstand sehen → *Ergebnis freigeben* → Challenge-Thema festlegen (Gewinner, Zweitplatzierter oder anderes mit Begründung) →
-*Challenge-Timer starten* (5 Minuten) → *Challenge stoppen* → Scorecard speichern → *Nächste Runde* oder *Closing anzeigen*.
+*Challenge-Timer starten* (Dauer aus `format.challenge_minutes`, DOAG AK 2026: 5 Minuten) → *Challenge stoppen* →
+Scorecard speichern → *Nächste Runde* oder *Closing anzeigen*.
 Reserve-Themen lassen sich im Zustand `waiting` einer Option einer noch nicht gespielten Runde zuordnen.
 
 ---
@@ -165,15 +210,18 @@ Das Deployment ist **nicht** Teil des lokalen Betriebs und wird nur auf ausdrüc
 ./package.sh        # -> dist/dswnwst-voting-<version>-<zeit>.tar.gz
 ```
 
-Enthält Anwendung, Migrationen, Skripte, Tests, `requirements.lock`, README und Deploy-Beispiele. Nicht enthalten: `.git`, `.venv`, Datenbanken, `.env`, Logs, Backups, Caches, Bytecode.
+Enthält Anwendung, Migrationen, Skripte, Tests, `requirements.lock`, README, Deploy-Beispiele und die Pool-Datei
+(`POOL_FILE`, Standard `../pool/doag-ak-2026.yaml`) unter `pool/`; `remote-install.sh` setzt `POOL_FILE` in `app.env`.
+Nicht enthalten: `.git`, `.venv`, Datenbanken, `.env`, Logs, Backups, Caches, Bytecode.
 Das Skript bricht ab, falls das Paket Verweise auf lokale Home-Pfade enthielte.
 
 ### Deployen
 
 ```bash
-./deploy-public.sh 8080        # Port 1024-65535, Standard 8080
-# Ziel überschreibbar: SSH_USER, SSH_HOST, SSH_KEY (Standard: opc@<host-ip>, ~/.ssh/<ssh-key>)
+SSH_USER=<user> SSH_HOST=<host> SSH_KEY=~/.ssh/<key> ./deploy-public.sh 8080   # Port 1024-65535, Standard 8080
 ```
+
+`SSH_USER`, `SSH_HOST` und `SSH_KEY` sind Pflicht (es gibt keine Standardwerte). Der Service läuft als `SSH_USER`.
 
 Ablauf: Port/Key/SSH prüfen → Zielport per `ss` prüfen (belegt durch Fremdprozess ⇒ Abbruch mit freiem Portvorschlag, nie `kill`) →
 Paket bauen → `scp` → Release unter `/opt/oracle-live-voting/releases/<id>` entpacken → venv `/opt/oracle-live-voting/venv` → `requirements.lock` →
@@ -222,12 +270,45 @@ OCI Security List **oder** NSG: *Stateful Ingress*, Source `0.0.0.0/0`, Protocol
 
 Direkter HTTP-Betrieb auf einem Hochport ist nur ein Test. Besser: DNS-Name auf die öffentliche IP, Nginx auf 80/443, Let's Encrypt.
 
-1. DNS: A-Record `voting.example.org` → `<host-ip>`.
+1. DNS: A-Record `voting.example.org` → `<öffentliche-IP>`.
 2. Nginx installieren, `deploy/nginx.conf.example` anpassen; Ports 80/443 freigeben (firewalld + OCI, manuell).
 3. Zertifikat: `sudo certbot --nginx -d voting.example.org` (oder `certbot certonly --webroot`).
 4. `app.env`: `HOST=127.0.0.1` (Gunicorn nur lokal), `PROXY_FIX_ENABLED=true` (genau ein Hop), `SESSION_COOKIE_SECURE=true`,
    `PUBLIC_BASE_URL=https://voting.example.org`; danach `sudo systemctl restart oracle-live-voting`.
-5. Den Hochport in Firewall/OCI wieder schließen.
+5. Den Hochport in Firewall/OCI wieder schliessen.
+
+### Betrieb hinter Cloudflare
+
+Die App ist nicht Cloudflare-spezifisch, braucht dahinter aber drei Einstellungen. **Empfohlen: Cloudflare Tunnel**
+(`cloudflared` auf dem Host): kein offener Port, keine Firewall-/Cloud-Regel, TLS bei Cloudflare.
+
+1. `app.env`: `HOST=127.0.0.1`, `PROXY_FIX_ENABLED=true`, `PROXY_FIX_X_FOR=1`, `SESSION_COOKIE_SECURE=true`,
+   `PUBLIC_BASE_URL=https://voting.example.org`; danach `sudo systemctl restart oracle-live-voting`.
+2. Tunnel: Public Hostname `voting.example.org` → Service `http://127.0.0.1:<PORT>`.
+3. Variante Cloudflare (proxied DNS) + Nginx: Nginx muss die Kette anhängen statt zu überschreiben
+   (`proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;`) und darf nur Cloudflare-Adressen annehmen;
+   dann `PROXY_FIX_X_FOR=2`. Das mitgelieferte `deploy/nginx.conf.example` ist für Nginx **ohne** Cloudflare (1 Hop).
+
+Warum: Das Login-Limit (5/Minute, 20/Stunde) zählt pro Client-IP. Ohne `PROXY_FIX_ENABLED` sieht die App nur
+`127.0.0.1` (Tunnel) bzw. Cloudflare-Adressen - alle teilen sich einen Zähler, und fünf Fehlversuche irgendeines
+Besuchers sperren den Admin-Login. Das Vote-Limit zählt pro Client-ID-Cookie und ist davon kaum betroffen (nur die
+allererste Anfrage ohne Cookie fällt auf die IP zurück). `PROXY_FIX_X_FOR` grösser als die echte Zahl der Proxies
+macht `X-Forwarded-For` fälschbar.
+
+Cloudflare-Dashboard für diesen Hostnamen:
+
+- **Bot Fight Mode aus**, **Under Attack Mode aus**, keine Managed Challenge: 100-300 Smartphones aus einem
+  Konferenz-WLAN (oft eine NAT-IP) pollen alle 2 s, eine JS-Challenge bricht das Polling.
+- **Keine Cache-Rules** (insbesondere kein "Cache Everything") auf `/`, `/api/*`, `/admin*`, `/qr.svg`,
+  `/share-qr.svg`. Die App sendet für HTML, JSON und QR-Codes `Cache-Control: no-store`; nur `/static/` ist cachebar.
+- Rate-Limiting-Regeln von Cloudflare nur grosszügig (ein ganzer Saal hinter einer IP).
+
+### QR-Code in den Folien
+
+Die Folien (reveal.js, per `file://` oder von einer anderen Origin) binden den Live-QR-Code als
+`<img src="<PUBLIC_BASE_URL>/qr.svg">` ein. Dafür senden `/qr.svg` und `/share-qr.svg` (und nur diese)
+`Cross-Origin-Resource-Policy: cross-origin`. `X-Frame-Options: DENY` und `frame-ancestors 'none'` bleiben:
+Einbetten als iframe ist weiterhin verboten.
 
 ### SQLite-Grenzen und PostgreSQL
 
@@ -242,11 +323,13 @@ PostgreSQL: `DATABASE_URL=postgresql+psycopg://...`, Treiber installieren, `flas
 - **Gleichstand:** Stichwahl auslösen oder Challenge-Thema manuell wählen.
 - **Thema passt nicht:** Reserve-Thema einer Option zuordnen (im Zustand `waiting`).
 - **Netz fällt aus:** Challenge läuft auch ohne Teilnehmer-Browser weiter; Admin und Beamer pollen selbst.
-- **Vorher:** `flask backup` und Healthcheck von außen (`/readyz`) prüfen; Admin-Passwort bereithalten; Beamer-Seite `/screen` im Vollbild öffnen.
+- **Vorher:** `flask backup` und Healthcheck von aussen (`/readyz`) prüfen; Admin-Passwort bereithalten; Beamer-Seite `/screen` im Vollbild öffnen.
 - **Danach:** `flask export-json` sichert Ergebnisse und Scorecards.
 
 ### Sicherheit in Kürze
 
-CSRFProtect (Header `X-CSRFToken`, Meta-Tag), strikte CSP ohne Inline-Skripte, `X-Frame-Options`, `nosniff`, Request-Limit 16 KB, Rate Limits
+CSRFProtect (Header `X-CSRFToken`, Meta-Tag), strikte CSP ohne Inline-Skripte, `X-Frame-Options`, `nosniff`,
+`Cache-Control: no-store` für HTML/JSON/QR, `Cross-Origin-Resource-Policy: cross-origin` nur für die QR-Bilder,
+Request-Limit 16 KB, Rate Limits
 (Admin-Login, Vote 10/min pro Client), Session-Cookies `HttpOnly`/`SameSite=Lax`, Admin-Passwort nur aus Umgebung (Vergleich in konstanter Zeit),
 keine Stacktraces im Browser, Auditlog ohne Passwörter, Cookies, Tokens oder vollständige Client-IDs.

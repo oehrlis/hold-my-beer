@@ -7,6 +7,7 @@ ARCHIVE="$1"; RID="$2"; PORT="$3"; PUBLIC_URL="$4"
 BASE=/opt/oracle-live-voting
 SERVICE=oracle-live-voting
 SH="$BASE/shared"
+RUN_USER="$(id -un)"   # Service laeuft als der SSH-Benutzer des Deployments
 
 say() { echo "[remote] $*"; }
 need() { command -v "$1" >/dev/null 2>&1 || { echo "FEHLER: '$1' fehlt auf dem Zielsystem." >&2; exit 1; }; }
@@ -15,13 +16,16 @@ python3 -c 'import sys; sys.exit(0 if sys.version_info >= (3, 9) else 1)' || { e
 python3 -c 'import venv, ensurepip' 2>/dev/null || { echo "FEHLER: python3-venv/ensurepip fehlt (z.B. sudo dnf install python3)." >&2; exit 1; }
 
 sudo mkdir -p "$BASE/releases" "$SH/logs" "$SH/backups"
-sudo chown -R opc:opc "$BASE"
+sudo chown -R "$RUN_USER:$(id -gn)" "$BASE"
 chmod 750 "$SH"
 
 REL="$BASE/releases/$RID"
 mkdir -p "$REL"
 tar -xzf "$ARCHIVE" -C "$REL" --strip-components=1
 say "Release entpackt: $REL"
+POOLS=("$REL"/pool/*.yaml)
+[ "${#POOLS[@]}" -eq 1 ] && [ -f "${POOLS[0]}" ] || { echo "FEHLER: genau eine Pool-Datei unter $REL/pool/ erwartet." >&2; exit 1; }
+POOL_REL="pool/$(basename "${POOLS[0]}")"   # relativ zum App-Verzeichnis (current)
 
 # virtuelle Umgebung ausserhalb der Releases
 [ -x "$BASE/venv/bin/python" ] || python3 -m venv "$BASE/venv"
@@ -45,6 +49,7 @@ PORT=$PORT
 PROXY_FIX_ENABLED=false
 SESSION_COOKIE_SECURE=false
 BACKUP_DIR=$SH/backups
+POOL_FILE=$POOL_REL
 ENV
   printf '%s\n' "$ADMINPW" > "$SH/initial-admin-password.txt"
   chmod 600 "$SH/app.env" "$SH/initial-admin-password.txt"
@@ -52,8 +57,10 @@ ENV
 else
   # bestehende Secrets bleiben unangetastet; nur Port und URL folgen dem Aufruf
   sed -i -e "s|^PORT=.*|PORT=$PORT|" -e "s|^PUBLIC_BASE_URL=.*|PUBLIC_BASE_URL=$PUBLIC_URL|" "$SH/app.env"
+  if grep -q '^POOL_FILE=' "$SH/app.env"; then sed -i "s|^POOL_FILE=.*|POOL_FILE=$POOL_REL|" "$SH/app.env"
+  else echo "POOL_FILE=$POOL_REL" >> "$SH/app.env"; fi
   chmod 600 "$SH/app.env"
-  say "Bestehende app.env beibehalten (nur PORT/PUBLIC_BASE_URL aktualisiert)."
+  say "Bestehende app.env beibehalten (nur PORT/PUBLIC_BASE_URL/POOL_FILE aktualisiert)."
 fi
 
 PREV=""; [ -L "$BASE/current" ] && PREV="$(readlink "$BASE/current")"
@@ -87,7 +94,7 @@ After=network.target
 
 [Service]
 Type=simple
-User=opc
+User=$RUN_USER
 WorkingDirectory=$BASE/current
 EnvironmentFile=$SH/app.env
 ExecStart=$BASE/venv/bin/gunicorn -c gunicorn.conf.py wsgi:app
@@ -122,7 +129,7 @@ done
 
 PID="$(systemctl show -p MainPID --value "$SERVICE")"
 echo "REMOTE_RESULT release=$RID pid=$PID active=$(systemctl is-active "$SERVICE") previous=${PREV:-none}"
-for p in /, /screen, /admin, /healthz, /readyz; do
-  echo "REMOTE_CHECK $p $(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$PORT${p%,}")"
+for p in / /screen /admin /healthz /readyz; do
+  echo "REMOTE_CHECK $p $(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$PORT$p")"
 done
 ss -ltnp 2>/dev/null | grep ":$PORT " || true

@@ -32,7 +32,12 @@ check "Doppelstimme"    "$(vote A smoke-req-0002)" 409
 check "Retry gleiche ID" "$(vote B smoke-req-0001)" 200
 check "Zwischenstand verborgen" "$(curl -s -b $P $BASE/api/state | grep -c '"counts"')" 0
 check "close_voting"    "$(adm close_voting)" 200
-check "publish_result"  "$(adm publish_result)" 200
+# AUTO_PUBLISH_RESULT=true (Standard ausser testing) gibt das Ergebnis schon beim Schliessen frei
+if curl -s $BASE/api/state | grep -q '"state":"result_visible"'; then
+  echo "OK   publish_result (automatisch freigegeben)"
+else
+  check "publish_result"  "$(adm publish_result)" 200
+fi
 check "Ergebnis sichtbar" "$(curl -s $BASE/api/state | grep -c '"winner":"B"')" 1
 check "start_challenge" "$(adm start_challenge)" 200
 check "finish_challenge" "$(adm finish_challenge)" 200

@@ -11,19 +11,19 @@ from sqlalchemy.exc import IntegrityError, OperationalError
 
 from ..extensions import db
 from ..models import Round, RoundOption, Scorecard, SessionState, Topic, Vote
+from ..pool import DIFFICULTIES, MAX_OPTIONS, MIN_OPTIONS, RISKS, PoolError  # eine Quelle mit dem Pool-Loader
+from ..pool import OPTION_KEYS as OPTIONS
 from ..util import ApiError, utcnow
 from . import seed
 from .audit import audit
 from .state_machine import check_transition
 
-OPTIONS = ("A", "B", "C", "D")
-MAX_OPTIONS, MIN_OPTIONS = 4, 2
-DIFFICULTIES = ("Leicht", "Mittel", "Schwer")
-RISKS = ("Niedrig", "Mittel", "Hoch")
+
+# Die ersten vier entsprechen format.scorecard des Pools (Seed prueft das); Schluessel sind in der DB gespeichert.
 RATINGS = [
     ("ai_correct", "AI richtig"),
     ("ai_hallucinated", "AI halluziniert"),
-    ("wrong_problem", "falsches Problem gelöst"),
+    ("wrong_problem", "Falsches Problem gelöst"),
     ("dba_instinct", "DBA-Instinkt gewinnt"),
     ("human_with_ai", "Mensch mit AI gewinnt"),
     ("task_done", "Aufgabe erfolgreich abgeschlossen"),
@@ -396,7 +396,11 @@ def reset_session():
     ss = refresh()
     for rnd in Round.query.all():
         _clear_round(rnd)
-    seed.reset_slots()
+    try:
+        seed.reset_slots()
+    except PoolError as e:
+        db.session.rollback()
+        raise ApiError("pool_error", "Pool-Datei fehlerhaft, Session nicht zurückgesetzt: %s" % e, 500)
     ss = get_ss()
     first = Round.query.order_by(Round.number).first()
     ss.state, ss.active_round_id, ss.updated_at = "waiting", first.id, utcnow()

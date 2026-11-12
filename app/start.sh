@@ -23,17 +23,31 @@ if [ ! -x .venv/bin/gunicorn ]; then
 fi
 export PATH="$ROOT/.venv/bin:$PATH" FLASK_APP=wsgi:app
 
-is_ours() { [ -r "/proc/$1/cmdline" ] && tr '\0' ' ' < "/proc/$1/cmdline" | grep -q "gunicorn.*wsgi:app"; }
+# Prozess-Kommandozeile und Port-Belegung: Linux/WSL2 (/proc, ss) und macOS (ps, lsof)
+cmdline() { if [ -r "/proc/$1/cmdline" ]; then tr '\0' ' ' < "/proc/$1/cmdline"; else ps -p "$1" -o command= 2>/dev/null || true; fi; }
+is_ours() { [ -n "$1" ] && cmdline "$1" | grep -q "gunicorn.*wsgi:app"; }
+port_busy() {
+  if command -v ss >/dev/null 2>&1; then ss -ltn "( sport = :$1 )" | grep -q LISTEN
+  else lsof -nP -iTCP:"$1" -sTCP:LISTEN >/dev/null 2>&1; fi
+}
 if [ -f run/app.pid ] && is_ours "$(cat run/app.pid)"; then
   echo "Läuft bereits (PID $(cat run/app.pid)). Erst ./stop.sh ausführen."; exit 1
 fi
-if ss -ltn "( sport = :$PORT )" | grep -q LISTEN; then
+if port_busy "$PORT"; then
   echo "FEHLER: Port $PORT ist bereits belegt (fremder Prozess wird nicht beendet)." >&2
   echo "Anderen Port wählen, z.B.: PORT=$((PORT+1)) ./start.sh" >&2; exit 1
 fi
 
-flask db upgrade >> logs/app.log 2>&1
-flask seed-data >> logs/app.log 2>&1
+# Migration und Seed (Pool-Datei: POOL_FILE, Standard ../pool/doag-ak-2026.yaml); Fehler und Warnungen sichtbar machen
+run_step() {
+  local out rc=0
+  out="$("$@" 2>&1)" || rc=$?
+  printf '%s\n' "$out" >> logs/app.log
+  if [ "$rc" -ne 0 ]; then echo "FEHLER: '$*' fehlgeschlagen:" >&2; printf '%s\n' "$out" | tail -5 >&2; exit 1; fi
+  printf '%s\n' "$out" | grep -E '^(WARNUNG|Seed-Daten)' || true
+}
+run_step flask db upgrade
+run_step flask seed-data
 gunicorn -c gunicorn.conf.py --daemon --pid run/app.pid --log-file logs/app.log wsgi:app
 
 for _ in $(seq 1 30); do

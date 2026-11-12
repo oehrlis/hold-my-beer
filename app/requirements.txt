@@ -4,4 +4,5 @@ Flask-Migrate>=4.0,<5
 Flask-WTF>=1.2,<2
 Flask-Limiter>=3.5,<4
 qrcode>=7.4,<9
+PyYAML>=6.0,<7
 gunicorn>=22,<24

@@ -33,15 +33,15 @@ def test_full_session_flow(app, tmp_path):
 
     assert a2.admin("next_round").status_code == 200               # 15 naechste Runde
     assert a2.astate()["round"]["number"] == 2
-    for n in (2, 3, 4):                                            # restliche Runden schnell durchspielen
+    for n in (2, 3):                                            # restliche Runden schnell durchspielen
         assert a2.admin("open_voting", {"duration": 30}).status_code == 200
         Client(app2).post("/api/vote", {"option": "A", "request_id": "flow-round-%d-xx" % n})
         for act in ("close_voting", "publish_result", "start_challenge", "finish_challenge"):
             assert a2.admin(act).status_code == 200
-        if n < 4:
+        if n < 3:
             assert a2.admin("next_round").status_code == 200
-    assert a2.admin("next_round").status_code == 409               # keine 5. Runde
+    assert a2.admin("next_round").status_code == 409               # keine 4. Runde (Pool hat 3)
     assert a2.admin("show_closing").status_code == 200             # 16 Closing
     closing = Client(app2).state()
-    assert closing["state"] == "closing" and len(closing["closing"]) == 4
+    assert closing["state"] == "closing" and len(closing["closing"]) == 3
     assert closing["closing"][0]["topic"] == "Shell Health-Check für Alert-Log und Listener"

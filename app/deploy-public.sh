@@ -1,13 +1,21 @@
 #!/usr/bin/env bash
-# OPTIONAL: Deployment auf den Public Compute Node.  Nutzung: ./deploy-public.sh [PORT]   (Standard 8080)
-# Aendert keine Firewall und keine OCI-Regeln. Beendet keine fremden Prozesse.
+# OPTIONAL: Deployment auf einen eigenen Linux-Host (z.B. OCI Compute).
+# Nutzung: SSH_USER=<user> SSH_HOST=<host> SSH_KEY=<pfad-zum-key> ./deploy-public.sh [PORT]   (Standard 8080)
+# Aendert keine Firewall und keine Cloud-Regeln. Beendet keine fremden Prozesse.
 set -euo pipefail
 cd "$(dirname "$(readlink -f "$0")")"
 
 PORT="${1:-8080}"
-SSH_USER="${SSH_USER:-opc}"
-SSH_HOST="${SSH_HOST:-<host-ip>}"
-SSH_KEY="${SSH_KEY:-$HOME/.ssh/<ssh-key>}"
+SSH_USER="${SSH_USER:-}"
+SSH_HOST="${SSH_HOST:-}"
+SSH_KEY="${SSH_KEY:-}"
+MISSING=""
+for v in SSH_USER SSH_HOST SSH_KEY; do [ -n "${!v}" ] || MISSING="$MISSING $v"; done
+if [ -n "$MISSING" ]; then
+  echo "FEHLER: Pflichtvariable(n) nicht gesetzt:$MISSING" >&2
+  echo "Beispiel: SSH_USER=<user> SSH_HOST=<host> SSH_KEY=~/.ssh/<key> ./deploy-public.sh ${PORT}" >&2
+  exit 2
+fi
 SERVICE=oracle-live-voting
 
 [[ "$PORT" =~ ^[0-9]+$ ]] && [ "$PORT" -ge 1024 ] && [ "$PORT" -le 65535 ] \
@@ -25,7 +33,7 @@ echo "==> SSH-Verbindung testen"
 "${SSH[@]}" 'echo verbunden: $(hostname)' || { echo "FEHLER: SSH-Verbindung fehlgeschlagen." >&2; exit 3; }
 
 echo "==> Port $PORT auf dem Ziel prüfen"
-LISTEN="$("${SSH[@]}" "ss -ltnp 2>/dev/null | grep -E ':$PORT[[:space:]]' || true")"
+LISTEN="$("${SSH[@]}" "ss -ltnp 2>/dev/null | grep -E ':${PORT}[[:space:]]' || true")"
 if [ -n "$LISTEN" ]; then
   OWN_PID="$("${SSH[@]}" "systemctl show -p MainPID --value $SERVICE 2>/dev/null || true")"
   if [ -n "$OWN_PID" ] && [ "$OWN_PID" != "0" ] && grep -q "pid=$OWN_PID," <<<"$LISTEN"; then

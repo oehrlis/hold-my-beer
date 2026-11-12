@@ -29,7 +29,7 @@
     <div class="row">
       <label for="a-dur">Dauer (Sekunden)</label>
       <select id="a-dur">
-        <option>30</option><option>45</option><option selected>60</option><option>90</option><option>120</option>
+        {% for d in durations %}<option{% if d == default_duration %} selected{% endif %}>{{ d }}</option>{% endfor %}
       </select>
       <button class="btn btn-primary" id="b-open" type="button">Voting öffnen</button>
       <button class="btn btn-warn" id="b-close" type="button">Voting jetzt beenden</button>

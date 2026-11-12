@@ -44,7 +44,9 @@ def _digest(s):
 def page():
     if not _is_logged_in():
         return render_template("admin_login.html", error=None)
-    return render_template("admin.html")
+    default = current_app.config["VOTING_SECONDS"]
+    return render_template("admin.html", default_duration=default,
+                           durations=sorted({30, 45, 60, 90, 120, default}))
 
 
 @bp.post("/login")

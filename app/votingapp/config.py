@@ -2,6 +2,8 @@
 import os
 from pathlib import Path
 
+from .pool import DEFAULT_POOL_FILE
+
 SESSION_TITLE = "Denn sie wissen nicht, was sie tun"
 SESSION_SUBTITLE = "Oracle live mit Oehrli, Berger und KI"
 
@@ -13,6 +15,18 @@ def _bool(value, default):
     if value is None or value == "":
         return default
     return str(value).strip().lower() in ("1", "true", "yes", "on")
+
+
+def _int(value, default, name, lo, hi):
+    if value is None or value == "":
+        return default
+    try:
+        n = int(value)
+    except ValueError:
+        n = None
+    if n is None or not lo <= n <= hi:
+        raise RuntimeError("%s muss eine ganze Zahl von %d bis %d sein (ist: %r)" % (name, lo, hi, value))
+    return n
 
 
 def build_config(instance_path, overrides=None):
@@ -36,6 +50,13 @@ def build_config(instance_path, overrides=None):
         "HOST": os.environ.get("HOST", "0.0.0.0"),
         "PORT": int(os.environ.get("PORT", "5000")),
         "PROXY_FIX_ENABLED": _bool(os.environ.get("PROXY_FIX_ENABLED"), False),
+        # Anzahl vertrauenswuerdiger Proxies, die X-Forwarded-For anhaengen (Cloudflare Tunnel: 1,
+        # Cloudflare + Nginx mit $proxy_add_x_forwarded_for: 2). Proto/Host kommen immer vom letzten Hop.
+        "PROXY_FIX_X_FOR": _int(os.environ.get("PROXY_FIX_X_FOR"), 1, "PROXY_FIX_X_FOR", 1, 5),
+        # Ziel des Teilen-QR-Codes (Icon oben rechts); leer = PUBLIC_BASE_URL bzw. lokale Adresse
+        "SHARE_URL": (os.environ.get("SHARE_URL") or "").rstrip("/"),
+        # Themenpool (YAML); relativ = ab App-Verzeichnis. Siehe README "Pool-Datei".
+        "POOL_FILE": os.environ.get("POOL_FILE") or DEFAULT_POOL_FILE,
         "BACKUP_DIR": os.environ.get("BACKUP_DIR") or str(Path(instance_path).parent / "backups"),
         "MAX_CONTENT_LENGTH": 16 * 1024,
         "SESSION_COOKIE_HTTPONLY": True,
@@ -48,7 +69,8 @@ def build_config(instance_path, overrides=None):
         "LOGIN_RATE_LIMIT": "5 per minute;20 per hour",
         "STATE_CACHE_TTL": 0.5,
         "ADMIN_IDLE_SECONDS": 60 * 60,
-        "CHALLENGE_SECONDS": 300,
+        "CHALLENGE_SECONDS": 300,  # wird beim App-Start aus format.challenge_minutes des Pools gesetzt
+        "VOTING_SECONDS": 60,  # Vorauswahl im Admin; aus format.voting_seconds des Pools
         "AUTO_PUBLISH_RESULT": _bool(os.environ.get("AUTO_PUBLISH_RESULT"), True),
         "JSON_AS_ASCII": False,
     }
