@@ -28,7 +28,7 @@ slides/build.sh --dry-run # slide plan only, no deck written
 TALKS_DIR=~/Repos/own/oehrlis/talks-dinu slides/build.sh # use another talks checkout or worktree
 ```
 
-`VOTING_URL` defaults to `https://prost.oradba.ch`; set it to override. Set but empty (`VOTING_URL= slides/build.sh`),
+`VOTING_URL` defaults to `https://hmb.oradba.ch`; set it to override. Set but empty (`VOTING_URL= slides/build.sh`),
 the build uses the placeholder `https://voting.example.org` and says so.
 
 ## How it fits together

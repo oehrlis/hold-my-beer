@@ -16,7 +16,7 @@
 # ------------------------------------------------------------------------------
 # CHANGE LOG:
 # 2026-11-12  oes  Initial release                                    0.1.0
-# 2026-11-12  oes  Default VOTING_URL https://prost.oradba.ch            0.2.0
+# 2026-11-12  oes  Default VOTING_URL https://hmb.oradba.ch            0.2.0
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
@@ -30,7 +30,7 @@ VERSION="0.2.0"
 EVENT=${EVENT:-"doag-ak-2026"}
 TALK_SLUG=${TALK_SLUG:-"wissen-nicht-was-sie-tun"}
 TALKS_DIR=${TALKS_DIR:-"$(cd "${REPO_DIR}/.." && pwd)/talks"}
-VOTING_URL=${VOTING_URL-"https://prost.oradba.ch"}  # set but empty: placeholder + WARN
+VOTING_URL=${VOTING_URL-"https://hmb.oradba.ch"}  # set but empty: placeholder + WARN
 DRY_RUN=${DRY_RUN:-"FALSE"}
 FORMAT="html"
 

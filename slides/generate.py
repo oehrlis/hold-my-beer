@@ -39,7 +39,7 @@ except ImportError:  # pragma: no cover - reported at runtime
     HAVE_QR = False
 
 REPO = Path(__file__).resolve().parents[1]
-DEFAULT_URL = "https://prost.oradba.ch"
+DEFAULT_URL = "https://hmb.oradba.ch"
 PLACEHOLDER_URL = "https://voting.example.org"  # used when VOTING_URL is set but empty
 IMAGE_TYPES = {".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".svg": "image/svg+xml"}
 OWNERS = ("Stefan", "Martin", "Gemeinsam", "Offen")

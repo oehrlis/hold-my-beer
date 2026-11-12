@@ -42,9 +42,9 @@ windows on the projector; the admin view runs on the second laptop or a phone.
 
 ## Open
 
-- [x] Subdomain `prost.oradba.ch` (decided 2026-11-12) - `PUBLIC_BASE_URL` = `VOTING_URL` =
-  `https://prost.oradba.ch`
-- [ ] Cloudflare for `prost.oradba.ch`: Tunnel (preferred) or proxied DNS, see `app/README.md`
+- [x] Subdomain `hmb.oradba.ch` (decided 2026-11-12 with Martin) - `PUBLIC_BASE_URL` = `VOTING_URL` =
+  `https://hmb.oradba.ch`
+- [ ] Cloudflare for `hmb.oradba.ch`: Tunnel (preferred) or proxied DNS, see `app/README.md`
 - [x] Lab DB: Oracle AI Database 26ai, CDB/PDB
 - [ ] Who runs `/admin` during the talk (second laptop or phone)
 - [ ] Rehearsal with one complete round incl. window switch
