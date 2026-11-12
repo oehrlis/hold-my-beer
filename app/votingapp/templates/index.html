@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block bodyclass %}p-body{% endblock %}
+{% block body %}
+<header class="brand">
+  {% include "_share_qr.html" %}
+  <span class="brand-tag">ORACLE · DBA · AI</span>
+  <span id="net" class="net" role="status" aria-live="polite" hidden>Verbindung gestört – letzter Stand bleibt sichtbar</span>
+</header>
+<main id="main" class="p-main">
+  <section id="v-intro" class="view" hidden>
+    <h1>{{ config.SESSION_TITLE }}</h1>
+    <p class="subtitle">{{ config.SESSION_SUBTITLE }}</p>
+    <p class="lead">Ihr entscheidet live, welche Oracle-Aufgabe wir als Nächstes angehen. Pro Runde gibt es drei Themen &ndash; wählt eines aus und bestätigt eure Stimme. Kein Login, keine Namen, keine E-Mail-Adressen.</p>
+    <button id="btn-start" class="btn btn-primary btn-xl" type="button">Los geht’s</button>
+  </section>
+
+  <section id="v-waiting" class="view" hidden>
+    <p class="eyebrow" id="w-eyebrow"></p>
+    <h1 id="w-title">Gleich geht’s los</h1>
+    <p class="lead" id="w-text"></p>
+  </section>
+
+  <section id="v-voting" class="view" hidden>
+    <p class="eyebrow" id="r-eyebrow"></p>
+    <h1 id="r-title"></h1>
+    <p class="countdown" role="timer"><span class="sr">Verbleibende Zeit: </span><span id="r-count">--</span></p>
+    <div id="r-options" class="options" role="radiogroup" aria-label="Themen zur Auswahl"></div>
+    <div class="actions" id="r-actions">
+      <button id="btn-random" class="btn btn-ghost" type="button">Zufallsthema für mich</button>
+      <button id="btn-vote" class="btn btn-primary btn-xl" type="button" disabled>Stimme abgeben</button>
+    </div>
+    <p id="r-msg" class="msg" role="status" aria-live="polite"></p>
+    <div id="r-done" class="done" hidden>
+      <p class="done-title">✓ Deine Stimme ist gespeichert</p>
+      <p id="r-done-text"></p>
+      <p class="muted">Das Ergebnis wird vom Admin freigegeben.</p>
+    </div>
+  </section>
+
+  <section id="v-challenge" class="view challenge-focus" hidden>
+    <h1 id="live-topic"></h1>
+    <p class="challenge-countdown" role="timer" aria-label="Verbleibende Challenge-Zeit"><span id="live-count">--</span></p>
+  </section>
+
+  <section id="v-result" class="view" hidden>
+    <p class="eyebrow" id="x-eyebrow"></p>
+    <h1 id="x-title">Ergebnis</h1>
+    <div id="x-bars" class="bars"></div>
+    <p id="x-winner" class="winner"></p>
+    <div id="x-challenge" class="card split" hidden>
+      <div id="x-ch-body"></div>
+      <div id="x-timer-box" class="split-timer" hidden role="timer" aria-label="Challenge-Zeit">
+        <p class="eyebrow">Zeit</p>
+        <p class="countdown" id="x-timer">--</p>
+        <p class="muted" id="x-timer-note"></p>
+      </div>
+    </div>
+    <div id="x-score" class="card" hidden></div>
+  </section>
+
+  <section id="v-closing" class="view" hidden>
+    <h1>Danke fürs Mitmachen!</h1>
+    <p class="lead">Das war „{{ config.SESSION_TITLE }}“.</p>
+    <ol id="c-list" class="summary"></ol>
+  </section>
+</main>
+<footer class="foot">{{ config.SESSION_SUBTITLE }}<br><button id="quick-reset" class="btn btn-ghost btn-sm" type="button">Admin-Reset</button></footer>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/participant.js') }}"></script>{% endblock %}
