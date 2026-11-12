@@ -29,6 +29,7 @@ this one (`~/Repos/own/oehrlis/talks` and `~/Repos/own/oehrlis/hold-my-beer`).
 slides/build.sh # standalone HTML into slides/doag-ak-2026/
 slides/build.sh --pdf # PDF instead of HTML
 slides/build.sh --dry-run # slide plan only, no deck written
+slides/build.sh -o /path/deck.html # other output file (required outside the repo with HMB_PRIVATE_DIR)
 TALKS_DIR=~/Repos/own/oehrlis/talks-dinu slides/build.sh # use another talks checkout or worktree
 ```
 
@@ -113,6 +114,28 @@ How an image gets onto a slide:
 - Generated slides: `ill((stem_de, stem_en, label_de, label_en))` in `generate.py`. Round dividers take their image
   from `ROUND_ILL` (round number -> image); a round without an entry or with a missing file has no image and no
   placeholder (INFO line)
+
+## Private images (Private Bilder)
+
+Some slides look better with a photo than with the drawing, e.g. an AI-generated photo in the style of the
+"distracted boyfriend" meme for the round 2 divider. Such photos never go into this repo - it is public, and that
+includes the built deck in `slides/<event>/`, which is committed.
+
+- Location: OneDrive `50_Community/Conferences/DOAG/2026-11-konferenz/media/hold-my-beer/` (not in git)
+- File name = stem of an illustration: `<stem>.jpg` or `<stem>.png` replaces `img/<stem>.svg` (same placement,
+  aspect ratio from the pixel size, rounded corners and a glass-blue keyline instead of the SVG panel). Prepare
+  photos at 1280 px width, JPEG about 80 % (`sips -Z 1280 -s format jpeg -s formatOptions 80 <in> --out <out>`)
+- Variable: `HMB_PRIVATE_DIR=<folder>`. The build prints one INFO line per private file, used or not
+- Guard: with `HMB_PRIVATE_DIR` set, `build.sh` stops if the output is inside the repo and names the fix. After a
+  private build it regenerates the public atoms, so `slides/build/atoms/` keeps no photo
+- The public build (no variable) is unchanged and uses the SVGs only
+
+```bash
+M=~/Library/CloudStorage/OneDrive-Accenture/50_Community/Conferences/DOAG/2026-11-konferenz
+HMB_PRIVATE_DIR="$M/media/hold-my-beer" slides/build.sh -o "$M/Own/wissen-nicht-was-sie-tun.html"
+```
+
+`-o` (or `OUT=`) works for public builds too; without it the deck goes to `slides/<event>/`.
 
 ## Theme
 

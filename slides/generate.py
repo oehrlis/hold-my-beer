@@ -97,6 +97,12 @@ VOTING_ILL = ("phone-voting-de", "phone-voting-en",
               "Handy mit dem Abstimmungsscreen der App, der Countdown läuft als Bier.",
               "Phone with the voting screen of the app, the countdown runs as beer.")
 IMG_DIR = Path(__file__).resolve().parent / "img"
+# alt text when a private photo replaces the SVG (the photo shows more than the drawing)
+PHOTO_LABELS = {
+    "distracted-dba": ("Der DBA mit Oracle-ACE-Laptop schaut der AI nach, die Oracle-Doku an seiner Hand ist fassungslos.",
+                       "The DBA with an Oracle ACE laptop turns to look at the AI, the Oracle docs holding his hand are"
+                       " stunned."),
+}
 WARNINGS: list[str] = []
 
 e = html.escape
@@ -130,11 +136,67 @@ def image_css(src_dir: Path) -> str:
     return "\n".join(rules)
 
 
+PHOTO_TYPES = (".jpg", ".jpeg", ".png")  # private images (HMB_PRIVATE_DIR): photos, never part of the repo
+PRIVATE: dict[str, Path] = {}  # stem -> private image that replaces img/<stem>.svg (set in main)
+
+
+def raster_size(path: Path) -> tuple[int, int] | None:
+    """Pixel size of a PNG or JPEG from its header (stdlib only)."""
+    data = path.read_bytes()
+    if data[:8] == b"\x89PNG\r\n\x1a\n":
+        return int.from_bytes(data[16:20], "big"), int.from_bytes(data[20:24], "big")
+    if data[:2] == b"\xff\xd8":
+        i = 2
+        while i + 9 < len(data):
+            if data[i] != 0xFF:
+                i += 1
+                continue
+            marker = data[i + 1]
+            if marker in (0xD8, 0x01) or 0xD0 <= marker <= 0xD7:
+                i += 2
+                continue
+            seg = int.from_bytes(data[i + 2:i + 4], "big")
+            if 0xC0 <= marker <= 0xCF and marker not in (0xC4, 0xC8, 0xCC):  # SOFn
+                return int.from_bytes(data[i + 7:i + 9], "big"), int.from_bytes(data[i + 5:i + 7], "big")
+            i += 2 + seg
+    return None
+
+
+def find_private(private_dir: Path | None, stems: set[str]) -> dict[str, Path]:
+    """Private images in ``private_dir`` whose stem matches an illustration; reports every file it uses or skips."""
+    if not private_dir:
+        return {}
+    if not private_dir.is_dir():
+        sys.exit(f"ERROR: HMB_PRIVATE_DIR is not a directory: {private_dir}")
+    found = {}
+    for img in sorted(private_dir.iterdir()):
+        if img.suffix.lower() not in PHOTO_TYPES:
+            continue
+        if img.stem in stems and img.stem not in found:
+            found[img.stem] = img
+            print(f"INFO: private image {img.name} replaces img/{img.stem}.svg", file=sys.stderr)
+        else:
+            print(f"INFO: private image {img.name} not used (no illustration img/{img.stem}.svg)", file=sys.stderr)
+    return found
+
+
 def ill_css(img_dir: Path) -> str:
     """CSS class ``img-<stem>`` per SVG in ``slides/img/``: data URI, aspect ratio from the viewBox and
-    rounded corners from the panel rect (``rx`` of the first full-size rect), so a shadow follows the panel."""
+    rounded corners from the panel rect (``rx`` of the first full-size rect), so a shadow follows the panel.
+    A private image with the same stem (``PRIVATE``) wins: photo as data URI, aspect ratio from its pixels,
+    fixed rounded corners and a glass-blue keyline instead of the SVG's own navy panel."""
     rules = []
     for svg in sorted(img_dir.glob("*.svg")):
+        photo = PRIVATE.get(svg.stem)
+        if photo:
+            size = raster_size(photo)
+            if not size:
+                sys.exit(f"ERROR: {photo}: no PNG/JPEG size in the header")
+            mime = IMAGE_TYPES.get(photo.suffix.lower(), "image/jpeg")
+            uri = data_uri(mime, photo.read_bytes())
+            rules.append(f".reveal .img-{svg.stem} {{ background-image: url({uri}); aspect-ratio: {size[0]} / {size[1]};"
+                         " background-size: cover; border: 2px solid #A8C8D8; border-radius: 12px; }")
+            continue
         text = svg.read_text(encoding="utf-8")
         vb = re.search(r'viewBox="\s*[-\d.]+\s+[-\d.]+\s+([\d.]+)\s+([\d.]+)"', text)
         if not vb:
@@ -150,12 +212,16 @@ def ill_css(img_dir: Path) -> str:
 
 
 def ill(spec: tuple[str, str, str, str], cls: str = "") -> str:
-    """Illustration as two ``div.ill`` (de/en, deck.css shows the active one); '' if a file is missing."""
+    """Illustration as two ``div.ill`` (de/en, deck.css shows the active one); '' if a file is missing.
+    A private photo for either stem adds the class ``ill-photo`` (layouts may size photos differently)."""
     stem_de, stem_en, label_de, label_en = spec
     missing = [s for s in (stem_de, stem_en) if not (IMG_DIR / f"{s}.svg").is_file()]
     if missing:
         print(f"INFO: illustration {', '.join(missing)}.svg not in {IMG_DIR} - slide without image", file=sys.stderr)
         return ""
+    if stem_de in PRIVATE or stem_en in PRIVATE:
+        cls = f"{cls} ill-photo".strip()
+        label_de, label_en = PHOTO_LABELS.get(stem_de, (label_de, label_en))
     extra = f" {cls}" if cls else ""
     return (f'<div class="ill img-{stem_de}{extra}" lang="de" role="img" aria-label="{e(label_de)}"></div>'
             f'<div class="ill img-{stem_en}{extra}" lang="en" role="img" aria-label="{e(label_en)}"></div>')
@@ -500,7 +566,10 @@ def main() -> int:
     ap.add_argument("--out", type=Path, default=REPO / "slides" / "build" / "atoms")
     ap.add_argument("--voting-url", default=os.environ.get("VOTING_URL", DEFAULT_URL))
     ap.add_argument("--logo", type=Path, default=REPO / "assets" / "logo" / "hold-my-beer.svg")
+    ap.add_argument("--private-dir", type=Path, default=os.environ.get("HMB_PRIVATE_DIR") or None,
+                    help="private images (photos) that replace img/<stem>.svg - never build such a deck into the repo")
     args = ap.parse_args()
+    PRIVATE.update(find_private(args.private_dir, {p.stem for p in IMG_DIR.glob("*.svg")}))
 
     url = args.voting_url.rstrip("/")
     if not url:
