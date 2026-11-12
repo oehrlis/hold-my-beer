@@ -34,5 +34,5 @@ First complete state for DOAG AK 2026 ("Denn sie wissen nicht was sie tun", 2026
 
 ### Security
 
-- Removed host IP, SSH user and key name from the app code. They remain in the imported history (`cfd83e1`) -
-  to be resolved before the repo goes public
+- Removed host IP, SSH user and key name from the app code. They remain in the imported history (`cfd83e1`);
+  Martin Berger accepted that on 2026-11-12, no history rewrite before the repo goes public
