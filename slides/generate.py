@@ -46,9 +46,43 @@ OWNERS = ("Stefan", "Martin", "Gemeinsam", "Offen")
 NO_OWNER = "Offen"
 OWNER_CLASS = {"Martin": " ring", "Gemeinsam": " ok2"}
 RESERVE_CLASS = {"Martin": " acc", "Gemeinsam": " ok"}
-LOGO_PX = 150
+LOGO_PX = 170
 OWNER_EN = {"Gemeinsam": "Joint", "Offen": "Open"}  # Stefan/Martin stay as they are
 TODO = '<span class="tag" style="background:var(--warn)">TODO</span>'
+CURSOR = '<span class="cur" aria-hidden="true"></span>'
+PS = '<span class="ps">$</span>'
+# Leitmotiv: cover subtitle, rules slide, takeaways
+MOTTO = ("AI ist kein Autopilot. Nutzt sie - gezielt, mit Kontext, und prüft, was rauskommt.",
+         "AI is no autopilot. Use it - deliberately, with context, and check what comes out.")
+# home-turf label per option owner on the round slides (the friendly duel)
+HOME = {
+    "Stefan": ("Heimspiel Stefan", "Stefan's home turf"),
+    "Martin": ("Heimspiel Martin", "Martin's home turf"),
+    "Gemeinsam": ("Kein Heimvorteil", "Nobody's home turf"),
+}
+# one punchline per scorecard category (keyed by the German pool name; unknown names get none)
+SCORE_QUIP = {
+    "AI richtig": ("Kommt vor. Wir zählen ehrlich mit.", "It happens. We count honestly."),
+    "AI halluziniert": ("Klingt überzeugend, existiert nicht.", "Sounds convincing, does not exist."),
+    "Falsches Problem gelöst": ("Schnell, elegant, am Ziel vorbei.", "Fast, elegant, wrong target."),
+    "DBA-Instinkt gewinnt": ("a.k.a. Grauhaar-Bonus", "a.k.a. the grey-hair bonus"),
+}
+# divider tagline per round number (optional; a missing one is reported as INFO)
+ROUND_TAG = {
+    1: ("Die AI wärmt sich auf. Wir uns auch.", "The AI warms up. So do we."),
+    2: ("Das, wofür man uns eigentlich bezahlt.", "The stuff we actually get paid for."),
+    3: ("Hier wird es spannend. Vor allem für die AI.", "Where it gets interesting. Mostly for the AI."),
+}
+# simple line icons for the four scorecard categories (in pool order), drawn for this deck
+ICONS = [
+    ("ok", '<rect x="10" y="10" width="44" height="44"/><path d="M20 33l8 8 16-19"/>'),
+    ("warn", ('<path d="M18 46h28a9 9 0 0 0 1-18 13 13 0 0 0-25-4 10 10 0 0 0-4 22z"/>'
+             '<path d="M28 31a4 4 0 1 1 5 4v3"/><path d="M33 42v1"/><path d="M14 54l3-3M24 56l2-3"/>')),
+    ("warn", ('<circle cx="26" cy="38" r="17"/><circle cx="26" cy="38" r="8"/><circle cx="26" cy="38" r="1.5"/>'
+             '<path d="M58 8L49 17"/><path d="M49 17l1-7M49 17l7-1"/>')),
+    ("", ('<path d="M22 56v-7c-6-4-9-10-8-17 1-10 9-17 19-17 10 0 17 7 17 16l5 9h-5v6c0 3-2 5-5 5h-5v5"/>'
+         '<path d="M22 12c2-5 6-6 9-3M31 9c3-4 8-4 10 0M41 10c3-2 7 0 8 4"/>')),
+]
 WARNINGS: list[str] = []
 
 e = html.escape
@@ -109,12 +143,28 @@ def grid_class(n: int, default: int) -> str:
     return f"g{n if n in (2, 3, 4) else default}"
 
 
-def score_tiles(cats: list[tuple[str, str]], numbered: bool) -> str:
-    return "\n".join(
-        f'    <div class="tile{" ring" if i % 2 else ""}"><span class="n">{i + 1 if numbered else "?"}</span>'
-        f'<span class="l">{bi(de, en)}</span></div>'
-        for i, (de, en) in enumerate(cats)
+def icon(i: int) -> str:
+    tone, paths = ICONS[i % len(ICONS)]
+    return (
+        f'<span class="ico {tone}" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" '
+        f'stroke-width="3" stroke-linecap="square" stroke-linejoin="miter">{paths}</svg></span>'
     )
+
+
+def score_tiles(cats: list[tuple[str, str]], final: bool) -> str:
+    """Scoreboard tiles: icon, category, punchline (intro) or an open score (final)."""
+    tiles = []
+    for i, (de, en) in enumerate(cats):
+        if final:
+            extra = '<span class="q">?</span>'
+        else:
+            q = SCORE_QUIP.get(de)
+            extra = f'<span class="s">{bi(*q)}</span>' if q else ""
+        tiles.append(
+            f'    <div class="tile{" ring" if i % 2 else ""}">{icon(i)}'
+            f'<span class="l">{bi(de, en)}</span>{extra}</div>'
+        )
+    return "\n".join(tiles)
 
 
 def qr_block(voting_url: str, fallback: str, size: int = 260) -> str:
@@ -175,8 +225,8 @@ def cover(ev: dict, logo: str, css: str, js: str) -> str:
       <div>
         <div class="crumb">{e(ev["name"])} · {e(ev["city"])}</div>
         <h1>{title}</h1>
-        <p class="sub">{bi("Live-Session ohne festgelegte Inhalte: Ihr wählt das Thema, wir und die AI liefern.",
-                           "A live session without fixed content: you pick the topic, we and the AI deliver.")}</p>
+        <p class="sub motto">{bi(*MOTTO)}</p>
+        <p class="prompt">{PS}hmb --live --topic {bi("ihr-entscheidet", "you-decide")}{CURSOR}</p>
       </div>
       <div class="meta"><strong>Stefan Oehrli · Martin Berger</strong> · {e(ev["short"])} ·
       {e(str(ev["date"]))}, {e(ev["time"])} · {bi("Raum", "Room")} {e(ev["room"])}</div>
@@ -190,12 +240,16 @@ def cover(ev: dict, logo: str, css: str, js: str) -> str:
       <div class="stamp">
         {logo_html}
         <div class="lab">HOLD MY BEER</div>
-        <h3>{bi("Oracle live, mit AI", "Oracle live, with AI")}</h3>
+        <h3>{bi("Ihr wählt das Thema. Wir und die AI liefern - live.",
+                "You pick the topic. We and the AI deliver - live.")}</h3>
+        <p class="quip">{bi("Zusammen über 50 Jahre Oracle. Zu alt für Hype, neugierig genug für AI.",
+                            "50+ years of Oracle between us. Too old for hype, curious enough for AI.")}</p>
       </div>
     </div>
   </div>
   <aside class="notes">Begrüssung, beide kurz auf die Bühne. Titel ist Programm: wir wissen
-  wirklich nicht, welche Themen kommen. Sprache umschalten: Taste L.</aside>
+  wirklich nicht, welche Themen kommen. Leitmotiv einmal laut sagen: AI ist kein Autopilot.
+  Sprache umschalten: Taste L.</aside>
 </section>
 """
 
@@ -205,7 +259,7 @@ def voting(fmt: dict, n_rounds: int, url: str, fb: str) -> str:
     mins = fmt["challenge_minutes"]
     return f"""<!-- atom: hold-my-beer/voting (generated) -->
 <section class="hmb">
-  <div class="sh"><span class="kicker">{bi("Voting-App", "Voting app")}</span><h2>{bi("So stimmt ihr ab", "How to vote")}</h2></div>
+  <div class="sh"><span class="kicker">{bi("Voting-App", "Voting app")}</span><h2>{bi("Handys raus: ihr entscheidet", "Phones out: you decide")}</h2></div>
   <div style="display:grid;grid-template-columns:3fr 1fr;gap:1.2rem;flex:1 1 auto">
     <div style="display:flex;flex-direction:column;gap:0.6rem">
       <div class="steps" style="margin-top:0">
@@ -215,15 +269,16 @@ def voting(fmt: dict, n_rounds: int, url: str, fb: str) -> str:
         <div class="step"><span class="snum">2</span><h4>{bi("Option wählen", "Pick an option")}</h4>
           <p>{bi(f"3 Optionen pro Runde, {secs} s Zeit", f"3 options per round, {secs} s")}</p></div>
         <div class="sarr">&rsaquo;</div>
-        <div class="step"><span class="snum">3</span><h4>{bi("Ergebnis", "Result")}</h4>
-          <p>{bi("live auf dem Beamer", "live on the projector")}</p></div>
+        <div class="step"><span class="snum">3</span><h4>{bi("Wir legen los", "We get going")}</h4>
+          <p>{bi(f"Ergebnis live, dann {mins} min Live-Arbeit", f"Result live, then {mins} min of live work")}</p></div>
       </div>
       <ul>
         <li>{bi("Eine Stimme pro Gerät und Runde", "One vote per device and round")}</li>
-        <li>{bi("Gleichstand: Stichwahl - nie Zufall", "Tie: run-off vote - never random")}</li>
-        <li>{bi(f"{n_rounds} Runden, danach je {mins} min live, dann Scorecard",
-                f"{n_rounds} rounds: {mins} min live each, then the scorecard")}</li>
-        <li>{bi("Mobilfunk nutzen, nicht das Konferenz-WLAN", "Use mobile data, not the conference Wi-Fi")}</li>
+        <li>{bi("Gleichstand: Stichwahl. Würfeln überlassen wir der AI.", "Tie: run-off vote. We leave the dice to the AI.")}</li>
+        <li>{bi(f"{n_rounds} Runden, nach jeder Runde die Scorecard",
+                f"{n_rounds} rounds, the scorecard after each one")}</li>
+        <li>{bi("Mobilfunk nutzen - das Konferenz-WLAN hat schon genug gelitten",
+                "Use mobile data - the conference Wi-Fi has suffered enough")}</li>
       </ul>
     </div>
     {qr_block(url, fb)}
@@ -235,18 +290,54 @@ def voting(fmt: dict, n_rounds: int, url: str, fb: str) -> str:
 
 
 def scorecard(cats: list[tuple[str, str]]) -> str:
-    tiles = score_tiles(cats, numbered=True)
+    tiles = score_tiles(cats, final=False)
     return f"""<!-- atom: hold-my-beer/scorecard (generated) -->
 <section class="hmb">
-  <div class="sh"><span class="kicker">Scorecard</span><h2>{bi("Was wir nach jeder Runde zählen", "What we count after each round")}</h2></div>
-  <div class="{grid_class(len(cats), 4)}">
+  <div class="sh"><span class="kicker">Scorecard</span><h2>{bi("Nach jeder Runde: ein Strich", "After each round: one tally mark")}</h2></div>
+  <div class="{grid_class(len(cats), 4)} score">
 {tiles}
   </div>
-  <div class="qbox"><p>{bi("Nach jeder Runde: kurz auswerten, ein Strich in der passenden Kategorie. "
-                           "Am Ende zeigt die Scorecard, wer öfter recht hatte - AI oder DBA.",
-                           "After each round: a quick review, one tally mark in the matching category. "
-                           "At the end the scorecard shows who was right more often - AI or DBA.")}</p></div>
-  <aside class="notes">Scorecard ist der rote Faden. Fehler werden nicht kaschiert, sie werden gezählt.</aside>
+  <div class="qbox"><p>{bi("Fehler werden nicht kaschiert, sie werden gezählt. Am Ende zeigt die Scorecard, wer öfter recht hatte - AI oder DBA.",
+                           "Mistakes are not hidden, they are counted. At the end the scorecard shows who was right more often - AI or DBA.")}</p></div>
+  <p class="quip">{bi("Nebenwertung: Security-Nerd gegen Automation-Nerd. Wird nicht gezählt, aber erwähnt.",
+                      "Side bet: security nerd vs. automation nerd. Not counted, but definitely mentioned.")}</p>
+  <aside class="notes">Scorecard ist der rote Faden. Grauhaar-Bonus erklären: wenn Erfahrung schneller
+  ist als jedes Modell. Nebenwertung nur als Pointe, nicht auswerten.</aside>
+</section>
+"""
+
+
+def round_divider(rnd: dict, total: int, secs: int) -> str:
+    num = rnd["number"]
+    name_en = en_text(rnd, "name", f"round {num}")
+    tag = ROUND_TAG.get(num)
+    if not tag:
+        print(f"INFO: no divider tagline for round {num} ({rnd['name']}) - add one to ROUND_TAG", file=sys.stderr)
+    tag_html = f'\n      <p class="tagline">{bi(*tag)}</p>' if tag else ""
+    foam = (
+        '<svg class="foam" viewBox="0 0 230 70" aria-hidden="true"><g fill="#F0F5F8">'
+        '<ellipse cx="115" cy="58" rx="112" ry="14"/><circle cx="40" cy="42" r="26"/><circle cx="88" cy="30" r="30"/>'
+        '<circle cx="140" cy="28" r="32"/><circle cx="188" cy="42" r="26"/></g></svg>'
+    )
+    bubbles = (
+        '<svg class="bubbles" viewBox="0 0 120 160" aria-hidden="true" fill="none" stroke="#A8C8D8" stroke-width="3">'
+        '<circle cx="30" cy="140" r="9"/><circle cx="78" cy="104" r="6"/><circle cx="44" cy="64" r="11"/>'
+        '<circle cx="96" cy="26" r="7"/></svg>'
+    )
+    return f"""<!-- atom: hold-my-beer/runde-{num}-start (generated) -->
+<section class="acn-divider hmb-round" data-layout="section-divider">
+  <div class="rwrap">
+    <div class="rnum" aria-hidden="true">{foam}{num}</div>
+    <div>
+      <p class="rkick">{bi(f"Runde {num} von {total}", f"Round {num} of {total}")}</p>
+      <h2>{bi(rnd["name"], name_en)}</h2>{tag_html}
+      <p class="prompt">{PS}hmb vote --round {num} --timeout {secs}s{CURSOR}</p>
+      <p class="cue"><span class="live">LIVE</span>{bi("Abstimmung läuft gleich - Handys bereit.", "Voting opens in a moment - phones ready.")}</p>
+    </div>
+    {bubbles}
+  </div>
+  <aside class="notes">Runde {num} ankündigen, Rundenname und Pointe. Admin: Runde {num} bereit (waiting).
+  Weiter zur Optionen-Folie mit QR.</aside>
 </section>
 """
 
@@ -260,18 +351,22 @@ def round_slide(rnd: dict, total: int, secs: int, url: str, fb: str) -> str:
         owner = str(opt.get("owner", NO_OWNER))
         cls = OWNER_CLASS.get(owner, "")
         cat = bi(opt.get("category", ""), en_text(opt, "category", where)) if opt.get("category") else ""
+        home = HOME.get(owner)
+        home_html = bi(*home) if home else owner_bi(owner)
         cards.append(
             f'      <div class="tile opt{cls}" style="display:flex;flex-direction:column;gap:0.5rem;'
             'padding:0.9rem 0.8rem">\n'
             f'        <span class="n">{e(opt["key"])}</span>\n'
             f'        <h4>{bi(opt["title"], en_text(opt, "title", where))}</h4>\n'
-            f'        <span class="l">{owner_bi(owner)} · {cat}</span>\n'
+            f'        <span class="l">{cat}</span>\n'
+            f'        <span class="home">{home_html}</span>\n'
             "      </div>"
         )
     cards_html = "\n".join(cards)
+    keys = ",".join(str(o["key"]) for o in rnd["options"])
     return f"""<!-- atom: hold-my-beer/runde-{num} (generated) -->
 <section class="hmb">
-  <div class="sh"><span class="kicker">{bi(f"Runde {num} von {total} · Abstimmung {secs} s", f"Round {num} of {total} · voting {secs} s")}</span>
+  <div class="sh"><span class="kicker cmd">{PS}hmb vote --round {num}/{total} --options {e(keys)} --timeout {secs}s</span>
   <h2>{bi(f"Runde {num} - {rnd['name']}", f"Round {num} - {name_en}")}</h2></div>
   <div style="display:grid;grid-template-columns:3fr 1fr;gap:1.2rem;flex:1 1 auto;align-items:center">
     <div class="g3">
@@ -321,15 +416,15 @@ def reserve_topics(reserve: list[dict]) -> str:
 
 
 def scorecard_result(cats: list[tuple[str, str]], rounds: list[dict]) -> str:
-    tiles = score_tiles(cats, numbered=False)
+    tiles = score_tiles(cats, final=True)
     lis = "\n".join(
         f"      <li>{bi(f'Runde {r[0]} - {r[1]}: gespielt wurde ____', f'Round {r[0]} - {r[2]}: played ____')}</li>"
         for r in ((r["number"], r["name"], en_text(r, "name", f"round {r['number']}")) for r in rounds)
     )
     return f"""<!-- atom: hold-my-beer/scorecard-endstand (generated) -->
 <section class="hmb">
-  <div class="sh"><span class="kicker">{bi("Fazit", "Wrap-up")}</span><h2>{bi("Scorecard - Endstand", "Scorecard - final score")}</h2></div>
-  <div class="{grid_class(len(cats), 4)}">
+  <div class="sh"><span class="kicker">{bi("Fazit", "Wrap-up")}</span><h2>{bi("Endstand: AI gegen DBA", "Final score: AI vs. DBA")}</h2></div>
+  <div class="{grid_class(len(cats), 4)} score">
 {tiles}
   </div>
   <ul>
@@ -393,6 +488,12 @@ def main() -> int:
         meta_yaml("Scorecard", "Scorecard-Kategorien aus dem Pool", tags + ["scorecard"]),
     )
     for rnd in rounds:
+        write_atom(
+            args.out, f"runde-{rnd['number']}-start",
+            round_divider(rnd, len(rounds), fmt["voting_seconds"]),
+            meta_yaml(f"Runde {rnd['number']} - Start", "Trenner vor der Runde", tags + ["round", "divider"],
+                      "section-divider"),
+        )
         write_atom(
             args.out, f"runde-{rnd['number']}",
             round_slide(rnd, len(rounds), fmt["voting_seconds"], url, fb),

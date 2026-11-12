@@ -1,16 +1,22 @@
 <!-- atom: hold-my-beer/spielregeln (DE/EN: <span lang="de"> / <span lang="en">, see slides/README.md) -->
 <section class="hmb">
   <div class="sh"><span class="kicker"><span lang="de">Spielregeln</span><span lang="en">Rules of the game</span></span>
-  <h2><span lang="de">So läuft das heute</span><span lang="en">How this works today</span></h2></div>
-  <div class="g3">
-    <div class="card"><h4><span lang="de">AI darf alles</span><span lang="en">AI may do anything</span></h4>
-      <p><span lang="de">Die AI schreibt SQL, Skripte und Konfiguration. Wir tippen den Auftrag, nicht die Lösung.</span><span lang="en">The AI writes SQL, scripts and configuration. We type the task, not the solution.</span></p></div>
-    <div class="card acc"><h4><span lang="de">Mensch darf eingreifen</span><span lang="en">Humans may step in</span></h4>
-      <p><span lang="de">Wenn die AI danebenliegt, greifen wir ein - und sagen, warum.</span><span lang="en">When the AI is off, we step in - and say why.</span></p></div>
-    <div class="card bad"><h4><span lang="de">Jeder Fehler wird laut benannt</span><span lang="en">Every mistake is called out</span></h4>
-      <p><span lang="de">Nichts wird kaschiert. Ein Fehler ist hier Inhalt, keine Panne.</span><span lang="en">Nothing is hidden. Here a mistake is content, not a glitch.</span></p></div>
+  <h2><span lang="de">Die Umgebung ist vorbereitet. Das Ergebnis nicht.</span><span lang="en">The environment is prepared. The outcome is not.</span></h2></div>
+  <div class="g3 short">
+    <div class="card rule fragment"><p class="cmdline"><span class="ps">SQL&gt;</span>GRANT DBA TO ai;</p>
+      <h4><span lang="de">AI darf alles</span><span lang="en">The AI may do anything</span></h4>
+      <p><span lang="de">Sie schreibt SQL, Skripte und Konfiguration. Wir tippen den Auftrag, nicht die Lösung.</span><span lang="en">It writes SQL, scripts and configuration. We type the task, not the solution.</span></p>
+      <p class="quip"><span lang="de">Ja, der Security-Nerd hat zugestimmt. Einmalig.</span><span lang="en">Yes, the security nerd signed off. Once.</span></p></div>
+    <div class="card rule acc fragment"><p class="cmdline"><span class="ps">$</span>^C</p>
+      <h4><span lang="de">Wir auch</span><span lang="en">So may we</span></h4>
+      <p><span lang="de">Liegt die AI daneben, greifen wir ein - inklusive Ctrl+C - und sagen, warum.</span><span lang="en">When the AI is off, we step in - Ctrl+C included - and say why.</span></p></div>
+    <div class="card rule bad fragment"><p class="cmdline"><span class="ps">SQL&gt;</span>AUDIT POLICY <span lang="de">fehler</span><span lang="en">mistakes</span>;</p>
+      <h4><span lang="de">Jeder Fehler wird laut benannt</span><span lang="en">Every mistake is called out</span></h4>
+      <p><span lang="de">Auch unsere. Ein Fehler ist hier Inhalt, keine Panne.</span><span lang="en">Ours included. Here a mistake is content, not a glitch.</span></p>
+      <p class="quip"><span lang="de">Ausnahmsweise ohne NOAUDIT.</span><span lang="en">For once, no NOAUDIT.</span></p></div>
   </div>
-  <div class="qbox"><p><span lang="de">Ehrlich gesagt: Die Umgebung ist vorbereitet. Das Ergebnis nicht.</span><span lang="en">To be honest: the environment is prepared. The result is not.</span></p></div>
-  <aside class="notes">Ehrliches Setup betonen: zwei DBAs, keine Vorbereitung auf das gewählte Thema.
-  Mal gemeinsam, mal gegeneinander.</aside>
+  <div class="qbox motto fragment"><p><span lang="de">AI ist kein Autopilot. Nutzt sie - gezielt, mit Kontext, und prüft, was rauskommt.</span><span lang="en">AI is no autopilot. Use it - deliberately, with context, and check what comes out.</span></p></div>
+  <aside class="notes">Regeln einzeln einblenden. Ehrliches Setup betonen: zwei DBAs, keine Vorbereitung
+  auf das gewählte Thema - Umgebung ja, Ergebnis nein. Mal gemeinsam, mal gegeneinander.
+  Leitmotiv zum ersten Mal: AI ist kein Autopilot.</aside>
 </section>

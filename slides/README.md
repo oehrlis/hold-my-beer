@@ -13,6 +13,7 @@ scorecard, one slide per round, conclusion, thank-you, reserve. No demo content 
 | `deck-lang.js` | DE/EN switch, inlined into the generated cover |
 | `build/atoms/` | generated atoms - git-ignored, rebuilt by every build |
 | `build.sh` | generate, then assemble the deck with the `talk` CLI |
+| `IMAGE-IDEAS.md` | illustration and meme ideas per slide (own variants in the logo style, nothing embedded) |
 | `<event>/` | built deck per event, e.g. `doag-ak-2026/wissen-nicht-was-sie-tun.html` |
 
 Topic titles exist only in the pool YAML. Never copy them into `src/` - change the pool and rebuild.
@@ -43,6 +44,20 @@ the build uses the placeholder `https://voting.example.org` and says so.
   `img-<file stem>` (data URI in the cover's style block), so the standalone deck stays one file.
 - Reserve slides sit after the thank-you slide with `data-visibility="uncounted"`: reachable with the arrow keys,
   not counted in the slide number. The talk CLI's own `reserve: true` drops slides from HTML, so it is not used.
+
+## Design
+
+Accenture theme as the base (fonts, brandbar, grid, purple). The beer colours from the logo are accents for live and
+AI-warning moments only, defined as `--hmb-*` tokens in `deck.css`:
+
+- orange and gold: round numbers (divider), `LIVE` cue, prompt sign `$`, blinking cursor
+- dark orange: AI-failure labels (`.card.bad`, punchlines `.quip`, scorecard icons for AI mistakes)
+- navy: terminal boxes (`.term-hmb`), the logo's ground; glass blue: divider bubbles
+- terminal motif: `.prompt` lines and the round kicker as an `hmb vote ...` command, mono font as in the logo
+
+Each round gets two generated atoms: `runde-N-start` (full-bleed divider) and `runde-N` (options + QR). Both must be
+listed in the talk recipe. Fragments: rules and takeaways appear one by one; `?fragments=false` shows everything
+(screenshots, review).
 
 ## Language (Sprache)
 
