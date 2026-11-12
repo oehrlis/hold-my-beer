@@ -1,0 +1,14 @@
+title: "Voraussetzungen"
+description: "Umgebung, AI-Tools, Netz, Sicherheit, Fallback"
+layout: html-section
+tags: [hold-my-beer, setup]
+topic: hold-my-beer
+version: ""
+level: intermediate
+lang: de
+mandatory: false
+updated: 2026-11-12
+author: Stefan Oehrli
+assets: []
+audience: [dba]
+classification: public

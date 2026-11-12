@@ -1,0 +1,14 @@
+title: "Spielregeln"
+description: "AI darf alles, Mensch darf eingreifen, Fehler werden benannt"
+layout: html-section
+tags: [hold-my-beer, rules]
+topic: hold-my-beer
+version: ""
+level: intermediate
+lang: de
+mandatory: false
+updated: 2026-11-12
+author: Stefan Oehrli
+assets: []
+audience: [dba]
+classification: public

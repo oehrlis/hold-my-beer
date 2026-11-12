@@ -1,0 +1,18 @@
+<!-- atom: hold-my-beer/fehlermuster-1-packages -->
+<section class="hmb" data-visibility="uncounted">
+  <div class="sh"><span class="kicker">Reserve · Fehlermuster 1 von 3</span><h2>Halluzinierte Packages und Optionen</h2></div>
+  <div class="g2">
+    <div class="card bad"><h4>Was die AI erfindet</h4>
+      <ul>
+        <li>Database Vault: Prozedurparameter erfunden, falsche Reihenfolge</li>
+        <li>DBMS_PRIVILEGE_CAPTURE falsch gestartet, Auswertung vergessen</li>
+        <li>RMAN RECOVER TABLE: Optionen halluziniert</li>
+        <li>Ansible: Collection-Module, die es nicht gibt</li>
+        <li>Terraform: Provider-Attribute und Argumentnamen erfunden</li>
+      </ul></div>
+    <div class="card ok"><h4>Was dagegen hilft</h4>
+      <p>Prüfen vor Ausführen: existiert das Package, die Option, das Modul wirklich -
+      in der Doku und in der Ziel-Version?</p></div>
+  </div>
+  <aside class="notes">Fallback, wenn eine Live-Runde ausfällt: "so lief es bei der Probe".</aside>
+</section>

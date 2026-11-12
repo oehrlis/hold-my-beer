@@ -1,0 +1,14 @@
+title: "Reserve"
+description: "Trenner vor den Reservefolien"
+layout: section-divider
+tags: [hold-my-beer, reserve]
+topic: hold-my-beer
+version: ""
+level: intermediate
+lang: de
+mandatory: false
+updated: 2026-11-12
+author: Stefan Oehrli
+assets: []
+audience: [dba]
+classification: public

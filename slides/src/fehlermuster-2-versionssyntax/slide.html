@@ -1,0 +1,18 @@
+<!-- atom: hold-my-beer/fehlermuster-2-versionssyntax -->
+<section class="hmb" data-visibility="uncounted">
+  <div class="sh"><span class="kicker">Reserve · Fehlermuster 2 von 3</span><h2>Versionssyntax</h2></div>
+  <div class="g2">
+    <div class="card bad"><h4>Richtig - für ein anderes Release</h4>
+      <ul>
+        <li>Traditional und Unified Auditing gemischt, NOAUDIT vergessen</li>
+        <li>sqlnet.ora ENCRYPTION_WALLET_LOCATION statt WALLET_ROOT</li>
+        <li>exp/imp statt Data Pump</li>
+        <li>Listener- und sqlnet.ora-Parameter pro Release verwechselt</li>
+        <li>DBA_-Views ohne CDB-Kontext, PASSWORD_VERSIONS ungenau</li>
+      </ul></div>
+    <div class="card ok"><h4>Was dagegen hilft</h4>
+      <p>Version und Architektur (CDB/PDB) in den Prompt - und das Ergebnis gegen die
+      Ziel-Version prüfen.</p></div>
+  </div>
+  <aside class="notes">Fallback, wenn eine Live-Runde ausfällt.</aside>
+</section>

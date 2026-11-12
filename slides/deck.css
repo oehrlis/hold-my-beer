@@ -1,0 +1,20 @@
+/* hold-my-beer deck overrides - talk-local, scoped to section.hmb (theme and master-slides untouched).
+   Inlined into the generated cover atom by generate.py. Sizes in px: reveal canvas is 1280x720. */
+.reveal section.hmb .slide-body { gap: 0.9rem; }
+.reveal section.hmb .slide-body > .g2, .reveal section.hmb .slide-body > .g3 { flex: 1 1 auto; max-height: 470px; }
+.reveal section.hmb .card { padding: 1rem 1.2rem; }
+.reveal section.hmb .card h4, .reveal section.hmb .step h4 { font-size: 28px; margin-bottom: 0.55rem; line-height: 1.15; }
+.reveal section.hmb li, .reveal section.hmb .card p, .reveal section.hmb .card li { font-size: 23px; line-height: 1.35; }
+.reveal section.hmb li { margin: 0.28em 0; }
+.reveal section.hmb .step p { font-size: 22px; color: var(--dark-gray); }
+.reveal section.hmb .qbox p { font-size: 25px; }
+.reveal section.hmb .note { font-size: 18px; }
+.reveal section.hmb .tag { font-size: 18px; }
+.reveal section.hmb .tile .l { font-size: 22px; color: var(--dark-gray); }
+.reveal section.hmb .opt h4 { font-size: 30px; line-height: 1.2; text-align: center; }
+.reveal section.hmb .opt .l { font-size: 19px; }
+.reveal section.hmb .qr-url { font-size: 20px; text-align: center; }
+.reveal section.hmb .slide-body > .g4 { flex: 1 1 auto; max-height: 300px; }
+.reveal section.hmb .tile { justify-content: center; }
+.reveal section.hmb .tile .n { font-size: 64px; }
+.reveal section.hmb .opt { justify-content: center; min-height: 380px; }
