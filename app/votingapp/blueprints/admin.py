@@ -108,6 +108,7 @@ ACTIONS = {
     "delete_option": lambda b: voting.delete_option(_int(b, "round_id"), b.get("option")),
     "assign_reserve": lambda b: voting.assign_reserve(_int(b, "round_id"), b.get("option"), _int(b, "topic_id")),
     "reset_round": lambda b: (_need_confirm(b), voting.reset_round(_int(b, "round_id") if b.get("round_id") else None))[1],
+    "set_theme": lambda b: voting.set_theme(b.get("theme")),
     "reset_session": lambda b: (_need_confirm(b, "RESET"), voting.reset_session())[1],
 }
 

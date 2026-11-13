@@ -50,7 +50,7 @@ def _closing_summary():
 def _build_public(ss):
     rnd = ss.active_round
     data = {"state": ss.state, "round": None, "voting": None, "result": None,
-            "challenge": None, "scorecard": None, "closing": None}
+            "challenge": None, "scorecard": None, "closing": None, "theme": v.theme_of(ss)}
     if rnd is not None:
         data["round"] = {"id": rnd.id, "number": rnd.number, "name": rnd.name,
                          "total": Round.query.count(), "options": v.options_of(rnd),

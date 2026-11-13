@@ -150,7 +150,18 @@ Login-Rate-Limit: 5/Minute und 20/Stunde.
 `SHARE_URL` (Ziel des Teilen-QR-Codes hinter dem Icon; leer = `PUBLIC_BASE_URL`), `POOL_FILE` (siehe Pool-Datei),
 `DATABASE_URL`, `HOST`, `PORT`, `PROXY_FIX_ENABLED` (nur Production), `PROXY_FIX_X_FOR` (Anzahl Proxies, die
 `X-Forwarded-For` anhängen; Standard 1, siehe "Betrieb hinter Cloudflare"), `SESSION_COOKIE_SECURE`
-(Production-Standard `true`; `false` **nur** für den ersten HTTP-Test ohne HTTPS), `BACKUP_DIR`.
+(Production-Standard `true`; `false` **nur** für den ersten HTTP-Test ohne HTTPS), `BACKUP_DIR`,
+`APP_THEME` (Layout-Vorgabe `acn` = Accenture oder `hmb` = Hold my Beer, Standard `acn`).
+
+### Layout: Accenture / Hold my Beer
+
+Zwei Layouts für Teilnehmer, Beamer und Admin, gleiche Kürzel und Tasten wie das Deck (`slides/deck-theme.js`):
+`acn` (Accenture-Purpur auf Weiss, Marke `>` als Text, keine lizenzierte Schrift) und `hmb` (Navy/Bier-Orange
+des Deck-Skins mit Hold-my-Beer-Logo). Die Vorgabe kommt aus `APP_THEME`, bis der Admin im Panel „Layout“ eine
+andere setzt (gespeichert in `session_state.theme`, übersteht einen Session-Reset, Auditlog `theme_set`).
+Alle Clients übernehmen sie beim nächsten Poll. Jedes Gerät kann lokal abweichen: `?theme=acn|hmb` (nur diese
+Seite), Taste `t` oder der Schalter `ACN | HMB` im Kopf (bleibt im localStorage, Punkt = lokale Wahl);
+`Shift+T` folgt wieder der Vorgabe. Neue Farben gehören als Token in beide Blöcke oben in `static/css/app.css`.
 
 ### Tests, Lasttest, Smoke-Test
 

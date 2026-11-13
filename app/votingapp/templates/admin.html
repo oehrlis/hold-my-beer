@@ -3,6 +3,7 @@
 {% block bodyclass %}a-body{% endblock %}
 {% block body %}
 <header class="brand">
+  <span class="brand-mark" aria-hidden="true"></span>
   <span class="brand-tag">ORACLE · DBA · AI &middot; Admin</span>
   <span id="net" class="net" role="status" aria-live="polite" hidden>Verbindung gestört</span>
   <form method="post" action="{{ url_for('admin.logout') }}" class="inline">
@@ -21,6 +22,15 @@
       <label for="a-round-sel">Runde</label>
       <select id="a-round-sel"></select>
       <button class="btn btn-ghost" id="b-activate" type="button">Runde aktivieren</button>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-theme">
+    <h2 id="h-theme">Layout</h2>
+    <p class="muted">Vorgabe für Beamer und alle Handys. Wer lokal umgeschaltet hat (Taste T, ACN | HMB oben), behält seine Wahl bis Shift+T.</p>
+    <div class="theme-pick" role="group" aria-label="Layout-Vorgabe">
+      <button class="btn btn-ghost" id="b-theme-acn" type="button" data-theme-set="acn" aria-pressed="false">Accenture</button>
+      <button class="btn btn-ghost" id="b-theme-hmb" type="button" data-theme-set="hmb" aria-pressed="false">Hold my Beer</button>
     </div>
   </section>
 

@@ -7,6 +7,8 @@ from .pool import DEFAULT_POOL_FILE
 SESSION_TITLE = "Denn sie wissen nicht, was sie tun"
 SESSION_SUBTITLE = "Oracle live mit Oehrli, Berger und KI"
 
+THEMES = ("acn", "hmb")  # Accenture | Hold my Beer (OraDBA) - gleiche Kuerzel wie das Deck (slides/deck-theme.js)
+
 DEV_ADMIN_PASSWORD = "oracle-dev"  # nur Development, siehe README
 DEV_SECRET_KEY = "dev-only-secret-key-not-for-production"
 
@@ -54,6 +56,8 @@ def build_config(instance_path, overrides=None):
         # Cloudflare + Nginx mit $proxy_add_x_forwarded_for: 2). Proto/Host kommen immer vom letzten Hop.
         "PROXY_FIX_X_FOR": _int(os.environ.get("PROXY_FIX_X_FOR"), 1, "PROXY_FIX_X_FOR", 1, 5),
         # Ziel des Teilen-QR-Codes (Icon oben rechts); leer = PUBLIC_BASE_URL bzw. lokale Adresse
+        # Layout-Vorgabe, bis der Admin eine andere waehlt; jeder Client kann lokal abweichen (?theme=, Taste T)
+        "APP_THEME": (os.environ.get("APP_THEME") or "acn").strip().lower(),
         "SHARE_URL": (os.environ.get("SHARE_URL") or "").rstrip("/"),
         # Themenpool (YAML); relativ = ab App-Verzeichnis. Siehe README "Pool-Datei".
         "POOL_FILE": os.environ.get("POOL_FILE") or DEFAULT_POOL_FILE,
@@ -74,6 +78,9 @@ def build_config(instance_path, overrides=None):
         "AUTO_PUBLISH_RESULT": _bool(os.environ.get("AUTO_PUBLISH_RESULT"), True),
         "JSON_AS_ASCII": False,
     }
+
+    if cfg["APP_THEME"] not in THEMES:
+        raise RuntimeError("APP_THEME muss %s sein (ist: %r)" % (" oder ".join(THEMES), cfg["APP_THEME"]))
 
     if env == "production":
         cfg["SESSION_COOKIE_SECURE"] = _bool(os.environ.get("SESSION_COOKIE_SECURE"), True)
