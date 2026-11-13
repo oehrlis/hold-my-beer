@@ -5,9 +5,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- `terraform/`: own voting host on OCI (`VM.Standard.A1.Flex` 1 OCPU / 6 GB, Always Free, own VCN, inbound SSH from
+  `admin_cidrs` only) plus Cloudflare tunnel and proxied CNAME, cloud-init for `cloudflared` and `python3`; first
+  target `hmb2.oradba.ch` as test and backup. Cloudflare token via `op run` (`terraform/op.env`)
+- `scripts/hmb-host.sh`: app secrets as 1Password item, `app.env` on the host from it (stdin only, never
+  overwrites), public checks (readyz, QR URL, `no-store`, 404, services, listen address)
+- Makefile: `tf-init|plan|apply|output|ssh-config|destroy`, `host-secrets|env|deploy|check|up`, `lint-terraform`
+- `docs/runbook-terraform-host.md`; `tasks/open-work.md`
+
 ### Fixed
 
+- `app/deploy-public.sh`, `app/deploy/remote-install.sh`: a redeploy without `PUBLIC_BASE_URL` rewrote it to
+  `http://<SSH_HOST>:<PORT>` - on the live host `http://hmb:8080`, so the QR code pointed nowhere. Now an empty
+  value keeps `app.env`; a first deploy with an `https://` URL writes the tunnel settings (127.0.0.1, ProxyFix one
+  hop, secure cookie). Live host corrected by hand on 2026-11-13, QR decoded to `https://hmb.oradba.ch/`
+
 - `docs/runbook-cloudflare-tunnel.md`, found during the real setup on 2026-11-13:
+  - redeploy pitfall above, `make host-deploy` / `make host-check`, QR content check, all four 1Password items,
+    SSH alias `hmb hmb.oradba.ch` (DNS points to Cloudflare), shared host: port 8000 is not ours
   - `cloudflared` runs as root and writes to `/root/.cloudflared/`; `sudo cp ~/.cloudflared/...` expanded `~` to
     the login user before `sudo` and found nothing - now `sudo install -m 600` from `/root/.cloudflared/`
   - `--config` belongs to `tunnel`, not to `ingress validate` ("flag provided but not defined") - order fixed,

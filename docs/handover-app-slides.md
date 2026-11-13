@@ -44,8 +44,13 @@ windows on the projector; the admin view runs on the second laptop or a phone.
 
 - [x] Subdomain `hmb.oradba.ch` (decided 2026-11-12 with Martin) - `PUBLIC_BASE_URL` = `VOTING_URL` =
   `https://hmb.oradba.ch`
-- [ ] Cloudflare Tunnel for `hmb.oradba.ch`: [`runbook-cloudflare-tunnel.md`](runbook-cloudflare-tunnel.md)
+- [x] Cloudflare Tunnel for `hmb.oradba.ch`: [`runbook-cloudflare-tunnel.md`](runbook-cloudflare-tunnel.md) - live
+  since 2026-11-13, `PUBLIC_BASE_URL` fixed the same day (a redeploy had reset it to `http://hmb:8080`)
+- [ ] Own host via Terraform, test/backup `hmb2.oradba.ch`:
+  [`runbook-terraform-host.md`](runbook-terraform-host.md) - `hmb.oradba.ch` stays on the current host until then
 - [x] Lab DB: Oracle AI Database 26ai, CDB/PDB
 - [ ] Who runs `/admin` during the talk (second laptop or phone)
 - [ ] Rehearsal with one complete round incl. window switch
 - [ ] Martin reviews the app changes after the move (seed from the pool file, deploy defaults)
+- [ ] Martin reviews `deploy-public.sh` / `remote-install.sh` (2026-11-13): a redeploy without `PUBLIC_BASE_URL`
+  keeps the value in `app.env`; a first deploy with an `https://` URL writes the tunnel settings
