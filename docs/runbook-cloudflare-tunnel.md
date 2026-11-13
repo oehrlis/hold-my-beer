@@ -148,7 +148,7 @@ sudo ss -ltnp | grep -v 127.0.0.1
 ```
 
 On the current live host `8000/tcp` is open and a `python3` (started at boot, not ours) listens on `0.0.0.0:8000` -
-leave it to its owner. Only the app port goes:
+the host is Martin's jump host for other work, leave it to him. Only the app port goes:
 
 ```bash
 sudo firewall-cmd --permanent --remove-port=8080/tcp
