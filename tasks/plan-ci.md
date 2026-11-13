@@ -85,4 +85,5 @@ HOST=hmb2`, then `HOST=hmb`; the release ID on the host (`/opt/oracle-live-votin
 
 ## Open questions
 
-- Decided 2026-11-13: tests on 3.9 and 3.12; own `.gitleaks.toml` in the repo; CI blocks merges to `main`
+- Decided 2026-11-13: tests on 3.9 (OL9 container, `setup-python` has no 3.9 for Ubuntu 26.04) and 3.12;
+  own `.gitleaks.toml` in the repo; CI blocks merges to `main`
