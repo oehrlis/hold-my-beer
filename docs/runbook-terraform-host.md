@@ -87,6 +87,17 @@ for `/admin`: field `password` of the item.
 
 Then runbook step 6 (dashboard settings apply zone-wide, nothing new) and step 7 with a phone on mobile data.
 
+## Redeploy
+
+```bash
+make host-backup HOST=hmb2     # SQLite online backup on the host before the new release
+make host-deploy HOST=hmb2
+make host-check HOST=hmb2
+```
+
+`host-backup` uses absolute paths on purpose: `current` is a symlink into `releases/`, a `cd current` followed
+by `../shared/app.env` lands in `releases/` and finds nothing.
+
 ## Rehearsal against hmb2
 
 ```bash
@@ -102,7 +113,7 @@ Not before the talk on 2026-11-17 without a reason - the current host runs and i
 1. Second root module or workspace with `hostname = "hmb"`, `instance_no = "02"` - the name `hmb` is taken by the
    manually created tunnel and the existing CNAME: delete both first (dashboard or `cloudflared tunnel delete hmb`
    with `cert.pem` from 1Password), or import them (`terraform import`)
-2. `flask backup` on the old host, copy the backup over, restore (`app/README.md`, "Backup, Export, Restore")
+2. `make host-backup HOST=hmb` on the old host, copy the backup over, restore (`app/README.md`, "Backup, Export, Restore")
 3. `make host-up HOST=hmb`, `make host-check HOST=hmb`, phone test
 4. Old host: `sudo systemctl disable --now cloudflared oracle-live-voting` - only after the colleague knows
 

@@ -6,9 +6,9 @@
 # Author.....: Stefan Oehrli (oes) stefan.oehrli@oradba.ch
 # Editor.....: Stefan Oehrli
 # Date.......: 2026-11-13
-# Version....: 0.1.0
-# Purpose....: App secrets in 1Password, app.env on the host, public checks for
-#              a hold-my-beer voting host behind a Cloudflare Tunnel.
+# Version....: 0.2.0
+# Purpose....: App secrets in 1Password, app.env on the host, SQLite backup and
+#              public checks for a hold-my-beer voting host behind a Cloudflare Tunnel.
 # Notes......: Secrets go through stdin (op <-> ssh), never onto a command line
 #              or into a local file. Existing items and app.env are never
 #              overwritten - the script says so and stops.
@@ -18,6 +18,7 @@
 # ------------------------------------------------------------------------------
 # CHANGE LOG:
 # 2026-11-13  oes  Initial release                                    0.1.0
+# 2026-11-13  oes  backup: SQLite online backup on the host            0.2.0
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
@@ -27,7 +28,7 @@
 # shellcheck disable=SC2029
 set -euo pipefail
 SCRIPT_NAME=$(basename "$0")
-VERSION="0.1.0"
+VERSION="0.2.0"
 DRY_RUN=${DRY_RUN:-"FALSE"}
 OP_VAULT=${OP_VAULT:-"secrets"}
 OP_ITEM=${OP_ITEM:-""}     # override the item title, e.g. "hmb app production (hmb.oradba.ch)"
@@ -45,14 +46,15 @@ HOST=""
 # ------------------------------------------------------------------------------
 usage() {
     cat <<EOF
-Usage: ${SCRIPT_NAME} [OPTIONS] <secrets|env|check> <host>
+Usage: ${SCRIPT_NAME} [OPTIONS] <secrets|env|backup|check> <host>
 
-  App secrets in 1Password, app.env on the host, public checks.
+  App secrets in 1Password, app.env on the host, SQLite backup, public checks.
   <host> is the SSH alias and the label below ${ZONE} (hmb2 -> https://hmb2.${ZONE}).
 
 Commands:
   secrets   create the 1Password item "<host> app (<host>.${ZONE})" (SECRET_KEY, admin password)
   env       write ${APP_BASE}/shared/app.env on the host from that item (first deploy only)
+  backup    SQLite online backup on the host (flask backup -> ${APP_BASE}/shared/backups/)
   check     public checks against https://<host>.${ZONE} (runbook step 7) and service state
 
 Options:
@@ -62,6 +64,7 @@ Options:
 Examples:
   ${SCRIPT_NAME} secrets hmb2
   ${SCRIPT_NAME} --dry-run env hmb2
+  ${SCRIPT_NAME} backup hmb
   ${SCRIPT_NAME} check hmb
 
 EOF
@@ -171,6 +174,35 @@ cmd_env() {
 }
 
 # ------------------------------------------------------------------------------
+# Function: cmd_backup
+# Purpose.: SQLite online backup on the host (flask backup), report file and size
+# Args....: $1  host  SSH alias / host label
+# Returns.: 0 backup written (non-empty), 1 error
+# Output..: path and size of the backup file
+# Depends.: ssh; on the host: app.env, venv, current release
+# Example.: cmd_backup hmb
+# ------------------------------------------------------------------------------
+cmd_backup() {
+    local host="$1" out
+    if [[ "${DRY_RUN}" == "TRUE" ]]; then
+        log_info "DRY-RUN: would run flask backup on $host (${APP_BASE}/shared/backups/)"
+        return 0
+    fi
+    # absolute paths: current is a symlink into releases/, '..' from there is not the base dir
+    if ! out="$(ssh "${SSH_OPTS[@]}" "$host" "set -euo pipefail
+        test -f ${APP_BASE}/shared/app.env || { echo 'no ${APP_BASE}/shared/app.env' >&2; exit 2; }
+        set -a; . ${APP_BASE}/shared/app.env; set +a
+        cd ${APP_BASE}/current
+        f=\$(FLASK_APP=wsgi:app ${APP_BASE}/venv/bin/flask backup | tail -1)
+        test -s \"\$f\" || { echo \"backup missing or empty: \$f\" >&2; exit 3; }
+        echo \"\$f \$(du -h \"\$f\" | cut -f1)\"")"; then
+        log_error "backup on $host failed"
+        return 1
+    fi
+    log_info "backup on $host: $out"
+}
+
+# ------------------------------------------------------------------------------
 # Function: cmd_check
 # Purpose.: Public checks (runbook step 7) plus service state on the host
 # Args....: $1  host  SSH alias / host label
@@ -203,7 +235,7 @@ while [[ $# -gt 0 ]]; do
     case "$1" in
         -h|--help)    usage; exit 0 ;;
         -d|--dry-run) DRY_RUN="TRUE"; shift ;;
-        secrets|env|check)
+        secrets|env|backup|check)
             CMD="$1"; HOST="${2:-}"; shift; [[ $# -gt 0 ]] && shift ;;
         *) log_error "Unknown option or command: $1"; usage; exit 1 ;;
     esac

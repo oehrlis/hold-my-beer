@@ -19,7 +19,10 @@ No tunnel ID, credentials file, token or host IP belongs in this repo - it goes 
 - 1Password for the tunnel credentials backup
 - SSH alias on the Mac, e.g. `~/.ssh/config.d/30-hmb.oradba.ch` with `Host hmb hmb.oradba.ch`, `HostName <host-ip>`,
   `User opc`, `IdentityFile ~/.ssh/hmb.oradba.ch.pub` (1Password SSH agent), `IdentitiesOnly yes`. The DNS name
-  `hmb.oradba.ch` points to Cloudflare, not to the host - SSH only works because the alias maps it to the IP
+  `hmb.oradba.ch` points to Cloudflare, not to the host - SSH only works because the alias maps it to the IP.
+  Plus `ControlMaster auto`, `ControlPath ~/.ssh/cm-%C`, `ControlPersist 10m`, `ServerAliveInterval 30`:
+  `deploy-public.sh` opens 6-8 SSH connections in a row; on 2026-11-13 that ran into a block on the host
+  (port 22 stopped answering, the tunnel kept running). With multiplexing a deploy uses one connection
 
 Current live host (2026-11-13): the shared OCI jump host of a colleague (`vm-labs-ci-zrh-jump-pub`, OL 9.8, x86_64).
 Other services run there - change only what belongs to `oracle-live-voting` and `cloudflared`.
@@ -195,8 +198,8 @@ curl -s -o /dev/null -w '%{http_code}\n' https://hmb.oradba.ch/does-not-exist   
 
 ## Talk day
 
-- Before the talk: `systemctl is-active cloudflared oracle-live-voting`, `curl -s https://hmb.oradba.ch/readyz`,
-  `flask backup` on the host (see `app/README.md`)
+- Before the talk: `make host-check HOST=hmb` and `make host-backup HOST=hmb` (SQLite online backup into
+  `shared/backups/`, see `app/README.md`)
 - Tunnel down: `sudo systemctl restart cloudflared`; the app state is in SQLite and survives
 - App down: `sudo systemctl restart oracle-live-voting`
 - Both down or no network: show of hands on the round slide (fallback in `handover-app-slides.md`)
