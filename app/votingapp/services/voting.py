@@ -9,6 +9,7 @@ from flask import current_app
 from sqlalchemy import func, update
 from sqlalchemy.exc import IntegrityError, OperationalError
 
+from ..config import THEMES
 from ..extensions import db
 from ..models import Round, RoundOption, Scorecard, SessionState, Topic, Vote
 from ..pool import DIFFICULTIES, MAX_OPTIONS, MIN_OPTIONS, RISKS, PoolError  # eine Quelle mit dem Pool-Loader
@@ -53,6 +54,21 @@ def _commit():
         db.session.rollback()
         raise ApiError("busy", "Server kurz ausgelastet, bitte erneut versuchen.", 503)
     invalidate_cache()
+
+
+def theme_of(ss):
+    return ss.theme or current_app.config["APP_THEME"]
+
+
+def set_theme(theme):
+    """Layout-Vorgabe fuer alle Clients; ein Client mit lokaler Wahl (?theme=, Taste T) behaelt seine."""
+    if theme not in THEMES:
+        raise ApiError("invalid_input", "Unbekanntes Layout.", 400)
+    ss = get_ss()
+    if theme_of(ss) != theme:
+        ss.theme = theme
+        audit("theme_set", theme)
+        _commit()
 
 
 def refresh():

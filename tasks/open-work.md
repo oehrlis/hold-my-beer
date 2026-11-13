@@ -17,9 +17,10 @@
 - [ ] Rehearsal against `hmb2` (one round, window switch, Speaker View) [P1]
 - [ ] Switch `hmb.oradba.ch` to the new instance - only after the rehearsal, not before the talk [P2]
 
-## App layout: switchable brand (next)
+## App layout: switchable brand
 
-- [ ] Variant 1 Accenture brand, variant 2 OraDBA brand / Hold-my-Beer logo, switchable at runtime [P2]
+- [x] Variant 1 Accenture, variant 2 Hold my Beer, admin default + local switch (PR #2, merged 2026-11-13)
+- [ ] Admin page in the new layout checked in a logged-in browser [P2]
 
 ## CI (proposal)
 

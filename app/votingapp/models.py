@@ -67,6 +67,7 @@ class SessionState(db.Model):
     challenge_started_at = db.Column(db.DateTime)
     challenge_ends_at = db.Column(db.DateTime)
     updated_at = db.Column(db.DateTime, nullable=False, default=utcnow)
+    theme = db.Column(db.String(10))  # Layout-Vorgabe des Admins; NULL = APP_THEME
 
     active_round = db.relationship("Round")
 

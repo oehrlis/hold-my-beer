@@ -90,6 +90,7 @@ def test_migrations_create_schema(tmp_path):
         upgrade(directory="migrations")
         names = set(inspect(db.engine).get_table_names())
         assert {"vote", "round", "session_state", "scorecard", "audit_log"} <= names
+        assert "theme" in {c["name"] for c in inspect(db.engine).get_columns("session_state")}
         seed_data()
     assert app.test_client().get("/readyz").status_code == 200
 

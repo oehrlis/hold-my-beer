@@ -2,7 +2,7 @@
 {% block title %}Admin – {{ config.SESSION_TITLE }}{% endblock %}
 {% block bodyclass %}p-body{% endblock %}
 {% block body %}
-<header class="brand"><span class="brand-tag">ORACLE · DBA · AI</span></header>
+<header class="brand"><span class="brand-mark" aria-hidden="true"></span><span class="brand-tag">ORACLE · DBA · AI</span></header>
 <main id="main" class="p-main">
   <h1>Admin-Anmeldung</h1>
   <form method="post" action="{{ url_for('admin.login') }}" class="login">

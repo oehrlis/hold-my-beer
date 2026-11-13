@@ -50,6 +50,8 @@ windows on the projector; the admin view runs on the second laptop or a phone.
   [`runbook-terraform-host.md`](runbook-terraform-host.md) - `hmb.oradba.ch` stays on the current host until then
 - [x] Lab DB: Oracle AI Database 26ai, CDB/PDB
 - [ ] Who runs `/admin` during the talk (second laptop or phone)
+- [x] App layout matches the deck theme (2026-11-13): `acn` / `hmb`, admin default plus local switch - same keys
+  as the deck (`t`), so deck and `/screen` can both be switched before the talk
 - [ ] Rehearsal with one complete round incl. window switch
 - [ ] Martin reviews the app changes after the move (seed from the pool file, deploy defaults)
 - [ ] Martin reviews `deploy-public.sh` / `remote-install.sh` (2026-11-13): a redeploy without `PUBLIC_BASE_URL`

@@ -1,12 +1,13 @@
 <!doctype html>
-<html lang="de">
+<html lang="de" data-theme="{{ theme_default }}" data-theme-default="{{ theme_default }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="csrf-token" content="{{ csrf_token() }}">
-  <meta name="color-scheme" content="dark">
+  <meta name="color-scheme" content="light dark">
   <title>{% block title %}{{ config.SESSION_TITLE }}{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
 </head>
 <body class="{% block bodyclass %}{% endblock %}">
 <a class="skip" href="#main">Zum Inhalt springen</a>

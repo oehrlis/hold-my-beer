@@ -41,6 +41,7 @@
   }
 
   function render(d) {
+    paintTheme(d.theme);
     st = d;
     var s = d.state, r = d.round;
     $('a-state').textContent = s;
@@ -201,6 +202,16 @@
   on('b-sreset', function () {
     var t = window.prompt('Gesamte Session zurücksetzen? Zur Bestätigung RESET eingeben:');
     if (t === 'RESET') act('reset_session', { confirm: 'RESET' });
+  });
+
+  // Layout-Vorgabe fuer alle; das Admin-Geraet selbst folgt ihr (lokale Wahl wird verworfen)
+  function paintTheme(t) {
+    ['acn', 'hmb'].forEach(function (k) { $('b-theme-' + k).setAttribute('aria-pressed', String(k === t)); });
+  }
+  ['acn', 'hmb'].forEach(function (k) {
+    on('b-theme-' + k, function () {
+      act('set_theme', { theme: k }).then(function (okay) { if (okay) { OLVTheme.server(k); OLVTheme.follow(); } });
+    });
   });
 
   OLV.poll('/admin/api/state', render, OLV.net('net'), 2000);
