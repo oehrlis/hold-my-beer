@@ -12,10 +12,13 @@
 - [x] `terraform/`: OCI (VCN, public subnet, SSH from admin CIDR only, A1.Flex 1/6 free), Cloudflare tunnel
   `hmb2` + CNAME `hmb2.oradba.ch`, cloud-init (cloudflared, python3, app directories)
 - [x] Makefile: `tf-*` via `op run`, `host-env` (app secrets from 1Password), `host-deploy`, `host-check`
-- [ ] Cloudflare token with `Account - Cloudflare Tunnel - Edit` + `Zone - DNS - Edit` (oradba.ch) [P1]
-- [ ] `make tf-apply`, `make host-env host-deploy host-check HOST=hmb2` [P1]
-- [ ] Rehearsal against `hmb2` (one round, window switch, Speaker View) [P1]
-- [ ] Switch `hmb.oradba.ch` to the new instance - only after the rehearsal, not before the talk [P2]
+- [x] Decision 2026-11-13: `terraform/` keeps the build in the repo; `hmb` stays on the shared host for the
+  talk, `hmb2` is not applied for now
+- [ ] Rehearsal against `hmb` (one round, window switch, Speaker View) [P1]
+- [ ] Session on `hmb` reset in `/admin` (still `challenge_running` from tests) [P1]
+- [x] `/admin` during the talk: Martin
+- [ ] Later, if `hmb2` is wanted: Cloudflare token (`Account - Cloudflare Tunnel - Edit` + `Zone - DNS - Edit`
+  for oradba.ch) in `secrets/hmb terraform cloudflare`, then `make tf-apply` and `make host-up HOST=hmb2` [P3]
 
 ## App layout: switchable brand
 
