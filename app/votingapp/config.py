@@ -66,6 +66,10 @@ def build_config(instance_path, overrides=None):
         "SESSION_COOKIE_HTTPONLY": True,
         "SESSION_COOKIE_SAMESITE": "Lax",
         "WTF_CSRF_TIME_LIMIT": None,
+        # Kein Referer-Abgleich bei HTTPS: die App sendet Referrer-Policy no-referrer, der Browser schickt also
+        # keinen Referer, und Flask-WTF lehnte hinter dem Tunnel jeden POST ab (Login, Stimme). Schutz bleibt
+        # das sessiongebundene, signierte Token plus SameSite=Lax (2026-11-13).
+        "WTF_CSRF_SSL_STRICT": False,
         "RATELIMIT_STORAGE_URI": "memory://",
         "RATELIMIT_ENABLED": True,
         "RATELIMIT_HEADERS_ENABLED": False,
