@@ -6,8 +6,8 @@
 # Editor.....: Stefan Oehrli
 # Date.......: 12.11.2026
 # Version....: v0.1.0
-# Purpose....: Build the hold-my-beer frame deck (public / private) and run the
-#              voting app locally (tests, start, stop).
+# Purpose....: Build the hold-my-beer frame deck (public / private), run the
+#              voting app locally, build and deploy the voting host (terraform).
 # Notes......: Overrides via environment or .env. Use 'make help' for targets.
 #              The private deck embeds photos - it is written outside the repo.
 # Reference..: https://github.com/oehrlis/hold-my-beer
@@ -53,6 +53,15 @@ PRIVATE_OUT     ?= $(CONF_DIR)/Own/$(TALK_SLUG).html
 
 APP_PORT ?= 5000
 
+# Host: OCI instance + Cloudflare tunnel (terraform/), app via app/deploy-public.sh
+TF_DIR       := terraform
+HOST         ?= hmb2
+HOST_URL     ?= https://$(HOST).oradba.ch
+HOST_PORT    ?= 8080
+HOST_SSH_KEY ?= $(HOME)/.ssh/hmb.oradba.ch.pub
+SSH_CONF_DIR ?= $(HOME)/.ssh/config.d
+TF           := op run --env-file=$(TF_DIR)/op.env -- terraform -chdir=$(TF_DIR)
+
 # -- Tool detection ------------------------------------------------------------
 SHELLCHECK   := $(shell PATH="$(PATH)" command -v shellcheck 2>/dev/null)
 MARKDOWNLINT := $(shell PATH="$(PATH)" command -v markdownlint 2>/dev/null || \
@@ -83,11 +92,14 @@ help: ## Show available targets
 	@grep -E '^deck[a-zA-Z_-]*:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-20s %s\n", $$1, $$2}'
 	@echo -e "$(COLOR_BOLD)App$(COLOR_RESET)"
 	@grep -E '^app-[a-zA-Z_-]*:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-20s %s\n", $$1, $$2}'
+	@echo -e "$(COLOR_BOLD)Host (terraform, deploy)$(COLOR_RESET)"
+	@grep -E '^(tf|host)-[a-zA-Z_-]*:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-20s %s\n", $$1, $$2}'
 	@echo -e "$(COLOR_BOLD)Quality and info$(COLOR_RESET)"
 	@grep -E '^(lint|preflight|clean|status)[a-zA-Z_-]*:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-20s %s\n", $$1, $$2}'
 	@echo ""
 	@echo "Overrides: TALKS_DIR=$(TALKS_DIR)"
 	@echo "           VOTING_URL=$(VOTING_URL)  APP_PORT=$(APP_PORT)"
+	@echo "           HOST=$(HOST)  HOST_URL=$(HOST_URL)  HOST_PORT=$(HOST_PORT)"
 
 # ==============================================================================
 # Guards
@@ -155,12 +167,57 @@ app-status: ## Show process and readiness of the local app
 	$(Q)cd "$(APP_DIR)" && PORT="$(APP_PORT)" ./status.sh
 
 # ==============================================================================
+# Host: terraform (OCI + Cloudflare tunnel), app deploy, checks
+# ==============================================================================
+
+.PHONY: tf-init tf-plan tf-apply tf-output tf-ssh-config tf-destroy host-secrets host-env host-deploy host-check host-up
+
+tf-init: ## terraform init in terraform/
+	$(Q)terraform -chdir=$(TF_DIR) init -input=false
+
+tf-plan: ## terraform plan (Cloudflare token via op run, terraform/op.env)
+	@[ -f "$(TF_DIR)/terraform.tfvars" ] || { echo "ERROR: $(TF_DIR)/terraform.tfvars missing - copy terraform.tfvars.example" >&2; exit 1; }
+	$(Q)$(TF) plan -input=false -out=hmb.tfplan
+
+tf-apply: ## terraform apply of the saved plan (run tf-plan first)
+	@[ -f "$(TF_DIR)/hmb.tfplan" ] || { echo "ERROR: no saved plan - run: make tf-plan" >&2; exit 1; }
+	$(Q)$(TF) apply -input=false hmb.tfplan
+	$(Q)rm -f "$(TF_DIR)/hmb.tfplan"
+
+tf-output: ## Show terraform outputs (URL, IP, tunnel ID)
+	$(Q)terraform -chdir=$(TF_DIR) output
+
+tf-ssh-config: ## Write the SSH alias block to SSH_CONF_DIR/31-<host>.oradba.ch
+	$(Q)host="$$(terraform -chdir=$(TF_DIR) output -raw url | sed 's|https://||')"; \
+	  f="$(SSH_CONF_DIR)/31-$$host"; \
+	  terraform -chdir=$(TF_DIR) output -raw ssh_config > "$$f"; chmod 600 "$$f"; \
+	  echo "OK: $$f"; cat "$$f"
+
+tf-destroy: ## Destroy instance, network, tunnel and DNS record (asks for confirmation)
+	$(Q)$(TF) destroy
+
+host-secrets: ## Create the 1Password app item for HOST (SECRET_KEY, admin password) - once
+	$(Q)scripts/hmb-host.sh secrets "$(HOST)"
+
+host-env: ## Write app.env on HOST from 1Password (first deploy only, never overwrites)
+	$(Q)APP_PORT="$(HOST_PORT)" scripts/hmb-host.sh env "$(HOST)"
+
+host-deploy: ## Deploy the app to HOST with app/deploy-public.sh (PUBLIC_BASE_URL=HOST_URL)
+	$(Q)cd "$(APP_DIR)" && SSH_USER=opc SSH_HOST="$(HOST)" SSH_KEY="$(HOST_SSH_KEY)" PUBLIC_BASE_URL="$(HOST_URL)" \
+	  ./deploy-public.sh "$(HOST_PORT)"
+
+host-check: ## Public checks against HOST_URL plus service state (runbook step 7)
+	$(Q)APP_PORT="$(HOST_PORT)" scripts/hmb-host.sh check "$(HOST)"
+
+host-up: host-secrets host-env host-deploy host-check ## New host after tf-apply: secrets, app.env, deploy, check
+
+# ==============================================================================
 # Quality
 # ==============================================================================
 
-.PHONY: lint lint-markdown lint-shell lint-python
+.PHONY: lint lint-markdown lint-shell lint-python lint-terraform
 
-lint: lint-markdown lint-shell lint-python ## Run all linters
+lint: lint-markdown lint-shell lint-python lint-terraform ## Run all linters
 
 lint-markdown: ## markdownlint on repo docs (app/README.md is Martin's, not gated)
 	@[ -n "$(MARKDOWNLINT)" ] || { echo "WARN: markdownlint not found - skipped (npm i -g markdownlint-cli)"; exit 0; }
@@ -171,7 +228,14 @@ lint-shell: ## shellcheck on slide and app scripts
 	@[ -n "$(SHELLCHECK)" ] || { echo "WARN: shellcheck not found - skipped (brew install shellcheck)"; exit 0; }
 	$(Q)$(SHELLCHECK) "$(SLIDES_DIR)/build.sh"
 	$(Q)$(SHELLCHECK) -S warning $(APP_DIR)/*.sh $(APP_DIR)/deploy/*.sh $(APP_DIR)/tools/*.sh
+	$(Q)$(SHELLCHECK) scripts/*.sh
 	@echo "OK: shellcheck"
+
+lint-terraform: ## terraform fmt -check and validate (no cloud access)
+	$(Q)terraform -chdir=$(TF_DIR) fmt -check -recursive
+	$(Q)terraform -chdir=$(TF_DIR) init -backend=false -input=false >/dev/null
+	$(Q)terraform -chdir=$(TF_DIR) validate -no-color
+	@echo "OK: terraform"
 
 lint-python: ## Syntax check of the slide generators
 	$(Q)python3 -m py_compile "$(SLIDES_DIR)/generate.py" "$(SLIDES_DIR)/img/brain.py" "$(SLIDES_DIR)/img/gen_phone.py"

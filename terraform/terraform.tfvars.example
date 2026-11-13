@@ -1,0 +1,8 @@
+# Copy to terraform.tfvars (gitignored). OCIDs and IPs stay out of the repo.
+compartment_ocid = "ocid1.compartment.oc1..<cmp-oradba-labs-compute>"
+admin_cidrs      = ["<your-public-ip>/32"]
+
+# defaults - change only with a reason
+# oci_profile = "ACE"
+# hostname    = "hmb2"     # hmb2.oradba.ch = test/backup, hmb = live
+# instance_no = "01"

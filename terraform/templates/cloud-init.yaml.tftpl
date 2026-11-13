@@ -1,0 +1,49 @@
+#cloud-config
+# hold-my-beer host: cloudflared (tunnel ${fqdn}), python3 for the app.
+# The app itself comes from app/deploy-public.sh (make host-deploy).
+timezone: Europe/Zurich
+
+write_files:
+  - path: /etc/cloudflared/${tunnel_id}.json
+    owner: root:root
+    permissions: "0600"
+    content: |
+      ${credentials}
+  - path: /etc/cloudflared/config.yml
+    owner: root:root
+    permissions: "0644"
+    content: |
+      tunnel: ${tunnel_id}
+      credentials-file: /etc/cloudflared/${tunnel_id}.json
+      protocol: http2
+      ingress:
+        - hostname: ${fqdn}
+          service: http://127.0.0.1:${app_port}
+        - service: http_status:404
+  - path: /etc/systemd/system/cloudflared.service
+    owner: root:root
+    permissions: "0644"
+    content: |
+      [Unit]
+      Description=cloudflared tunnel ${fqdn}
+      After=network-online.target
+      Wants=network-online.target
+
+      [Service]
+      Type=notify
+      ExecStart=/usr/bin/cloudflared --no-autoupdate --config /etc/cloudflared/config.yml tunnel run
+      Restart=on-failure
+      RestartSec=5s
+      TimeoutStartSec=0
+
+      [Install]
+      WantedBy=multi-user.target
+
+runcmd:
+  - curl -fsSL https://pkg.cloudflare.com/cloudflared-ascii.repo -o /etc/yum.repos.d/cloudflared.repo
+  - dnf install -y cloudflared python3 python3-pip tar curl
+  - systemctl daemon-reload
+  - systemctl enable --now cloudflared
+  - install -d -o opc -g opc -m 755 /opt/oracle-live-voting
+  - install -d -o opc -g opc -m 750 /opt/oracle-live-voting/shared
+  - echo "hmb cloud-init done $(date -Is)" > /var/log/hmb-cloud-init.done
