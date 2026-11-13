@@ -170,7 +170,7 @@ app-status: ## Show process and readiness of the local app
 # Host: terraform (OCI + Cloudflare tunnel), app deploy, checks
 # ==============================================================================
 
-.PHONY: tf-init tf-plan tf-apply tf-output tf-ssh-config tf-destroy host-secrets host-env host-deploy host-check host-up
+.PHONY: tf-init tf-plan tf-apply tf-output tf-ssh-config tf-destroy host-secrets host-env host-backup host-deploy host-check host-up
 
 tf-init: ## terraform init in terraform/
 	$(Q)terraform -chdir=$(TF_DIR) init -input=false
@@ -201,6 +201,9 @@ host-secrets: ## Create the 1Password app item for HOST (SECRET_KEY, admin passw
 
 host-env: ## Write app.env on HOST from 1Password (first deploy only, never overwrites)
 	$(Q)APP_PORT="$(HOST_PORT)" scripts/hmb-host.sh env "$(HOST)"
+
+host-backup: ## SQLite online backup on HOST before a deploy (shared/backups/)
+	$(Q)scripts/hmb-host.sh backup "$(HOST)"
 
 host-deploy: ## Deploy the app to HOST with app/deploy-public.sh (PUBLIC_BASE_URL=HOST_URL)
 	$(Q)cd "$(APP_DIR)" && SSH_USER=opc SSH_HOST="$(HOST)" SSH_KEY="$(HOST_SSH_KEY)" PUBLIC_BASE_URL="$(HOST_URL)" \

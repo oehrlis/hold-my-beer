@@ -24,5 +24,10 @@ output "ssh_config" {
       User opc
       IdentityFile ${var.ssh_public_key_path}
       IdentitiesOnly yes
+      # one TCP connection for all ssh/scp calls of a deploy
+      ControlMaster auto
+      ControlPath ~/.ssh/cm-%C
+      ControlPersist 10m
+      ServerAliveInterval 30
   EOT
 }

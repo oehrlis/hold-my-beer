@@ -7,6 +7,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- `make host-backup HOST=...` / `scripts/hmb-host.sh backup` (0.2.0): SQLite online backup on the host with
+  absolute paths, reports file and size - the hand-typed `cd current && . ../shared/app.env` failed, `current`
+  is a symlink into `releases/`
+- SSH multiplexing (`ControlMaster`/`ControlPersist`) in the generated SSH block and in the runbook: a deploy
+  with 6-8 short connections ran into a block on the shared host (port 22 timed out, tunnel kept running)
 - `terraform/`: own voting host on OCI (`VM.Standard.A1.Flex` 1 OCPU / 6 GB, Always Free, own VCN, inbound SSH from
   `admin_cidrs` only) plus Cloudflare tunnel and proxied CNAME, cloud-init for `cloudflared` and `python3`; first
   target `hmb2.oradba.ch` as test and backup. Cloudflare token via `op run` (`terraform/op.env`)
