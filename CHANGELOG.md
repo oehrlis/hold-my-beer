@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- App layout Accenture (`acn`) / Hold my Beer (`hmb`) for participant, screen and admin: token-based `app.css`,
+  `js/theme.js` (same codes and keys as the deck), Hold-my-Beer logo in the header. Default `APP_THEME`, the
+  admin sets it for everyone (panel "Layout", migration `4e7a2c1b9d30` adds `session_state.theme`); each device
+  can override locally (`?theme=`, key `t`, `ACN | HMB` switch; `Shift+T` follows the default again)
+
 ### Fixed
 
 - `docs/runbook-cloudflare-tunnel.md`, found during the real setup on 2026-11-13:

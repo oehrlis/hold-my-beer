@@ -47,5 +47,7 @@ windows on the projector; the admin view runs on the second laptop or a phone.
 - [ ] Cloudflare Tunnel for `hmb.oradba.ch`: [`runbook-cloudflare-tunnel.md`](runbook-cloudflare-tunnel.md)
 - [x] Lab DB: Oracle AI Database 26ai, CDB/PDB
 - [ ] Who runs `/admin` during the talk (second laptop or phone)
+- [x] App layout matches the deck theme (2026-11-13): `acn` / `hmb`, admin default plus local switch - same keys
+  as the deck (`t`), so deck and `/screen` can both be switched before the talk
 - [ ] Rehearsal with one complete round incl. window switch
 - [ ] Martin reviews the app changes after the move (seed from the pool file, deploy defaults)

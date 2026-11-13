@@ -34,7 +34,11 @@
       running = true;
       api('GET', url).then(function (res) {
         if (res.status === 401) { location.reload(); return; }
-        if (res.body && res.body.ok) { delay = base; onNet(true); onData(res.body.data); }
+        if (res.body && res.body.ok) {
+          delay = base; onNet(true);
+          if (window.OLVTheme && res.body.data) window.OLVTheme.server(res.body.data.theme);
+          onData(res.body.data);
+        }
         else throw new Error('http ' + res.status);
       }).catch(function () {
         delay = Math.min(delay * 2, 10000); onNet(false);

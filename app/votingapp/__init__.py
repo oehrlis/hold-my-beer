@@ -72,6 +72,18 @@ def create_app(overrides=None):
     from .cli import register_cli
     register_cli(app)
 
+    @app.context_processor
+    def _theme_ctx():
+        # Vorgabe fuers erste Rendern (kein Aufblitzen des anderen Layouts); danach kommt sie per Polling
+        from .models import SessionState
+        from .services.voting import theme_of
+        try:
+            ss = db.session.get(SessionState, 1)
+        except Exception:  # DB nicht bereit: Fehlerseite trotzdem rendern
+            db.session.rollback()
+            ss = None
+        return {"theme_default": theme_of(ss) if ss else app.config["APP_THEME"]}
+
     @app.after_request
     def headers(resp):
         attach_cookie(resp)
