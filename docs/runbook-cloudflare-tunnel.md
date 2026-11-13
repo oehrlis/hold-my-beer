@@ -54,24 +54,34 @@ running it.
 
 Locally managed keeps the ingress in a file on the host and needs no token on a command line.
 
-```bash
-cloudflared tunnel login                 # prints a URL - open it in your local browser, pick the zone oradba.ch
-cloudflared tunnel create hmb            # writes ~/.cloudflared/<TUNNEL-UUID>.json, prints the UUID
-cloudflared tunnel route dns hmb hmb.oradba.ch   # creates the proxied CNAME hmb -> <TUNNEL-UUID>.cfargotunnel.com
-```
-
-Back up the credentials file to 1Password (path as argument, not the content):
+Run as root: `cloudflared` writes to the `~/.cloudflared/` of the user that runs it, so everything below lands in
+`/root/.cloudflared/` (`cert.pem` from the login, `<TUNNEL-UUID>.json` from the create).
 
 ```bash
-op document create ~/.cloudflared/<TUNNEL-UUID>.json --title "hmb cloudflared tunnel credentials" --vault Private
+sudo cloudflared tunnel login                 # prints a URL - open it in your local browser, pick the zone oradba.ch
+sudo cloudflared tunnel create hmb            # writes /root/.cloudflared/<TUNNEL-UUID>.json, prints the UUID
+sudo cloudflared tunnel route dns hmb hmb.oradba.ch   # proxied CNAME hmb -> <TUNNEL-UUID>.cfargotunnel.com
 ```
+
+Back up both files to 1Password, vault `secrets`, tags `DOAG`, `Hold my beer`, `hmb`, `hmb.oradba.ch`. `op` runs on
+the Mac and the files are root-only, so pipe them over ssh - the content goes through stdin, never onto a command
+line or into a local file:
+
+```bash
+ssh <host> 'sudo -n cat /root/.cloudflared/<TUNNEL-UUID>.json' | op document create - --file-name <TUNNEL-UUID>.json --title "hmb cloudflared tunnel credentials" --vault secrets --tags "DOAG,Hold my beer,hmb,hmb.oradba.ch"
+ssh <host> 'sudo -n cat /root/.cloudflared/cert.pem' | op document create - --file-name cert.pem --title "hmb cloudflared cert.pem" --vault secrets --tags "DOAG,Hold my beer,hmb,hmb.oradba.ch"
+```
+
+`sudo -n` needs passwordless sudo and fails cleanly otherwise (`ssh -t` with a password prompt would write the prompt
+into the item). Check the copy with `sha256sum` on the host against `op document get "<title>" --vault secrets |
+shasum -a 256`. Only the credentials file is needed to run the tunnel; `cert.pem` is for `tunnel create` and
+`route dns`.
 
 ## 4. Configure and run as a service
 
 ```bash
 sudo mkdir -p /etc/cloudflared
-sudo cp ~/.cloudflared/<TUNNEL-UUID>.json /etc/cloudflared/
-sudo chmod 600 /etc/cloudflared/<TUNNEL-UUID>.json
+sudo install -m 600 -o root -g root /root/.cloudflared/<TUNNEL-UUID>.json /etc/cloudflared/
 sudo tee /etc/cloudflared/config.yml >/dev/null <<'EOF'
 tunnel: <TUNNEL-UUID>
 credentials-file: /etc/cloudflared/<TUNNEL-UUID>.json
@@ -79,14 +89,22 @@ ingress:
   - hostname: hmb.oradba.ch
     service: http://127.0.0.1:8080
   - service: http_status:404
+protocol: http2
 EOF
-sudo cloudflared tunnel ingress validate --config /etc/cloudflared/config.yml
+sudo cloudflared tunnel --config /etc/cloudflared/config.yml ingress validate
+sudo cloudflared tunnel --config /etc/cloudflared/config.yml ingress rule https://hmb.oradba.ch
 sudo cloudflared service install
 sudo systemctl enable --now cloudflared
 systemctl status cloudflared --no-pager
 ```
 
 The last ingress rule is required: anything that is not `hmb.oradba.ch` gets a 404 instead of reaching the app.
+`--config` is a flag of `tunnel`, not of `ingress validate` - after the subcommand it fails with "flag provided but
+not defined". `validate` prints `OK`, `rule` must show the `http://127.0.0.1:8080` rule.
+`protocol: http2` keeps the tunnel on TCP 443. Without it `cloudflared` starts with QUIC (UDP 7844); where egress
+allows only TCP (OCI security list) every dial ends in "failed to dial to edge with quic: timeout", the precheck says
+`suggested_protocol=http2`, and `service install` fails with "a timeout was exceeded" because the unit waits for the
+first connection.
 
 ## 5. Close inbound ports
 

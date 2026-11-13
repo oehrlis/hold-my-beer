@@ -3,6 +3,20 @@
 All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased]
+
+### Fixed
+
+- `docs/runbook-cloudflare-tunnel.md`, found during the real setup on 2026-11-13:
+  - `cloudflared` runs as root and writes to `/root/.cloudflared/`; `sudo cp ~/.cloudflared/...` expanded `~` to
+    the login user before `sudo` and found nothing - now `sudo install -m 600` from `/root/.cloudflared/`
+  - `--config` belongs to `tunnel`, not to `ingress validate` ("flag provided but not defined") - order fixed,
+    plus `ingress rule` as a check
+  - `protocol: http2` in `config.yml`: QUIC (UDP 7844) timed out on the OCI host, the unit never became ready and
+    `service install` failed with "a timeout was exceeded"
+  - 1Password backup: vault `secrets` with tags instead of `Private`, piped over ssh from the Mac (the files are
+    root-only and `op` is not on the host), `cert.pem` included, check by `sha256sum`
+
 ## [0.1.0] - 2026-11-12
 
 First complete state for DOAG AK 2026 ("Denn sie wissen nicht was sie tun", 2026-11-17), before rehearsal.
