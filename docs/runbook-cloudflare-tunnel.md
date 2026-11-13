@@ -6,6 +6,7 @@ attendees' requests come back through it. HTTPS terminates at Cloudflare, no ngi
 
 App-side background (why each setting): `app/README.md`, section "Betrieb hinter Cloudflare".
 Handover app - slides: [`handover-app-slides.md`](handover-app-slides.md).
+A new host with the same setup built by Terraform (`hmb2.oradba.ch`): [`runbook-terraform-host.md`](runbook-terraform-host.md).
 
 No tunnel ID, credentials file, token or host IP belongs in this repo - it goes public after the talk.
 
@@ -16,6 +17,12 @@ No tunnel ID, credentials file, token or host IP belongs in this repo - it goes 
   (service `oracle-live-voting`, files under `/opt/oracle-live-voting/`)
 - App port on the host, below `8080` (the port given to `deploy-public.sh`)
 - 1Password for the tunnel credentials backup
+- SSH alias on the Mac, e.g. `~/.ssh/config.d/30-hmb.oradba.ch` with `Host hmb hmb.oradba.ch`, `HostName <host-ip>`,
+  `User opc`, `IdentityFile ~/.ssh/hmb.oradba.ch.pub` (1Password SSH agent), `IdentitiesOnly yes`. The DNS name
+  `hmb.oradba.ch` points to Cloudflare, not to the host - SSH only works because the alias maps it to the IP
+
+Current live host (2026-11-13): the shared OCI jump host of a colleague (`vm-labs-ci-zrh-jump-pub`, OL 9.8, x86_64).
+Other services run there - change only what belongs to `oracle-live-voting` and `cloudflared`.
 
 ## 1. App: listen locally, trust one proxy hop
 
@@ -34,6 +41,16 @@ PUBLIC_BASE_URL=https://hmb.oradba.ch
 sudo systemctl restart oracle-live-voting
 curl -s http://127.0.0.1:8080/readyz
 ss -ltnp | grep ':8080 '   # must show 127.0.0.1:8080, not 0.0.0.0
+```
+
+**Redeploy keeps the URL only from 2026-11-13 on.** Up to then `deploy-public.sh` rewrote `PUBLIC_BASE_URL` on every
+redeploy to `http://<SSH_HOST>:<PORT>` - with the alias `hmb` that was `http://hmb:8080`, and the live QR code
+pointed nowhere (found 2026-11-13, an hour after the tunnel went live). Now an empty `PUBLIC_BASE_URL` keeps the
+value in `app.env`. Deploy with the URL anyway, then nothing depends on the previous state:
+
+```bash
+make host-deploy HOST=hmb      # = PUBLIC_BASE_URL=https://hmb.oradba.ch app/deploy-public.sh 8080
+make host-check HOST=hmb       # readyz, URL on the participant page, no-store, 404, services, 127.0.0.1:8080
 ```
 
 `PROXY_FIX_X_FOR=1` is exactly one hop (cloudflared). A higher value makes `X-Forwarded-For` spoofable, a missing
@@ -77,6 +94,17 @@ into the item). Check the copy with `sha256sum` on the host against `op document
 shasum -a 256`. Only the credentials file is needed to run the tunnel; `cert.pem` is for `tunnel create` and
 `route dns`.
 
+Items in vault `secrets` for `hmb` (as of 2026-11-13):
+
+<!-- markdownlint-disable MD013 MD060 -->
+| Item | Content |
+|------|---------|
+| `hmb cloudflared tunnel credentials` | `<TUNNEL-UUID>.json` - enough to run the tunnel on any host |
+| `hmb cloudflared cert.pem` | account cert for `tunnel create` / `route dns` / `tunnel delete` |
+| `hmb cloudflared config.yml` | `/etc/cloudflared/config.yml` from step 4 |
+| `hmb app production (hmb.oradba.ch)` | `SECRET_KEY`, admin password (`ADMIN_PASSWORD`), `PUBLIC_BASE_URL` |
+<!-- markdownlint-restore -->
+
 ## 4. Configure and run as a service
 
 ```bash
@@ -108,7 +136,16 @@ first connection.
 
 ## 5. Close inbound ports
 
-If the app port was opened for an earlier HTTP test, close it again - the tunnel does not need it:
+If the app port was opened for an earlier HTTP test, close it again - the tunnel does not need it.
+Check first what is open and who listens - on a shared host not every port is yours:
+
+```bash
+sudo firewall-cmd --list-ports
+sudo ss -ltnp | grep -v 127.0.0.1
+```
+
+On the current live host `8000/tcp` is open and a `python3` (started at boot, not ours) listens on `0.0.0.0:8000` -
+leave it to its owner. Only the app port goes:
 
 ```bash
 sudo firewall-cmd --permanent --remove-port=8080/tcp
@@ -136,6 +173,8 @@ test with real phones (step 7); if attendees get a challenge page, switch it off
 
 ## 7. Verify
 
+`make host-check HOST=hmb` runs the curl checks below plus service state and listen address in one go.
+
 ```bash
 curl -sI https://hmb.oradba.ch/readyz | head -1                       # HTTP/2 200
 curl -s https://hmb.oradba.ch/readyz                                  # {"data":{"status":"ready"},"ok":true}
@@ -145,9 +184,12 @@ curl -s -o /dev/null -w '%{http_code}\n' https://hmb.oradba.ch/does-not-exist   
 ```
 
 - Phone on **mobile data** (not Wi-Fi): scan the QR on the deck's voting slide, the page loads, a vote counts
-- Admin login from the laptop: `https://hmb.oradba.ch/admin` (password from `shared/initial-admin-password.txt`)
+- Admin login from the laptop: `https://hmb.oradba.ch/admin` (password: 1Password item
+  `hmb app production (hmb.oradba.ch)`, on the host `shared/initial-admin-password.txt`)
 - Rebuild the deck with the same URL: `VOTING_URL=https://hmb.oradba.ch` (default in `slides/build.sh`) - the live QR
   now loads from the app instead of the build fallback
+- QR content: the image must decode to `https://hmb.oradba.ch/` (phone camera, or on the Mac
+  `rsvg-convert -b white qr.svg -o qr.png` and any QR reader) - `PUBLIC_BASE_URL` decides it, not the tunnel
 - Login rate limit sees real client IPs: `journalctl -u oracle-live-voting -n 50` after a test login shows the
   phone's or laptop's address, not `127.0.0.1`
 
