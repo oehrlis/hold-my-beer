@@ -1,0 +1,72 @@
+# CI phase 1 (tasks/plan-ci.md): every job calls the same make target as on the Mac.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  MARKDOWNLINT_VERSION: "0.50.0"
+  SHELLCHECK_VERSION: "0.11.0"
+  TERRAFORM_VERSION: "1.17.2"
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
+      - name: Install markdownlint and shellcheck
+        run: |
+          npm install -g "markdownlint-cli@${MARKDOWNLINT_VERSION}"
+          curl -fsSL "https://github.com/koalaman/shellcheck/releases/download/v${SHELLCHECK_VERSION}/shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz" \
+            | tar -xJ -C /tmp
+          sudo install -m 755 "/tmp/shellcheck-v${SHELLCHECK_VERSION}/shellcheck" /usr/local/bin/shellcheck
+      # make lint skips a missing linter with a WARN - in CI a missing tool is an error
+      - name: Check tools
+        run: |
+          markdownlint --version
+          shellcheck --version | sed -n 2p
+          terraform version | head -1
+      - run: make lint
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 3.9 = OL9 system python on the hosts (requirements.lock is tested there), 3.12 as early warning
+        python: ["3.9", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: make app-venv app-test
+
+  smoke:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+      - run: make app-smoke
+      - name: App log on failure
+        if: failure()
+        run: tail -n 80 app/logs/app.log || true

@@ -176,7 +176,8 @@ test with real phones (step 7); if attendees get a challenge page, switch it off
 
 ## 7. Verify
 
-`make host-check HOST=hmb` runs the curl checks below plus service state and listen address in one go.
+`make host-check HOST=hmb` runs the curl checks below plus service state and listen address in one go, and a
+vote POST with token and invalid option: it must end in `invalid_option`, not `csrf_invalid` (nothing is counted).
 
 ```bash
 curl -sI https://hmb.oradba.ch/readyz | head -1                       # HTTP/2 200

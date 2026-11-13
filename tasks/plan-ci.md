@@ -75,8 +75,9 @@ HOST=hmb2`, then `HOST=hmb`; the release ID on the host (`/opt/oracle-live-votin
 
 ## Order
 
-- [ ] `ci.yml` + `secrets.yml` (lint, tests 3.9/3.12, smoke, gitleaks) [P1]
-- [ ] `make smoke` target (start, `tools/smoke.sh`, short loadtest, stop) so the CI job is one line [P1]
+- [x] `ci.yml` + `secrets.yml` (lint, tests 3.9/3.12, smoke, gitleaks with `.gitleaks.toml`), branch protection on
+  `main` with these checks required (2026-11-13)
+- [x] `make app-smoke` (start on a throwaway DB, `tools/smoke.sh`, 50-client load test, stop)
 - [ ] `iac.yml` with tflint + trivy [P2]
 - [ ] `make release` with gates, CHANGELOG rollover, tag + push of branch and tag, `DRY_RUN=1` [P2]
 - [ ] `release.yml` (tag guard, CI again on the tag, assets + checksums, notes from CHANGELOG) [P2]
@@ -84,5 +85,4 @@ HOST=hmb2`, then `HOST=hmb`; the release ID on the host (`/opt/oracle-live-votin
 
 ## Open questions
 
-- Python 3.9 fixed (OL9 system python, lock file tested with 3.9) or move the host to `python3.12` (OL9 AppStream)?
-- gitleaks: own config in the repo or the shared one from ai-toolkit (`aitk repo scan`)?
+- Decided 2026-11-13: tests on 3.9 and 3.12; own `.gitleaks.toml` in the repo; CI blocks merges to `main`

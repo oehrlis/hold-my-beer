@@ -1,0 +1,38 @@
+# gitleaks: default rules plus what this repo must never contain before it goes public
+# (OCI identifiers, pre-authenticated requests, Cloudflare tunnel credentials).
+# Local: gitleaks git --config .gitleaks.toml --redact   CI: .github/workflows/secrets.yml
+
+title = "hold-my-beer"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "oci-ocid"
+description = "OCI OCID (tenancy, compartment, instance, ...)"
+regex = '''ocid1\.[a-z0-9]+\.oc[0-9]\.[a-z0-9-]*\.[a-z0-9]{40,}'''
+keywords = ["ocid1."]
+
+[[rules]]
+id = "oci-par-url"
+description = "OCI Object Storage pre-authenticated request URL"
+regex = '''objectstorage\.[a-z0-9-]+\.oraclecloud\.com/p/[A-Za-z0-9_+/=-]{20,}'''
+keywords = ["oraclecloud.com/p/"]
+
+[[rules]]
+id = "oci-api-key-fingerprint"
+description = "OCI API key fingerprint in a config"
+regex = '''fingerprint\s*=\s*([0-9a-f]{2}:){15}[0-9a-f]{2}'''
+keywords = ["fingerprint"]
+
+[[rules]]
+id = "cloudflare-tunnel-credentials"
+description = "Cloudflare tunnel credentials file content"
+regex = '''"TunnelSecret"\s*:\s*"[A-Za-z0-9+/=]{20,}"'''
+keywords = ["tunnelsecret"]
+
+[[rules]]
+id = "cloudflare-tunnel-token"
+description = "Cloudflare tunnel run token (cloudflared tunnel run --token)"
+regex = '''--token\s+eyJ[A-Za-z0-9_-]{40,}'''
+keywords = ["--token"]

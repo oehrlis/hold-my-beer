@@ -52,6 +52,7 @@ HMB_PRIVATE_DIR ?= $(CONF_DIR)/media/hold-my-beer
 PRIVATE_OUT     ?= $(CONF_DIR)/Own/$(TALK_SLUG).html
 
 APP_PORT ?= 5000
+SMOKE_PORT ?= 5099
 
 # Host: OCI instance + Cloudflare tunnel (terraform/), app via app/deploy-public.sh
 TF_DIR       := terraform
@@ -147,7 +148,7 @@ deck-dry-run: preflight ## Generate atoms and list the slide plan, write no deck
 # App
 # ==============================================================================
 
-.PHONY: app-venv app-test app-run app-stop app-status
+.PHONY: app-venv app-test app-run app-stop app-status app-smoke
 
 app-venv: ## Create the app venv and install locked dependencies
 	$(Q)[ -x "$(PYTHON)" ] || python3 -m venv "$(VENV)"
@@ -162,6 +163,14 @@ app-run: ## Start the app locally (APP_PORT, default 5000; dev admin password or
 
 app-stop: ## Stop the locally started app
 	$(Q)cd "$(APP_DIR)" && ./stop.sh
+
+app-smoke: ## Start the app on SMOKE_PORT with a throwaway DB, run tools/smoke.sh + a 50-client load test, stop
+	$(Q)cd "$(APP_DIR)" && tmp="$$(mktemp -d)" && \
+	  trap './stop.sh >/dev/null || true; rm -rf "$$tmp"' EXIT && \
+	  PORT=$(SMOKE_PORT) HOST=127.0.0.1 DATABASE_URL="sqlite:///$$tmp/smoke.db" BACKUP_DIR="$$tmp/backups" ./start.sh >/dev/null && \
+	  PORT=$(SMOKE_PORT) tools/smoke.sh && \
+	  .venv/bin/python tools/loadtest.py --base "http://127.0.0.1:$(SMOKE_PORT)" --clients 50
+	@echo "OK: app-smoke"
 
 app-status: ## Show process and readiness of the local app
 	$(Q)cd "$(APP_DIR)" && PORT="$(APP_PORT)" ./status.sh

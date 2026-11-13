@@ -22,6 +22,7 @@
 - [x] Variant 1 Accenture, variant 2 Hold my Beer, admin default + local switch (PR #2, merged 2026-11-13)
 - [ ] Admin page in the new layout checked in a logged-in browser [P2]
 
-## CI (proposal)
+## CI
 
-- [ ] Decide on `tasks/plan-ci.md` (phase 1: lint, tests, smoke, gitleaks before the repo goes public) [P2]
+- [x] Phase 1: lint, tests 3.9/3.12, smoke, gitleaks, branch protection (2026-11-13)
+- [ ] Phase 2: `make release` + `release.yml`, `iac.yml` - after the talk [P2]

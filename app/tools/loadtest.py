@@ -131,7 +131,8 @@ def main():
     print("HTTP-Codes:", {"%s %s" % k: n for k, n in sorted(codes.items())})
     checks = [
         ("Gesamtzahl Stimmen == Clients (%d)" % a.clients, live["total"] == a.clients),
-        ("Verteilung stimmt", live["counts"] == expected),
+        # nur Optionen mit Stimmen vergleichen: eine Runde kann bis zu vier Optionen haben (counts enthaelt "D": 0)
+        ("Verteilung stimmt", {k: n for k, n in live["counts"].items() if n} == {k: n for k, n in expected.items() if n}),
         ("alle Doppelstimmen abgewiesen (409)", dup_codes.count(409) == a.clients),
         ("keine 5xx/SQLite-Lock-Fehler/Timeouts", errors_http == 0),
         ("Polling ohne Fehler", all(s == 200 for (k, s) in codes if k == "state")),
