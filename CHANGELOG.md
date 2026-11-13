@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-13
+
+Voting app live behind the Cloudflare Tunnel as `https://hmb.oradba.ch`, own host as code (`hmb2`), switchable
+layout. Before rehearsal, four days before the talk.
+
 ### Added
 
 - `make host-backup HOST=...` / `scripts/hmb-host.sh backup` (0.2.0): SQLite online backup on the host with
@@ -18,11 +23,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `scripts/hmb-host.sh`: app secrets as 1Password item, `app.env` on the host from it (stdin only, never
   overwrites), public checks (readyz, QR URL, `no-store`, 404, services, listen address)
 - Makefile: `tf-init|plan|apply|output|ssh-config|destroy`, `host-secrets|env|deploy|check|up`, `lint-terraform`
-- `docs/runbook-terraform-host.md`; `tasks/open-work.md`
+- `docs/runbook-terraform-host.md`; `tasks/open-work.md`; CI/release proposal `tasks/plan-ci.md`
 - App layout Accenture (`acn`) / Hold my Beer (`hmb`) for participant, screen and admin: token-based `app.css`,
   `js/theme.js` (same codes and keys as the deck), Hold-my-Beer logo in the header. Default `APP_THEME`, the
   admin sets it for everyone (panel "Layout", migration `4e7a2c1b9d30` adds `session_state.theme`); each device
   can override locally (`?theme=`, key `t`, `ACN | HMB` switch; `Shift+T` follows the default again)
+
+### Changed
+
+- `.markdownlint.json`: `MD024` with `siblings_only` - Keep a Changelog repeats `Added` / `Fixed` per version
 
 ### Fixed
 
