@@ -24,5 +24,7 @@
 
 ## CI
 
-- [x] Phase 1: lint, tests 3.9/3.12, smoke, gitleaks, branch protection (2026-11-13)
+- [x] Phase 1: lint, tests 3.9/3.12, smoke, gitleaks (2026-11-13)
+- [ ] Branch protection on `main` once the repo is public (Free plan: 403 while private) - command in
+  `tasks/plan-ci.md` [P2]
 - [ ] Phase 2: `make release` + `release.yml`, `iac.yml` - after the talk [P2]

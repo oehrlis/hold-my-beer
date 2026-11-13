@@ -75,8 +75,16 @@ HOST=hmb2`, then `HOST=hmb`; the release ID on the host (`/opt/oracle-live-votin
 
 ## Order
 
-- [x] `ci.yml` + `secrets.yml` (lint, tests 3.9/3.12, smoke, gitleaks with `.gitleaks.toml`), branch protection on
-  `main` with these checks required (2026-11-13)
+- [x] `ci.yml` + `secrets.yml` (lint, tests 3.9/3.12, smoke, gitleaks with `.gitleaks.toml`) (2026-11-13)
+- [ ] Branch protection on `main` - not possible while the repo is private on the Free plan ("Upgrade to GitHub Pro
+  or make this repository public", HTTP 403). Right after the switch to public [P2]:
+
+  ```bash
+  jq -n '{required_status_checks:{strict:false,contexts:["lint","test-ol9","test-py312","smoke","gitleaks"]},enforce_admins:false,required_pull_request_reviews:null,restrictions:null,allow_force_pushes:false,allow_deletions:false}' | gh api -X PUT repos/oehrlis/hold-my-beer/branches/main/protection --input -
+  ```
+
+  `enforce_admins: false` keeps the release commit (`make release`) pushable to `main`. Until then: merge only
+  with green checks (`gh pr checks <n>`)
 - [x] `make app-smoke` (start on a throwaway DB, `tools/smoke.sh`, 50-client load test, stop)
 - [ ] `iac.yml` with tflint + trivy [P2]
 - [ ] `make release` with gates, CHANGELOG rollover, tag + push of branch and tag, `DRY_RUN=1` [P2]
@@ -86,4 +94,4 @@ HOST=hmb2`, then `HOST=hmb`; the release ID on the host (`/opt/oracle-live-votin
 ## Open questions
 
 - Decided 2026-11-13: tests on 3.9 (OL9 container, `setup-python` has no 3.9 for Ubuntu 26.04) and 3.12;
-  own `.gitleaks.toml` in the repo; CI blocks merges to `main`
+  own `.gitleaks.toml` in the repo; CI should block merges to `main` (branch protection after going public)
