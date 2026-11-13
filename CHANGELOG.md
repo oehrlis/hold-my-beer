@@ -26,6 +26,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 
+- App behind the tunnel rejected every POST with "Sicherheitstoken ungültig oder abgelaufen" (admin login and
+  votes): over HTTPS Flask-WTF requires a same-origin Referer, the app sends `Referrer-Policy: no-referrer`.
+  `WTF_CSRF_SSL_STRICT = False`; the session-bound token stays mandatory (`tests/test_https_csrf.py`). Over plain
+  HTTP before the tunnel the check never ran - found on 2026-11-13 at the first admin login via
+  `https://hmb.oradba.ch`
 - `app/deploy-public.sh`, `app/deploy/remote-install.sh`: a redeploy without `PUBLIC_BASE_URL` rewrote it to
   `http://<SSH_HOST>:<PORT>` - on the live host `http://hmb:8080`, so the QR code pointed nowhere. Now an empty
   value keeps `app.env`; a first deploy with an `https://` URL writes the tunnel settings (127.0.0.1, ProxyFix one
