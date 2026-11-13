@@ -10,7 +10,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - CI phase 1: `.github/workflows/ci.yml` (`make lint`; `make app-test` on Python 3.9 in an `oraclelinux:9`
   container - the hosts' system python - and on 3.12; `make app-smoke` in OL9) and `secrets.yml` (gitleaks over
   the full history, weekly too, `.gitleaks.toml` with OCI OCID / PAR / API key fingerprint and Cloudflare tunnel
-  rules); branch protection on `main` requires them
+  rules). Branch protection is not available for a private repo on the Free plan (HTTP 403) - set it when the
+  repo goes public (`tasks/plan-ci.md`)
 - `make app-smoke`: app on a throwaway DB, `tools/smoke.sh`, 50-client load test, stop
 - `host-check` (`scripts/hmb-host.sh` 0.3.0): vote POST with token through the tunnel must pass CSRF
   (`invalid_option`, nothing counted) - would have caught the v0.2.0 CSRF bug before the first login
