@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # OPTIONAL: Deployment auf einen eigenen Linux-Host (z.B. OCI Compute).
-# Nutzung: SSH_USER=<user> SSH_HOST=<host> SSH_KEY=<pfad-zum-key> ./deploy-public.sh [PORT]   (Standard 8080)
+# Nutzung: SSH_USER=<user> SSH_HOST=<host> SSH_KEY=<pfad-zum-key> [PUBLIC_BASE_URL=<url>] ./deploy-public.sh [PORT]   (Standard 8080)
+# PUBLIC_BASE_URL: beim ersten Deployment Standard http://<host>:<port>; beim Redeploy ohne Angabe bleibt der Wert in app.env.
 # Aendert keine Firewall und keine Cloud-Regeln. Beendet keine fremden Prozesse.
 set -euo pipefail
 cd "$(dirname "$(readlink -f "$0")")"
@@ -50,14 +51,16 @@ fi
 echo "==> Release-Paket bauen"
 ARCHIVE="$(./package.sh | tail -1)"
 RID="$(basename "$ARCHIVE" .tar.gz | sed 's/^dswnwst-voting-//')"
-PUBLIC_URL="${PUBLIC_BASE_URL:-http://$SSH_HOST:$PORT}"
+# leer = Redeploy behaelt PUBLIC_BASE_URL aus app.env (z.B. https://hmb.oradba.ch hinter dem Tunnel)
+PUBLIC_URL="${PUBLIC_BASE_URL:-}"
+SHOW_URL="${PUBLIC_URL:-<PUBLIC_BASE_URL aus app.env>}"
 echo "    $ARCHIVE (Release $RID)"
 
 echo "==> Übertragen (scp)"
 "${SCP[@]}" "$ARCHIVE" deploy/remote-install.sh "$SSH_USER@$SSH_HOST:/tmp/"
 
 echo "==> Installieren (systemd, venv, Migration, Seed, Healthcheck)"
-"${SSH[@]}" "bash /tmp/remote-install.sh /tmp/$(basename "$ARCHIVE") '$RID' '$PORT' '$PUBLIC_URL'; rc=\$?; rm -f /tmp/$(basename "$ARCHIVE") /tmp/remote-install.sh; exit \$rc"
+"${SSH[@]}" "bash /tmp/remote-install.sh /tmp/$(basename "$ARCHIVE") '$RID' '$PORT' '$PUBLIC_URL' 'http://$SSH_HOST:$PORT'; rc=\$?; rm -f /tmp/$(basename "$ARCHIVE") /tmp/remote-install.sh; exit \$rc"
 
 cat <<REPORT
 
@@ -70,11 +73,11 @@ cat <<REPORT
  Verzeichnis:     /opt/oracle-live-voting/current -> releases/$RID
 
  URLs (nach Freigabe von Firewall + OCI):
-   Teilnehmer:    $PUBLIC_URL/
-   Beamer:        $PUBLIC_URL/screen
-   Admin:         $PUBLIC_URL/admin
-   Healthcheck:   $PUBLIC_URL/healthz
-   Readiness:     $PUBLIC_URL/readyz
+   Teilnehmer:    $SHOW_URL/
+   Beamer:        $SHOW_URL/screen
+   Admin:         $SHOW_URL/admin
+   Healthcheck:   $SHOW_URL/healthz
+   Readiness:     $SHOW_URL/readyz
 
  Initiales Admin-Passwort einmalig abrufen:
    ssh -i $SSH_KEY $SSH_USER@$SSH_HOST 'cat /opt/oracle-live-voting/shared/initial-admin-password.txt'

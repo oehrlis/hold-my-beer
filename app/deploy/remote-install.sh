@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 # Laeuft AUF dem Zielsystem (wird von deploy-public.sh per SSH aufgerufen).
-# Nutzung: remote-install.sh <archiv.tar.gz> <release-id> <port> <public-base-url>
+# Nutzung: remote-install.sh <archiv.tar.gz> <release-id> <port> [<public-base-url>] [<default-url>]
+# Leere URL: erstes Deployment <default-url> (http://<ssh-host>:<port>), Redeploy behaelt den Wert aus app.env.
+# https://-URL beim ersten Deployment: Einstellungen fuer den Cloudflare Tunnel (127.0.0.1, ProxyFix, Secure-Cookie).
 # Ruft niemals firewall-cmd auf und beendet keine fremden Prozesse.
 set -euo pipefail
-ARCHIVE="$1"; RID="$2"; PORT="$3"; PUBLIC_URL="$4"
+ARCHIVE="$1"; RID="$2"; PORT="$3"; PUBLIC_URL="${4:-}"; DEFAULT_URL="${5:-http://$(hostname -f):$3}"
 BASE=/opt/oracle-live-voting
 SERVICE=oracle-live-voting
 SH="$BASE/shared"
@@ -36,6 +38,12 @@ say "Abhängigkeiten installiert."
 # Secrets nur beim ersten Deployment erzeugen
 if [ ! -f "$SH/app.env" ]; then
   umask 077
+  if [[ "$PUBLIC_URL" == https://* ]]; then
+    BIND=127.0.0.1; PROXY_FIX=true; COOKIE_SECURE=true   # hinter dem Tunnel, ein Proxy-Hop
+  else
+    BIND=0.0.0.0; PROXY_FIX=false; COOKIE_SECURE=false
+    PUBLIC_URL="${PUBLIC_URL:-$DEFAULT_URL}"
+  fi
   SECRET="$(python3 -c 'import secrets; print(secrets.token_urlsafe(48))')"
   ADMINPW="$(python3 -c 'import secrets; print(secrets.token_urlsafe(18))')"
   cat > "$SH/app.env" <<ENV
@@ -44,10 +52,11 @@ SECRET_KEY=$SECRET
 ADMIN_PASSWORD=$ADMINPW
 PUBLIC_BASE_URL=$PUBLIC_URL
 DATABASE_URL=sqlite:///$SH/oracle-live-voting.db
-HOST=0.0.0.0
+HOST=$BIND
 PORT=$PORT
-PROXY_FIX_ENABLED=false
-SESSION_COOKIE_SECURE=false
+PROXY_FIX_ENABLED=$PROXY_FIX
+PROXY_FIX_X_FOR=1
+SESSION_COOKIE_SECURE=$COOKIE_SECURE
 BACKUP_DIR=$SH/backups
 POOL_FILE=$POOL_REL
 ENV
@@ -55,12 +64,16 @@ ENV
   chmod 600 "$SH/app.env" "$SH/initial-admin-password.txt"
   say "Neue Secrets erzeugt (app.env, initial-admin-password.txt, je 600)."
 else
-  # bestehende Secrets bleiben unangetastet; nur Port und URL folgen dem Aufruf
-  sed -i -e "s|^PORT=.*|PORT=$PORT|" -e "s|^PUBLIC_BASE_URL=.*|PUBLIC_BASE_URL=$PUBLIC_URL|" "$SH/app.env"
+  # bestehende Secrets bleiben unangetastet; Port folgt dem Aufruf, die URL nur, wenn sie angegeben ist
+  sed -i "s|^PORT=.*|PORT=$PORT|" "$SH/app.env"
+  if [ -n "$PUBLIC_URL" ]; then
+    if grep -q '^PUBLIC_BASE_URL=' "$SH/app.env"; then sed -i "s|^PUBLIC_BASE_URL=.*|PUBLIC_BASE_URL=$PUBLIC_URL|" "$SH/app.env"
+    else echo "PUBLIC_BASE_URL=$PUBLIC_URL" >> "$SH/app.env"; fi
+  fi
   if grep -q '^POOL_FILE=' "$SH/app.env"; then sed -i "s|^POOL_FILE=.*|POOL_FILE=$POOL_REL|" "$SH/app.env"
   else echo "POOL_FILE=$POOL_REL" >> "$SH/app.env"; fi
   chmod 600 "$SH/app.env"
-  say "Bestehende app.env beibehalten (nur PORT/PUBLIC_BASE_URL/POOL_FILE aktualisiert)."
+  say "Bestehende app.env beibehalten (PORT, POOL_FILE${PUBLIC_URL:+, PUBLIC_BASE_URL} aktualisiert): $(grep ^PUBLIC_BASE_URL= "$SH/app.env")"
 fi
 
 PREV=""; [ -L "$BASE/current" ] && PREV="$(readlink "$BASE/current")"
