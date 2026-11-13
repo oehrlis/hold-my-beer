@@ -6,7 +6,7 @@
 # Author.....: Stefan Oehrli (oes) stefan.oehrli@oradba.ch
 # Editor.....: Stefan Oehrli
 # Date.......: 2026-11-13
-# Version....: 0.2.0
+# Version....: 0.3.0
 # Purpose....: App secrets in 1Password, app.env on the host, SQLite backup and
 #              public checks for a hold-my-beer voting host behind a Cloudflare Tunnel.
 # Notes......: Secrets go through stdin (op <-> ssh), never onto a command line
@@ -19,6 +19,7 @@
 # CHANGE LOG:
 # 2026-11-13  oes  Initial release                                    0.1.0
 # 2026-11-13  oes  backup: SQLite online backup on the host            0.2.0
+# 2026-11-13  oes  check: POST through the tunnel passes CSRF          0.3.0
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
@@ -28,7 +29,7 @@
 # shellcheck disable=SC2029
 set -euo pipefail
 SCRIPT_NAME=$(basename "$0")
-VERSION="0.2.0"
+VERSION="0.3.0"
 DRY_RUN=${DRY_RUN:-"FALSE"}
 OP_VAULT=${OP_VAULT:-"secrets"}
 OP_ITEM=${OP_ITEM:-""}     # override the item title, e.g. "hmb app production (hmb.oradba.ch)"
@@ -211,7 +212,7 @@ cmd_backup() {
 # Example.: cmd_check hmb2
 # ------------------------------------------------------------------------------
 cmd_check() {
-    local host="$1" url="https://$1.${ZONE}" fail=0 code body hdr state listen
+    local host="$1" url="https://$1.${ZONE}" fail=0 code body hdr state listen jar tok
     check() { if [[ "$2" == "$3" ]]; then log_info "OK   $1 = $2"; else log_error "FAIL $1 = $2 (expected $3)"; fail=1; fi; }
 
     code="$(curl -s -o /dev/null -w '%{http_code}' "$url/readyz")"; check "$url/readyz" "$code" 200
@@ -221,6 +222,15 @@ cmd_check() {
     hdr="$(curl -sI "$url/api/state" | tr -d '\r' | grep -i -E '^cache-control:' | awk '{print $2}')"
     check "api/state cache-control" "$hdr" "no-store"
     code="$(curl -s -o /dev/null -w '%{http_code}' "$url/does-not-exist")"; check "$url/does-not-exist" "$code" 404
+    # POST like a phone (token, no Referer): option Z is invalid, so nothing is counted - but the request must get
+    # past CSRF. csrf_invalid here means no vote and no admin login works (2026-11-13, WTF_CSRF_SSL_STRICT)
+    jar="$(mktemp)"
+    tok="$(curl -s -c "$jar" -b "$jar" "$url/" | sed -n 's/.*name="csrf-token" content="\([^"]*\)".*/\1/p')"
+    curl -s -o /dev/null -c "$jar" -b "$jar" "$url/api/state"
+    code="$(curl -s -c "$jar" -b "$jar" -H "X-CSRFToken: $tok" -H 'Content-Type: application/json' \
+        -d '{"option":"Z","request_id":"hostcheck0001"}' "$url/api/vote" | sed -n 's/.*"code": *"\([a-z_]*\)".*/\1/p')"
+    rm -f "$jar"
+    check "POST /api/vote passes CSRF" "$code" "invalid_option"
     state="$(ssh "${SSH_OPTS[@]}" "$host" 'systemctl is-active cloudflared oracle-live-voting | paste -sd,')" || true
     check "services cloudflared,oracle-live-voting" "$state" "active,active"
     listen="$(ssh "${SSH_OPTS[@]}" "$host" "ss -ltn | awk '\$4 ~ /:${APP_PORT}\$/ {print \$4}' | head -1")" || true
