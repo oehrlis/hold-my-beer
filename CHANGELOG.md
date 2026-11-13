@@ -17,6 +17,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 
+- CI: actions on Node 24 (`checkout` v7, `setup-node` v7, `setup-python` v7, `setup-terraform` v4) - the
+  Node 20 versions raised a deprecation warning in every job
 - `app/tools/loadtest.py`: "Verteilung stimmt" failed since rounds can have four options (`counts` has `"D": 0`)
 
 ## [0.2.0] - 2026-11-13
