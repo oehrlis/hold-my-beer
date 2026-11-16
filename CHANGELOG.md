@@ -7,6 +7,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- `docs/runbook-labs-talk-day.md`: Stefan's rounds on oradba-labs `seclab` - switch from the privesc weak state
+  (`stage.sh unweak`, then `make reset`), starting points and before pictures, reset, and a step-based count of
+  who did what (AI / preparation / Stefan in %); `docs/prompts-stefan-rounds.md`: the three live prompts
 - CI phase 1: `.github/workflows/ci.yml` (`make lint`; `make app-test` on Python 3.9 in an `oraclelinux:9`
   container - the hosts' system python - and on 3.12; `make app-smoke` in OL9) and `secrets.yml` (gitleaks over
   the full history, weekly too, `.gitleaks.toml` with OCI OCID / PAR / API key fingerprint and Cloudflare tunnel

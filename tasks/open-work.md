@@ -35,7 +35,13 @@
 - [x] Deployed to `hmb` 09:34 over the VPN (backup `voting-20261116-083343.db`), `host-check` green, beer markup
   served, `PUBLIC_BASE_URL` unchanged; `make deck-private` built, QR on slides 7/10/12/14 decoded to `https://hmb.oradba.ch/`
 - [ ] "Gesamte Session zurücksetzen" in `/admin` on `hmb` - Stefan or Martin; rounds 2/3 change only then [P1]
-- [ ] Lab: CDB in ARCHIVELOG with local undo (round 3 B), RMAN target for round 2 B - check before the talk [P1]
+- [ ] Lab (Martin's B topics): his own lab - CDB in ARCHIVELOG with local undo (3 B), RMAN target (2 B) [P1]
+- [x] App: beer tube with carbonation and foam, burp cloud, burp sound on `/screen` (CC0, host-only file),
+  static cache-busting; `hmb` full reset 2026-11-16 12:32, new topics 2 B / 3 B live (PR #12-#15)
+- [ ] Rehearse the lab switch privesc -> hmb on `seclab` once, fill in the times, then `stage.sh weak`
+  again (`docs/runbook-labs-talk-day.md`) [P1] (due: 2026-11-16)
+- [ ] `seclab-db26` unhealthy in the privesc state (SYSTEM login via listener fails) - must be green after the
+  switch [P1] (due: 2026-11-16)
 
 ## App layout: switchable brand
 
