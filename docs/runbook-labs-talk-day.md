@@ -22,7 +22,7 @@ make talk-start    # 14:00: check app + lab, set the three demo starting points,
 | `make talk-check` | `host-check hmb`, `make verify LAB=seclab`, privesc leftovers (WALLET_ROOT, VICTIMPDB, sqlnet.ora), demo starting points, private deck present and newer than its sources | nothing |
 | `make talk-lab` | switch from the privesc state (section "Switch") | the lab - asks first |
 | `make talk-demos` | `setup.sql` of verifier, unified-audit, tde; refuses while privesc leftovers exist, skips a demo already set | the lab |
-| `make talk-open` | private deck and `/screen` (new window) + `/admin` in Chrome, one Terminal window per round with `sqlplus / as sysdba` in the demo directory | nothing |
+| `make talk-open` | private deck and `/screen` (new window) + `/admin` in Chrome, one Terminal window per round (profile `demo`, `TERMINAL_PROFILE=<name>`) with `sqlplus / as sysdba` in the demo directory | nothing |
 | `make talk-start` | `talk-check`, then `talk-demos`, then `talk-open` | the lab (demos) |
 <!-- markdownlint-restore -->
 

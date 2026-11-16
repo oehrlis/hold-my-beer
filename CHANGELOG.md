@@ -11,7 +11,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   point for the session - read-only check (app, lab, privesc leftovers, demo starting points, stale deck), the lab
   switch from the privesc state (asks first, `DEMO_PWD` via environment or `op read`), demo `setup.sql`, and
   deck / `/screen` / `/admin` / one Terminal window per round; `DRY_RUN=1` changes nothing. 0.1.1: a failed
-  lab step names where it stopped and how to go on (half switched, rerun is idempotent)
+  lab step names where it stopped and how to go on (half switched, rerun is idempotent). 0.2.0: the sqlplus
+  windows open with the Terminal profile `demo` (`TERMINAL_PROFILE`); `talk-check` reports a missing profile
 - `docs/runbook-labs-talk-day.md`: Stefan's rounds on oradba-labs `seclab` - switch from the privesc weak state
   (`stage.sh unweak`, then `make reset`), starting points and before pictures, reset, and a step-based count of
   who did what (AI / preparation / Stefan in %); `docs/prompts-stefan-rounds.md`: the three live prompts
