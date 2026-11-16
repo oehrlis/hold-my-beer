@@ -17,6 +17,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   (`invalid_option`, nothing counted) - would have caught the v0.2.0 CSRF bug before the first login
 - App: the voting countdown drains as a beer tube on the participant page and on `/screen`, as on the slide
   "Handys raus" (fill = `remaining / duration` from `/api/state`, no backend change; Accenture layout: solid accent)
+- App: the beer tube has carbonation bubbles and a bubbly foam head over the rim; when the time runs out a
+  "Rülps!" bubble pops up once - outside the views, so the switch to "closed" does not cut it off
 
 ### Changed
 
@@ -25,7 +27,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   `hmb` needs "Gesamte Session zurücksetzen" in `/admin` - the seed never changes existing rounds
 - Slides: rules card "Wir auch" names ADB and the on-prem lab (Docker); prerequisites show the platform per
   person (Mac, Windows / WSL) and drop Data Guard; takeaways motto "AI ist kein Selbstläufer", draft TODO gone
-  (it squeezed the cards, the image ran into the third one); new photo of Martin
+  (it squeezed the cards, the image ran into the third one); new photo of Martin (head to hips, colleague in the background and number plate blurred)
+- Slides: illustration next to the motto 330 -> 290 px, rules line shortened - in the Accenture layout the wider
+  font made the cards taller and the "This is fine" image ran into the third card
 - Speaker order Stefan, Martin, ACE program - in the talks repo recipe (`talks/wissen-nicht-was-sie-tun/talk.yaml`)
 
 ### Removed

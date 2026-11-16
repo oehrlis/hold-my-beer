@@ -58,20 +58,24 @@
   // Countdown nur zur Anzeige; Restzeit stammt vom Server (kein Uhrenabgleich noetig).
   // tube (optional): Bier-Roehre, Fuellstand = Restzeit / Dauer (wie Folie "Handys raus").
   function countdown(node, tube) {
-    var deadline = null, total = null;
+    var deadline = null, total = null, running = false;
     function fmt(ms) {
       var s = Math.max(0, Math.ceil(ms / 1000));
       return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2);
     }
     function paint() {
       if (tube) tube.hidden = deadline === null || !total;
-      if (deadline === null) { node.textContent = '--'; return; }
+      if (deadline === null) { node.textContent = '--'; running = false; return; }
       var left = deadline - performance.now(), urgent = left <= 10000;
       node.textContent = fmt(left);
       node.classList.toggle('urgent', urgent);
       if (tube && total) {
         tube.style.setProperty('--level', Math.min(1, Math.max(0, left / (total * 1000))).toFixed(4));
         tube.classList.toggle('urgent', urgent);
+        tube.classList.toggle('empty', left <= 0);
+        // nur beim Ablauf vor Augen rülpsen, nicht beim Laden einer schon abgelaufenen Runde
+        if (left > 0) running = true;
+        else if (running) { running = false; burp(); }
       }
     }
     setInterval(paint, 250);
@@ -80,6 +84,13 @@
       total = durationSeconds > 0 ? durationSeconds : null;
       paint();
     };
+  }
+
+  function burp() {
+    var b = document.querySelector('.burp');
+    if (!b) { b = document.createElement('div'); b.className = 'burp'; b.setAttribute('aria-hidden', 'true'); b.textContent = 'Rülps!'; document.body.appendChild(b); }
+    b.classList.remove('go'); void b.offsetWidth; b.classList.add('go');
+    setTimeout(function () { b.classList.remove('go'); }, 2400);
   }
 
   function bars(container, result, options) {
