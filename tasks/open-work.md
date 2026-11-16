@@ -15,7 +15,8 @@
 - [x] Decision 2026-11-13: `terraform/` keeps the build in the repo; `hmb` stays on the shared host for the
   talk, `hmb2` is not applied for now
 - [ ] Rehearsal against `hmb` (one round, window switch, Speaker View) [P1]
-- [ ] Session on `hmb` reset in `/admin` (still `challenge_running` from tests) [P1]
+- [x] Session on `hmb` reset (14:47, checked in the DB: `waiting`, round 1, 0 votes); `make deck-private` built,
+  voting URL and both QR codes decoded to `https://hmb.oradba.ch/`
 - [x] `/admin` during the talk: Martin
 - [ ] Later, if `hmb2` is wanted: Cloudflare token (`Account - Cloudflare Tunnel - Edit` + `Zone - DNS - Edit`
   for oradba.ch) in `secrets/hmb terraform cloudflare`, then `make tf-apply` and `make host-up HOST=hmb2` [P3]
