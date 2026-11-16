@@ -56,21 +56,28 @@
   }
 
   // Countdown nur zur Anzeige; Restzeit stammt vom Server (kein Uhrenabgleich noetig).
-  function countdown(node) {
-    var deadline = null;
+  // tube (optional): Bier-Roehre, Fuellstand = Restzeit / Dauer (wie Folie "Handys raus").
+  function countdown(node, tube) {
+    var deadline = null, total = null;
     function fmt(ms) {
       var s = Math.max(0, Math.ceil(ms / 1000));
       return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2);
     }
     function paint() {
+      if (tube) tube.hidden = deadline === null || !total;
       if (deadline === null) { node.textContent = '--'; return; }
-      var left = deadline - performance.now();
+      var left = deadline - performance.now(), urgent = left <= 10000;
       node.textContent = fmt(left);
-      node.classList.toggle('urgent', left <= 10000);
+      node.classList.toggle('urgent', urgent);
+      if (tube && total) {
+        tube.style.setProperty('--level', Math.min(1, Math.max(0, left / (total * 1000))).toFixed(4));
+        tube.classList.toggle('urgent', urgent);
+      }
     }
     setInterval(paint, 250);
-    return function (remainingSeconds) {
+    return function (remainingSeconds, durationSeconds) {
       deadline = (remainingSeconds === null || remainingSeconds === undefined) ? null : performance.now() + remainingSeconds * 1000;
+      total = durationSeconds > 0 ? durationSeconds : null;
       paint();
     };
   }

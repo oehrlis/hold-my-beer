@@ -56,7 +56,7 @@ def pool_app(tmp_path):
 def test_repo_pool_is_valid():
     pool = load_pool()  # Standard ../pool/doag-ak-2026.yaml
     assert [r["number"] for r in pool["rounds"]] == [1, 2, 3]
-    assert all(len(r["options"]) == 3 for r in pool["rounds"]) and len(pool["reserve"]) == 12
+    assert all(len(r["options"]) == 3 for r in pool["rounds"]) and len(pool["reserve"]) == 13
     assert pool["format"]["voting_seconds"] == 60 and pool["format"]["challenge_minutes"] == 5
 
 

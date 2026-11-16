@@ -10,6 +10,7 @@
   --green: #1b7f45; --on-ok: #ffffff; --ok-soft: rgba(27,127,69,.10);
   --orange: #c24e00; --on-warn: #ffffff; --red: #c8102e; --err-bg: #fdeceb;
   --brand-mark: none;
+  --beer: var(--accent); --beer-glass: var(--line); --beer-foam: transparent;
   --radius: 0px;
 }
 html[data-theme="hmb"] {
@@ -22,6 +23,7 @@ html[data-theme="hmb"] {
   --green: #6fd4a8; --on-ok: #0f1d2a; --ok-soft: rgba(111,212,168,.10);
   --orange: #ff9e4d; --on-warn: #0f1d2a; --red: #ff6b5b; --err-bg: #5a2a0a;
   --brand-mark: url("../img/hold-my-beer.svg");
+  --beer: linear-gradient(180deg, #ffc24a 0%, #ef6c00 100%); --beer-glass: #a8c8d8; --beer-foam: #f0f5f8;
   --radius: 6px;
 }
 
@@ -178,7 +180,14 @@ th, td { text-align: left; padding: .4rem .5rem; border-bottom: 1px solid var(--
 .s-summary { font-size: 1.2em; }
 
 @media (max-width: 800px) { .s-options { grid-template-columns: 1fr; } .s-qr { flex-direction: column; } }
-@media (prefers-reduced-motion: reduce) { .bar-fill { transition: none; } }
+/* voting countdown as beer: the tube drains from --level 1 to 0 (common.js countdown) */
+.beer { --level: 1; position: relative; height: 1.4rem; margin: .4rem 0 1rem; border: 2px solid var(--beer-glass); border-radius: 999px; background: var(--surface); overflow: hidden; }
+.beer-xl { height: clamp(1.6rem, 3vw, 3rem); margin: 1.2vh 0 2vh; border-width: 3px; }
+.beer-fill { position: absolute; inset: 0 auto 0 0; width: calc(var(--level) * 100%); background: var(--beer); transition: width .25s linear; }
+.beer-fill::after { content: ""; position: absolute; top: -10%; right: -.45em; width: .9em; height: 120%; border-radius: 50%; background: var(--beer-foam); }
+.beer.urgent { border-color: var(--orange); }
+html[data-theme="acn"] .beer { border-radius: 0; }
+@media (prefers-reduced-motion: reduce) { .bar-fill, .beer-fill { transition: none; } }
 
 .edit-list { display: grid; gap: .8rem; margin: .6rem 0; }
 .edit-row { display: grid; grid-template-columns: 3rem repeat(auto-fit, minmax(160px, 1fr)); gap: .5rem; align-items: end; background: var(--bg); border-radius: 12px; padding: .7rem; }

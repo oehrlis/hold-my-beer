@@ -2,7 +2,7 @@
   'use strict';
   var $ = function (id) { return document.getElementById(id); };
   var el = OLV.el;
-  var vCount = OLV.countdown($('v-count')), cCount = OLV.countdown($('ch-count'));
+  var vCount = OLV.countdown($('v-count'), $('v-beer')), cCount = OLV.countdown($('ch-count'));
   var VIEWS = ['s-waiting', 's-voting', 's-closed', 's-result', 's-challenge', 's-score', 's-closing'];
   var optKey = null;
 
@@ -29,7 +29,7 @@
           });
         }
         $('v-votes').textContent = d.voting.votes;
-        vCount(d.voting.remaining);
+        vCount(d.voting.remaining, d.voting.duration);
         break;
       case 'voting_closed':
         show('s-closed'); $('cl-votes').textContent = d.voting.votes; vCount(null); break;

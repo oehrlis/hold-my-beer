@@ -15,6 +15,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `make app-smoke`: app on a throwaway DB, `tools/smoke.sh`, 50-client load test, stop
 - `host-check` (`scripts/hmb-host.sh` 0.3.0): vote POST with token through the tunnel must pass CSRF
   (`invalid_option`, nothing counted) - would have caught the v0.2.0 CSRF bug before the first login
+- App: the voting countdown drains as a beer tube on the participant page and on `/screen`, as on the slide
+  "Handys raus" (fill = `remaining / duration` from `/api/state`, no backend change; Accenture layout: solid accent)
+
+### Changed
+
+- Pool: round 2 B (Martin) is now "RMAN: lokales CLI-Skript für ein Backup der DB", round 3 B "Refreshable PDB
+  Clone" instead of the Data Guard switchover (no standby in the lab); AWR/ASH moves to the reserve (13 topics).
+  `hmb` needs "Gesamte Session zurücksetzen" in `/admin` - the seed never changes existing rounds
+- Slides: rules card "Wir auch" names ADB and the on-prem lab (Docker); prerequisites show the platform per
+  person (Mac, Windows / WSL) and drop Data Guard; takeaways motto "AI ist kein Selbstläufer", draft TODO gone
+  (it squeezed the cards, the image ran into the third one); new photo of Martin
+- Speaker order Stefan, Martin, ACE program - in the talks repo recipe (`talks/wissen-nicht-was-sie-tun/talk.yaml`)
+
+### Removed
+
+- `slides/src/speaker-martin/martin-feuerwehr.jpg` (gear only), replaced by `martin-portrait.jpg`; last content
+  in `64254d0`
 
 ### Fixed
 
