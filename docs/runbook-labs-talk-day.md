@@ -13,7 +13,7 @@ next to this repo under `~/Repos/own/oehrlis/` (override: `LABS_DIR`, `PRIVESC_D
 cd ~/Repos/own/oehrlis/hold-my-beer && git pull
 make talk-check    # any time: read only
 make talk-lab      # 11:45, after the privesc talk: stage.sh unweak, make reset, make verify (asks first)
-make talk-start    # 14:30: check app + lab, set the three demo starting points, open deck/browser/terminals
+make talk-start    # 14:00: check app + lab, set the three demo starting points, open deck/browser/terminals
 ```
 
 <!-- markdownlint-disable MD013 MD060 -->
@@ -68,8 +68,14 @@ touches exactly what the hold-my-beer demos need untouched:
 A flashback (`make reset LAB=seclab`) does not revert files or the spfile, so the order is fixed:
 **`stage.sh unweak` first, then `make reset`**.
 
-Seen on 2026-11-16 in the weak state: `make verify LAB=seclab` fails on `seclab-db26` (container `unhealthy`,
-SYSTEM login via the listener fails for every PDB). The switch must end with `make verify` fully green.
+In the weak state `make verify LAB=seclab` fails on `seclab-db26` (container `unhealthy`, SYSTEM login via the
+listener fails for every PDB) - expected, it comes from the privesc state. After the switch (2026-11-16) both
+databases were fully green.
+
+If `stage.sh unweak` stops with ORA-04031 ("java pool") in m4b on db19: the Java pool is full. Since 2026-11-16
+oradba-labs sets a floor of 64M (`labs/seclab/startup/db19/05_java_pool.sql`, `4431cfe`) - it applies after a
+restart of db19 (`shutdown immediate`, `startup`, `alter pluggable database all open`), then `make talk-lab` again.
+`unweak` is idempotent per module and simply starts from m7 again.
 
 ## Talk day timeline (Tue 2026-11-17)
 
@@ -78,20 +84,19 @@ SYSTEM login via the listener fails for every PDB). The switch must end with `ma
 | 08:30 | deep-data-security | `base26` - not affected |
 | 11:00 | privesc | `seclab` weak (`PRIVESC_WEAK`) |
 | **11:45-12:45** | **switch** (this runbook, section "Switch") | `seclab` -> baseline -> hmb starting points |
-| 13:00 | Blind Spots | lab use not checked - if it uses `seclab`, the switch moves after 13:45 |
-| 14:30 | hmb check (section "Before the session") | starting points in place |
+| 13:00 | Blind Spots | no lab |
+| 14:00 | `make talk-start`, tech check 2 min (section "Before the session") | starting points in place |
 | 15:00 | hold-my-beer | rounds 1-3 |
 | after 15:45 | clean-up (section "After the session") | `seclab` baseline |
 
-## Rehearse the switch today (Mon 2026-11-16)
+## Switch rehearsal (done Mon 2026-11-16)
 
-The lab is in the privesc state now. Run the switch once end to end, time it, then put the privesc state
-back for tomorrow morning:
+`make talk-lab` and `make talk-start` ran end to end; each demo once with `@check.sql`, `@solution.sql`,
+`@reset.sql`. Times in the table at the end. The privesc state goes back with the privesc entry point
+(`talks-privesc`, `make talk-lab` there; manual: `./stage.sh weak`, `./stage.sh verify` - every row `PRESENT`).
 
-1. Section "Switch" below, all steps - note the times in the table at the end
-2. Each demo once: `@setup.sql`, `@check.sql`, `@solution.sql`, `@check.sql`, `@reset.sql`
-3. Back to privesc: `cd ~/Repos/own/oehrlis/talks-privesc/talks/oracle-privesc/demos`, `export DEMO_PWD=...`,
-   `./stage.sh weak` (about 80 s), `./stage.sh verify` - every row `PRESENT`
+No rehearsal with the AI: the slide says "the environment is prepared, the outcome is not" - read the prompts
+once, do not send them.
 
 ## Switch (privesc -> hold-my-beer)
 
@@ -126,7 +131,7 @@ db19) - decide that in the rehearsal today, not tomorrow at noon.
 If `make verify` is still red: do not improvise at 12:30. Fallback for the talk: round 1 and 2 run on db19 only,
 round 3 is shown with `check.sql` and the solution steps (TDE README, "Restart plan").
 
-## Before the session (14:30, about 5 min)
+## Before the session (14:00, about 5 min)
 
 `make talk-start` does this section: starting points via `setup.sql`, one Terminal window per round. By hand,
 three terminal tabs, one per round:
@@ -209,12 +214,10 @@ Steps per round (from the demo READMEs) - copy one table per played round:
 Example round 2 with 7 steps (0-6): `P` 1, `A` 3, `A~` 2, `S` 1 -> AI 4/7 = 57 %, Stefan 2/7 = 29 %,
 preparation 1/7 = 14 %. On the final score slide: one line per played round plus the sum over all rounds.
 
-## Times (fill in during today's rehearsal)
+## Times
 
-| Step | Expected | Measured 2026-11-16 |
-| --- | --- | --- |
-| `stage.sh unweak` | ? | |
-| `make reset LAB=seclab` | ? | |
-| `make verify LAB=seclab` | under 1 min | |
-| three `setup.sql` + `check.sql` | about 2 min | |
-| `stage.sh weak` (back to privesc) | about 80 s | |
+| Step | Measured 2026-11-16 |
+| --- | --- |
+| `make talk-lab` (unweak, `make reset`, `make verify`, leftover check) | 3 min 20 s (after the db19 restart) |
+| `make talk-check` | 12 s |
+| `make talk-start` (check, three `setup.sql`, open) | about 1 min |

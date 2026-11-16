@@ -6,7 +6,7 @@
 # Author.....: Stefan Oehrli (oes) stefan.oehrli@oradba.ch
 # Editor.....: Stefan Oehrli
 # Date.......: 2026-11-16
-# Version....: 0.1.0
+# Version....: 0.1.1
 # Purpose....: One entry point for the hold-my-beer session: check app and lab,
 #              switch the seclab lab from the privesc state, set the demo
 #              starting points, open deck, browser and terminals.
@@ -19,6 +19,7 @@
 # ------------------------------------------------------------------------------
 # CHANGE LOG:
 # 2026-11-16  oes  Initial release                                    0.1.0
+# 2026-11-16  oes  lab: name the step that failed and how to go on    0.1.1
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
@@ -27,7 +28,7 @@
 set -euo pipefail
 SCRIPT_NAME=$(basename "$0")
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
-VERSION="0.1.0"
+VERSION="0.1.1"
 DRY_RUN=${DRY_RUN:-"FALSE"}
 ASSUME_YES=${ASSUME_YES:-"FALSE"}
 REPOS_DIR=${REPOS_DIR:-"$HOME/Repos/own/oehrlis"}
@@ -231,10 +232,13 @@ cmd_lab() {
             pwd="$(op read "${DEMO_PWD_OP}")" \
                 || die "no DEMO_PWD: export DEMO_PWD=... or create the 1Password item (${DEMO_PWD_OP}), see the runbook"
         fi
-        (cd "${PRIVESC_DIR}" && DEMO_PWD="$pwd" ./stage.sh unweak)
+        (cd "${PRIVESC_DIR}" && DEMO_PWD="$pwd" ./stage.sh unweak) \
+            || die "stage.sh unweak failed - lab half switched (modules up to the error undone). Fix the cause above,
+       then make talk-lab again (unweak is idempotent). ORA-04031 java pool: runbook section 'Switch'"
     fi
-    run make -C "${LABS_DIR}" reset LAB="${LAB}"
-    run make -C "${LABS_DIR}" verify LAB="${LAB}"
+    run make -C "${LABS_DIR}" reset LAB="${LAB}" \
+        || die "make reset LAB=${LAB} failed - privesc state is undone, flashback not done: check make status LAB=${LAB}"
+    run make -C "${LABS_DIR}" verify LAB="${LAB}" || die "make verify LAB=${LAB} failed after the switch - see FAIL lines above"
     [[ "$DRY_RUN" == "TRUE" ]] && return 0
     lab_state || die "lab still shows privesc leftovers - see above, runbook section 'Switch'"
     log_ok "lab ${LAB}: switched, verified, no privesc leftovers"
