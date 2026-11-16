@@ -2,9 +2,16 @@
 
 ## Entry point
 
-Two commands, both from the hold-my-beer checkout (`scripts/talk-start.sh`, `make help` section "Session"):
+Two commands, both from the root of the hold-my-beer checkout (`scripts/talk-start.sh`, `make help` section
+"Session"). Terminal.app or the VS Code terminal both work - the three sqlplus windows always open in Terminal.app.
+
+Ready before: Docker Desktop with the `seclab` containers; WireGuard (only the SSH part of the app check needs it);
+1Password CLI unlocked (only `make talk-lab`, for `DEMO_PWD`). `oradba-labs` and `talks-privesc` are expected
+next to this repo under `~/Repos/own/oehrlis/` (override: `LABS_DIR`, `PRIVESC_DIR`).
 
 ```bash
+cd ~/Repos/own/oehrlis/hold-my-beer && git pull
+make talk-check    # any time: read only
 make talk-lab      # 11:45, after the privesc talk: stage.sh unweak, make reset, make verify (asks first)
 make talk-start    # 14:30: check app + lab, set the three demo starting points, open deck/browser/terminals
 ```
