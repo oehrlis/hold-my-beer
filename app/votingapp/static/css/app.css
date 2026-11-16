@@ -11,6 +11,7 @@
   --orange: #c24e00; --on-warn: #ffffff; --red: #c8102e; --err-bg: #fdeceb;
   --brand-mark: none;
   --beer: var(--accent); --beer-glass: var(--line); --beer-foam: #ffffff; --beer-fizz: rgba(255,255,255,.45);
+  --burp-cloud: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 160' preserveAspectRatio='none'%3E%3Cpath d='M50 118A28 28 0 0 1 30 70A34 34 0 0 1 82 34A38 38 0 0 1 150 26A32 32 0 0 1 204 52A30 30 0 0 1 214 108A24 24 0 0 1 186 124A30 30 0 0 1 132 128A30 30 0 0 1 82 126A26 26 0 0 1 50 118Z' fill='%23ffffff' stroke='%23a100ff' stroke-width='3' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E");
   --radius: 0px;
 }
 html[data-theme="hmb"] {
@@ -24,6 +25,7 @@ html[data-theme="hmb"] {
   --orange: #ff9e4d; --on-warn: #0f1d2a; --red: #ff6b5b; --err-bg: #5a2a0a;
   --brand-mark: url("../img/hold-my-beer.svg");
   --beer: linear-gradient(180deg, #ffc24a 0%, #ef6c00 100%); --beer-glass: #a8c8d8; --beer-foam: #f0f5f8; --beer-fizz: rgba(255,255,255,.7);
+  --burp-cloud: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 160' preserveAspectRatio='none'%3E%3Cpath d='M50 118A28 28 0 0 1 30 70A34 34 0 0 1 82 34A38 38 0 0 1 150 26A32 32 0 0 1 204 52A30 30 0 0 1 214 108A24 24 0 0 1 186 124A30 30 0 0 1 132 128A30 30 0 0 1 82 126A26 26 0 0 1 50 118Z' fill='%23f0f5f8' stroke='%23a8c8d8' stroke-width='3' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E");
   --radius: 6px;
 }
 
@@ -34,6 +36,8 @@ html[data-theme="acn"] .brand-mark::before { content: ">"; color: var(--accent);
 .s-head .brand-mark::before { font-size: 2.2em; }
 .theme-switch { flex: none; font: inherit; font-size: .75rem; letter-spacing: .06em; color: var(--muted); background: transparent; border: 1px solid var(--line); border-radius: 999px; padding: .2rem .6rem; min-height: 32px; cursor: pointer; }
 .theme-switch .on { font-weight: 800; color: var(--accent); }
+.s-credit { font-size: .7rem; color: var(--muted); }
+.sound-switch[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); font-weight: 800; }
 .theme-switch.local::after { content: " •"; color: var(--orange); }
 .theme-pick { display: flex; gap: .6rem; flex-wrap: wrap; }
 .theme-pick .btn[aria-pressed="true"] { background: var(--accent-strong); color: var(--on-accent); }
@@ -201,11 +205,11 @@ html[data-theme="acn"] .beer, html[data-theme="acn"] .beer-fill { border-radius:
 @keyframes beer-fizz { to { background-position: calc(var(--h) * .3) calc(var(--h) * -.38), calc(var(--h) * 1.1) calc(var(--h) * -.8), calc(var(--h) * .8) calc(var(--h) * -.15), 0 0; } }
 /* time up: one burp, outside the views so the switch to "closed" does not cut it off (common.js burp) */
 .burp { position: fixed; z-index: 50; left: 50%; top: 22vh; transform: translate(-50%, 0) scale(.4); opacity: 0; pointer-events: none;
-  padding: .5em 1em; border-radius: 1.4em; background: var(--beer-foam); color: #1e3446; border: 3px solid var(--beer-glass);
-  font-size: clamp(2rem, 7vw, 6rem); font-weight: 900; letter-spacing: .04em; box-shadow: 0 .4em 1.2em var(--shadow); }
+  padding: .75em 1.4em .85em; background: var(--burp-cloud) center / 100% 100% no-repeat; color: #1e3446;
+  font-size: clamp(2rem, 7vw, 6rem); font-weight: 900; letter-spacing: .04em; white-space: nowrap; filter: drop-shadow(0 .25em .5em var(--shadow)); }
 .burp::before, .burp::after { content: ""; position: absolute; border-radius: 50%; background: var(--beer-foam); border: 3px solid var(--beer-glass); }
-.burp::before { width: .45em; height: .45em; left: 18%; bottom: -.6em; }
-.burp::after { width: .25em; height: .25em; left: 12%; bottom: -1em; }
+.burp::before { width: .4em; height: .4em; left: 22%; bottom: -.35em; }
+.burp::after { width: .22em; height: .22em; left: 15%; bottom: -.75em; }
 .burp.go { animation: burp 2.2s cubic-bezier(.2,1.6,.4,1) forwards; }
 @keyframes burp { 0% { opacity: 0; transform: translate(-50%, 1em) scale(.4) rotate(-6deg); } 18% { opacity: 1; transform: translate(-50%, 0) scale(1.08) rotate(3deg); }
   30% { transform: translate(-50%, 0) scale(.96) rotate(-2deg); } 42%, 78% { opacity: 1; transform: translate(-50%, 0) scale(1) rotate(0); }

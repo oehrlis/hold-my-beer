@@ -86,11 +86,37 @@
     };
   }
 
+  // Rülps-Ton (nur /screen): Audiodatei vom Host (/screen/burp), per Web Audio abgespielt. Browser geben Ton
+  // erst nach einem Klick frei - die Taste "Ton" auf /screen ist dieser Klick; ohne Freigabe bleibt es still.
+  var sound = { ctx: null, buf: null, on: false };
+  function setSound(on, src) {
+    if (on && !sound.ctx) {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return Promise.resolve(false);
+      sound.ctx = new AC();
+    }
+    sound.on = !!on;
+    if (!on) return Promise.resolve(true);
+    if (sound.ctx.state === 'suspended') sound.ctx.resume();
+    if (sound.buf) return Promise.resolve(true);
+    return fetch(src, { credentials: 'same-origin' })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
+      .then(function (data) { return new Promise(function (ok, fail) { sound.ctx.decodeAudioData(data, ok, fail); }); })
+      .then(function (buf) { sound.buf = buf; return true; })
+      .catch(function () { sound.on = false; return false; });
+  }
+  function burpSound() {
+    if (!sound.on || !sound.buf) return;
+    var src = sound.ctx.createBufferSource();
+    src.buffer = sound.buf; src.connect(sound.ctx.destination); src.start();
+  }
+
   function burp() {
     var b = document.querySelector('.burp');
     if (!b) { b = document.createElement('div'); b.className = 'burp'; b.setAttribute('aria-hidden', 'true'); b.textContent = 'Rülps!'; document.body.appendChild(b); }
     b.classList.remove('go'); void b.offsetWidth; b.classList.add('go');
     setTimeout(function () { b.classList.remove('go'); }, 2400);
+    burpSound();
   }
 
   function bars(container, result, options) {
@@ -136,6 +162,6 @@
     }).catch(function () { window.alert('Netzwerkfehler.'); });
   });
 
-  window.OLV = { api: api, poll: poll, net: netIndicator, countdown: countdown, bars: bars,
+  window.OLV = { api: api, poll: poll, net: netIndicator, countdown: countdown, bars: bars, sound: setSound, burpSound: burpSound,
                  winnerText: winnerText, el: el, meta: meta2 };
 })();

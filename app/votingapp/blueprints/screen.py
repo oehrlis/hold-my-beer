@@ -2,7 +2,9 @@ import io
 
 import qrcode
 import qrcode.image.svg
-from flask import Blueprint, Response, current_app, render_template
+from pathlib import Path
+
+from flask import Blueprint, Response, abort, current_app, render_template, send_file
 
 from ..network import public_base_url
 
@@ -19,9 +21,23 @@ def _share_ctx():
     return {"share_url": share_url}  # Funktion, wird nur in _share_qr.html aufgerufen
 
 
+def _burp_path():
+    p = current_app.config.get("BURP_FILE")
+    return Path(p) if p and Path(p).is_file() else None
+
+
 @bp.get("/screen")
 def screen():
-    return render_template("screen.html", public_url=public_base_url())
+    return render_template("screen.html", public_url=public_base_url(), burp=_burp_path() is not None)
+
+
+@bp.get("/screen/burp")
+def burp():
+    """Rülps-Ton fuer /screen; 404, solange BURP_FILE nicht gesetzt ist oder fehlt."""
+    p = _burp_path()
+    if p is None:
+        abort(404)
+    return send_file(p, max_age=3600)
 
 
 @bp.get("/qr.svg")

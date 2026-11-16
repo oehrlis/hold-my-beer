@@ -204,6 +204,21 @@ curl -s -o /dev/null -w '%{http_code}\n' https://hmb.oradba.ch/does-not-exist   
 - Tunnel down: `sudo systemctl restart cloudflared`; the app state is in SQLite and survives
 - App down: `sudo systemctl restart oracle-live-voting`
 - Both down or no network: show of hands on the round slide (fallback in `handover-app-slides.md`)
+- Burp sound on `/screen`: click "Ton aus" once on the projector laptop - it unlocks audio and plays a test burp
+  over the room PA. A reload switches it off again
+
+### Burp sound (`BURP_FILE`)
+
+The sound file never goes into the repo: hoerspielbox.de forbids offering its sounds on other servers or media
+and asks for credit (`/screen` shows "Rülps: `www.hoerspielbox.de`" while the sound is on). The edited file
+(trimmed, faded, -1 dBFS, AAC) sits on OneDrive in `media/hold-my-beer-sound/`. Without `BURP_FILE` the button
+is not shown and `/screen/burp` is 404.
+
+```bash
+scp "<OneDrive>/media/hold-my-beer-sound/burp-hoerspielbox-3-1-10027.m4a" hmb:/opt/oracle-live-voting/shared/media/burp.m4a
+ssh hmb 'grep -q "^BURP_FILE=" /opt/oracle-live-voting/shared/app.env || echo "BURP_FILE=/opt/oracle-live-voting/shared/media/burp.m4a" >> /opt/oracle-live-voting/shared/app.env'
+ssh hmb 'sudo systemctl restart oracle-live-voting'
+```
 
 ## After the talk
 

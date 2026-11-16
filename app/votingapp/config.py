@@ -59,6 +59,8 @@ def build_config(instance_path, overrides=None):
         # Layout-Vorgabe, bis der Admin eine andere waehlt; jeder Client kann lokal abweichen (?theme=, Taste T)
         "APP_THEME": (os.environ.get("APP_THEME") or "acn").strip().lower(),
         "SHARE_URL": (os.environ.get("SHARE_URL") or "").rstrip("/"),
+        # Rülps-Ton fuer /screen (Audiodatei, nur auf dem Host, nie im Repo - Lizenz); leer = kein Ton
+        "BURP_FILE": os.environ.get("BURP_FILE") or "",
         # Themenpool (YAML); relativ = ab App-Verzeichnis. Siehe README "Pool-Datei".
         "POOL_FILE": os.environ.get("POOL_FILE") or DEFAULT_POOL_FILE,
         "BACKUP_DIR": os.environ.get("BACKUP_DIR") or str(Path(instance_path).parent / "backups"),

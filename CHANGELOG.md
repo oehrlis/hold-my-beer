@@ -19,6 +19,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   "Handys raus" (fill = `remaining / duration` from `/api/state`, no backend change; Accenture layout: solid accent)
 - App: the beer tube has carbonation bubbles and a bubbly foam head over the rim; when the time runs out a
   "Rülps!" bubble pops up once - outside the views, so the switch to "closed" does not cut it off
+- App: the burp bubble is a cloud; `/screen` can play a burp sound ("Ton aus/an", off by default - the click
+  unlocks browser audio and plays a test burp). The file comes from `BURP_FILE` on the host via `/screen/burp`
+  and is never in the repo (hoerspielbox.de licence, credit shown on `/screen`); audio files are git-ignored
 
 ### Changed
 

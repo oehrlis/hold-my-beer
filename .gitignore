@@ -11,3 +11,9 @@ build/
 # terminal recordings stay on OneDrive
 recordings/
 *.cast
+
+# sound files stay on OneDrive / the host (hoerspielbox.de licence: no redistribution) - see the runbook
+*.mp3
+*.m4a
+*.wav
+*.ogg
