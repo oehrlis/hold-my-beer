@@ -6,7 +6,7 @@
 # Author.....: Stefan Oehrli (oes) stefan.oehrli@oradba.ch
 # Editor.....: Stefan Oehrli
 # Date.......: 2026-11-16
-# Version....: 0.1.1
+# Version....: 0.2.0
 # Purpose....: One entry point for the hold-my-beer session: check app and lab,
 #              switch the seclab lab from the privesc state, set the demo
 #              starting points, open deck, browser and terminals.
@@ -20,6 +20,7 @@
 # CHANGE LOG:
 # 2026-11-16  oes  Initial release                                    0.1.0
 # 2026-11-16  oes  lab: name the step that failed and how to go on    0.1.1
+# 2026-11-16  oes  open: Terminal windows with profile TERMINAL_PROFILE  0.2.0
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
@@ -28,7 +29,7 @@
 set -euo pipefail
 SCRIPT_NAME=$(basename "$0")
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
-VERSION="0.1.1"
+VERSION="0.2.0"
 DRY_RUN=${DRY_RUN:-"FALSE"}
 ASSUME_YES=${ASSUME_YES:-"FALSE"}
 REPOS_DIR=${REPOS_DIR:-"$HOME/Repos/own/oehrlis"}
@@ -40,6 +41,7 @@ APP_URL=${APP_URL:-"https://hmb.oradba.ch"}
 DECK=${DECK:-""}
 DEMO_PWD_OP=${DEMO_PWD_OP:-"op://secrets/privesc demo/password"}
 BROWSER_APP=${BROWSER_APP:-"Google Chrome"}
+TERMINAL_PROFILE=${TERMINAL_PROFILE:-"demo"}   # Terminal.app profile of the sqlplus windows
 LOG_DIR=${LOG_DIR:-"${TMPDIR:-/tmp}/talk-start"}
 # demo | container | marker query (count > 0 = starting point already set) | terminal title
 DEMOS=(
@@ -76,6 +78,7 @@ Environment:
   DEMO_PWD        privesc demo password for stage.sh; unset: op read "${DEMO_PWD_OP}" (DEMO_PWD_OP)
   LABS_DIR        ${LABS_DIR}
   PRIVESC_DIR     ${PRIVESC_DIR}
+  TERMINAL_PROFILE  Terminal.app profile of the sqlplus windows (${TERMINAL_PROFILE})
 
 Examples:
   ${SCRIPT_NAME} check
@@ -192,6 +195,10 @@ cmd_check() {
         else log_warn "${name}: starting point not set - run: make talk-demos (or make talk-start)"; fi
     done
 
+    log_info "== terminal profile"
+    if terminal_profile_ok; then log_ok "Terminal profile '${TERMINAL_PROFILE}' exists"
+    else log_warn "Terminal profile '${TERMINAL_PROFILE}' not found - windows open with the default profile (TERMINAL_PROFILE=<name>)"; fi
+
     log_info "== deck"
     if [[ -z "$DECK" ]]; then log_warn "DECK not set - run through 'make talk-check' to check the private deck"
     elif [[ -f "$DECK" ]]; then
@@ -277,6 +284,15 @@ cmd_demos() {
 }
 
 # ------------------------------------------------------------------------------
+# Function: terminal_profile_ok
+# Purpose.: Does Terminal.app have the profile TERMINAL_PROFILE?
+# Returns.: 0 yes, 1 no (or Terminal not scriptable)
+# ------------------------------------------------------------------------------
+terminal_profile_ok() {
+    [[ "$(osascript -e "tell application \"Terminal\" to exists settings set \"${TERMINAL_PROFILE}\"" 2>/dev/null)" == "true" ]]
+}
+
+# ------------------------------------------------------------------------------
 # Function: open_terminal
 # Purpose.: New Terminal window with a command and a title
 # Args....: $1  title, $2  shell command
@@ -290,9 +306,12 @@ open_terminal() {
 activate
 set t to do script \"${cmd}\"
 set custom title of t to \"${title}\"
+try
+set current settings of t to settings set \"${TERMINAL_PROFILE}\"
+end try
 end tell"
     if [[ "$DRY_RUN" == "TRUE" ]]; then
-        log_info "DRY-RUN: would open a Terminal window '${title}': ${cmd}"
+        log_info "DRY-RUN: would open a Terminal window '${title}' (profile ${TERMINAL_PROFILE}): ${cmd}"
         return 0
     fi
     osascript -e "$script" >/dev/null
@@ -314,11 +333,12 @@ cmd_open() {
     run open -na "${BROWSER_APP}" --args --new-window "${APP_URL}/screen"
     run open -a "${BROWSER_APP}" "${APP_URL}/admin"
     log_ok "voting app: /screen in a new window (drag it to the projector, click 'Ton aus' once), /admin as a tab"
+    terminal_profile_ok || log_warn "Terminal profile '${TERMINAL_PROFILE}' not found - default profile (TERMINAL_PROFILE=<name>)"
     for entry in "${DEMOS[@]}"; do
         IFS='|' read -r name container marker title <<<"$entry"
         open_terminal "$title" "docker exec -it -w /opt/oracle/demos/${name} ${container} bash -c 'export ORAENV_ASK=NO; \"\${ORACLE_HOME}/bin/sqlplus\" / as sysdba'"
     done
-    log_ok "Terminal: one window per round (sqlplus / as sysdba in the demo directory) - @check.sql is the before picture"
+    log_ok "Terminal: one window per round, profile '${TERMINAL_PROFILE}' (sqlplus / as sysdba in the demo directory) - @check.sql is the before picture"
 }
 
 # ------------------------------------------------------------------------------
