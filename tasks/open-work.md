@@ -32,7 +32,8 @@
 - [x] Slide 16 `fazit`: "AI ist kein Selbstlaeufer", image no longer overlaps the block, TODO note gone [P1]
 - [x] App: voting countdown as draining beer (as on slide 7), participant page + `/screen`
 - [x] Slide 5: new photo of Martin (cropped, no EXIF), source in the Trash
-- [ ] Deploy to `hmb` (VPN), `make deck-private`, `make host-check`, QR decoded [P1]
+- [x] Deployed to `hmb` 09:34 over the VPN (backup `voting-20261116-083343.db`), `host-check` green, beer markup
+  served, `PUBLIC_BASE_URL` unchanged; `make deck-private` built, QR on slides 7/10/12/14 decoded to `https://hmb.oradba.ch/`
 - [ ] "Gesamte Session zurücksetzen" in `/admin` on `hmb` - Stefan or Martin; rounds 2/3 change only then [P1]
 - [ ] Lab: CDB in ARCHIVELOG with local undo (round 3 B), RMAN target for round 2 B - check before the talk [P1]
 
