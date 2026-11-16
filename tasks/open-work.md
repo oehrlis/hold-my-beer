@@ -38,8 +38,10 @@
 - [ ] Lab (Martin's B topics): his own lab - CDB in ARCHIVELOG with local undo (3 B), RMAN target (2 B) [P1]
 - [x] App: beer tube with carbonation and foam, burp cloud, burp sound on `/screen` (CC0, host-only file),
   static cache-busting; `hmb` full reset 2026-11-16 12:32, new topics 2 B / 3 B live (PR #12-#15)
-- [ ] Rehearse the lab switch privesc -> hmb on `seclab` once, fill in the times, then `stage.sh weak`
-  again (`docs/runbook-labs-talk-day.md`) [P1] (due: 2026-11-16)
+- [ ] 1Password item `secrets/privesc demo` (field `password`) for `make talk-lab` - command in
+  `docs/runbook-labs-talk-day.md` "Entry point" [P1] (due: 2026-11-16)
+- [ ] Rehearse the lab switch privesc -> hmb on `seclab` once (`make talk-lab`, then `make talk-start`), fill in
+  the times, then `stage.sh weak` again (`docs/runbook-labs-talk-day.md`) [P1] (due: 2026-11-16)
 - [ ] `seclab-db26` unhealthy in the privesc state (SYSTEM login via listener fails) - must be green after the
   switch [P1] (due: 2026-11-16)
 

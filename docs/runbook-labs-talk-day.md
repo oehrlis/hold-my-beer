@@ -1,5 +1,38 @@
 # Runbook - labs for the talk (Stefan's rounds)
 
+## Entry point
+
+Two commands, both from the hold-my-beer checkout (`scripts/talk-start.sh`, `make help` section "Session"):
+
+```bash
+make talk-lab      # 11:45, after the privesc talk: stage.sh unweak, make reset, make verify (asks first)
+make talk-start    # 14:30: check app + lab, set the three demo starting points, open deck/browser/terminals
+```
+
+<!-- markdownlint-disable MD013 MD060 -->
+| Target | Does | Changes |
+| --- | --- | --- |
+| `make talk-check` | `host-check hmb`, `make verify LAB=seclab`, privesc leftovers (WALLET_ROOT, VICTIMPDB, sqlnet.ora), demo starting points, private deck present and newer than its sources | nothing |
+| `make talk-lab` | switch from the privesc state (section "Switch") | the lab - asks first |
+| `make talk-demos` | `setup.sql` of verifier, unified-audit, tde; refuses while privesc leftovers exist, skips a demo already set | the lab |
+| `make talk-open` | private deck and `/screen` (new window) + `/admin` in Chrome, one Terminal window per round with `sqlplus / as sysdba` in the demo directory | nothing |
+| `make talk-start` | `talk-check`, then `talk-demos`, then `talk-open` | the lab (demos) |
+<!-- markdownlint-restore -->
+
+`DRY_RUN=1` shows every changing step without running it (`make talk-lab DRY_RUN=1`). Logs:
+`$TMPDIR/talk-start/`.
+
+`make talk-lab` needs the privesc demo password: `DEMO_PWD` from the environment, else
+`op read "op://secrets/privesc demo/password"` (override: `DEMO_PWD_OP`). The item does not exist yet - create it
+once, the value only goes through stdin (bash builtin `printf`, `op item create -`):
+
+```bash
+read -rs -p "privesc demo password: " p; printf '{"title":"privesc demo","category":"PASSWORD","fields":[{"id":"password","type":"CONCEALED","purpose":"PASSWORD","value":"%s"}]}' "$p" | op item create --vault secrets -; unset p
+```
+
+After `make talk-start`: drag `/screen` to the projector and click "Ton aus" once, deck in its own window
+(Speaker View with `S`), in each Terminal window `@check.sql` is the "before" picture of its round.
+
 Stefan's three topics run on the oradba-labs lab `seclab`. The demos live there, not in this repo:
 
 <!-- markdownlint-disable MD013 MD060 -->
@@ -55,6 +88,8 @@ back for tomorrow morning:
 
 ## Switch (privesc -> hold-my-beer)
 
+`make talk-lab` runs these three steps and then checks for privesc leftovers. By hand:
+
 ```bash
 # 1. undo the privesc state (OS files, spfile, VICTIMPDB) - DEMO_PWD as for the privesc talk
 cd ~/Repos/own/oehrlis/talks-privesc/talks/oracle-privesc/demos
@@ -86,7 +121,8 @@ round 3 is shown with `check.sql` and the solution steps (TDE README, "Restart p
 
 ## Before the session (14:30, about 5 min)
 
-Set the starting point of each demo and take the "before" picture. Three terminal tabs, one per round:
+`make talk-start` does this section: starting points via `setup.sql`, one Terminal window per round. By hand,
+three terminal tabs, one per round:
 
 ```bash
 # tab 1 - round 1 verifier (db19)

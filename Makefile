@@ -88,7 +88,10 @@ help: ## Show available targets
 	@echo "  make deck            # public deck -> $(SLIDES_DIR)/$(EVENT)/$(TALK_SLUG).html (commit this one)"
 	@echo "  make deck-private    # deck with private photos -> OneDrive (present this one)"
 	@echo "  make app-test        # app tests before a deploy"
+	@echo "  make talk-start      # session entry point: check, demo starting points, deck/browser/terminals"
 	@echo ""
+	@echo -e "$(COLOR_BOLD)Session$(COLOR_RESET)"
+	@grep -E '^talk-[a-zA-Z_-]*:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-20s %s\n", $$1, $$2}'
 	@echo -e "$(COLOR_BOLD)Deck$(COLOR_RESET)"
 	@grep -E '^deck[a-zA-Z_-]*:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-20s %s\n", $$1, $$2}'
 	@echo -e "$(COLOR_BOLD)App$(COLOR_RESET)"
@@ -126,6 +129,26 @@ guard-venv:
 # ==============================================================================
 # Deck
 # ==============================================================================
+
+.PHONY: talk-check talk-lab talk-demos talk-open talk-start
+
+# Session entry point (scripts/talk-start.sh, docs/runbook-labs-talk-day.md). DRY_RUN=1 shows, changes nothing.
+TALK_START = DECK="$(PRIVATE_OUT)" scripts/talk-start.sh $(if $(DRY_RUN),--dry-run)
+
+talk-check: ## Session: app, lab, privesc state, demo starting points, deck - read only
+	$(Q)$(TALK_START) check
+
+talk-lab: ## Session: switch seclab from the privesc state (unweak, reset, verify) - asks first
+	$(Q)$(TALK_START) lab
+
+talk-demos: ## Session: setup.sql of the three demos (skips set ones)
+	$(Q)$(TALK_START) demos
+
+talk-open: ## Session: deck, /screen, /admin, one Terminal window per round
+	$(Q)$(TALK_START) open
+
+talk-start: ## Session entry point: check, demos, open
+	$(Q)$(TALK_START) start
 
 .PHONY: deck deck-private deck-pdf deck-dry-run
 
