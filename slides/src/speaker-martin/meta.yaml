@@ -7,8 +7,8 @@ version: ""
 level: intermediate
 lang: de+en
 mandatory: false
-updated: 2026-11-12
+updated: 2026-11-16
 author: Stefan Oehrli
-assets: [martin-feuerwehr.jpg, ace-pro.png]
+assets: [martin-portrait.jpg, ace-pro.png]
 audience: [dba]
 classification: public

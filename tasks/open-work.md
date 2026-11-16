@@ -21,6 +21,21 @@
 - [ ] Later, if `hmb2` is wanted: Cloudflare token (`Account - Cloudflare Tunnel - Edit` + `Zone - DNS - Edit`
   for oradba.ch) in `secrets/hmb terraform cloudflare`, then `make tf-apply` and `make host-up HOST=hmb2` [P3]
 
+## Feedback deck + app (2026-11-16, before the talk 2026-11-17 15:00)
+
+- [x] Slide 2 `spielregeln`, card "Wir auch": ADB and the on-prem lab (Docker) [P1]
+- [x] Slide 3 `voraussetzungen`: platform per person (Stefan Mac, Martin Windows/WSL); drop Data Guard from the
+  environment card [P1]
+- [x] Slides 5/6: Martin before ACE - order in `talks/talks/wissen-nicht-was-sie-tun/talk.yaml` (talks `de1993d`)
+- [x] Round 2 B (Martin): RMAN backup via a local CLI script instead of AWR/ASH; AWR/ASH moves to the reserve
+- [x] Round 3 B (Martin): refreshable PDB clone instead of Data Guard (not available in the lab) [P1]
+- [x] Slide 16 `fazit`: "AI ist kein Selbstlaeufer", image no longer overlaps the block, TODO note gone [P1]
+- [x] App: voting countdown as draining beer (as on slide 7), participant page + `/screen`
+- [x] Slide 5: new photo of Martin (cropped, no EXIF), source in the Trash
+- [ ] Deploy to `hmb` (VPN), `make deck-private`, `make host-check`, QR decoded [P1]
+- [ ] "Gesamte Session zurücksetzen" in `/admin` on `hmb` - Stefan or Martin; rounds 2/3 change only then [P1]
+- [ ] Lab: CDB in ARCHIVELOG with local undo (round 3 B), RMAN target for round 2 B - check before the talk [P1]
+
 ## App layout: switchable brand
 
 - [x] Variant 1 Accenture, variant 2 Hold my Beer, admin default + local switch (PR #2, merged 2026-11-13)

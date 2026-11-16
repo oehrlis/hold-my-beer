@@ -74,14 +74,14 @@ rounds:
         risk: Niedrig
         ai_pitfall: Syntax-Mix Traditional/Unified, NOAUDIT vergessen
       - key: B
-        title: "AWR/ASH: Slow Query analysieren"
-        title_en: "AWR/ASH: analyze a slow query"
+        title: "RMAN: lokales CLI-Skript für ein Backup der DB"
+        title_en: "RMAN: local CLI script to back up the database"
         owner: Martin
-        category: Performance
-        category_en: Performance
+        category: Betrieb
+        category_en: Operations
         difficulty: Mittel
-        risk: Mittel
-        ai_pitfall: löst das falsche Problem, Index statt Plan-Analyse
+        risk: Niedrig
+        ai_pitfall: Oracle-Umgebung nicht gesetzt, kein Exit-Code-Check, Backup ohne Archivelogs und Controlfile
       - key: C
         title: Listener und sqlnet.ora Hardening
         title_en: Listener and sqlnet.ora hardening
@@ -105,14 +105,14 @@ rounds:
         risk: Mittel
         ai_pitfall: alte sqlnet.ora ENCRYPTION_WALLET_LOCATION-Syntax
       - key: B
-        title: Data Guard Switchover mit DGMGRL
-        title_en: Data Guard switchover with DGMGRL
+        title: "Refreshable PDB Clone: zweite PDB klonen und auffrischen"
+        title_en: "Refreshable PDB clone: clone and refresh a second PDB"
         owner: Martin
-        category: Hochverfügbarkeit
-        category_en: High availability
+        category: Multitenant
+        category_en: Multitenant
         difficulty: Schwer
-        risk: Hoch
-        ai_pitfall: überspringt VALIDATE und Vorprüfung
+        risk: Mittel
+        ai_pitfall: Local Undo und ARCHIVELOG vergessen, Clone READ WRITE geöffnet, REFRESH-Syntax geraten
       - key: C
         title: "AI-Code-Review: fehlerhaftes PL/SQL untersuchen"
         title_en: "AI code review: examine faulty PL/SQL"
@@ -141,6 +141,11 @@ reserve:
     owner: Gemeinsam
     category: OEM
     category_en: OEM
+  - title: "AWR/ASH: Slow Query analysieren"
+    title_en: "AWR/ASH: analyze a slow query"
+    owner: Martin
+    category: Performance
+    category_en: Performance
   - title: Privilege Analysis mit DBMS_PRIVILEGE_CAPTURE
     title_en: Privilege Analysis with DBMS_PRIVILEGE_CAPTURE
     owner: Stefan

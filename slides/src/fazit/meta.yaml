@@ -1,5 +1,5 @@
 title: "Fazit"
-description: "Drei Takeaways (Entwurf) und Material-Link"
+description: "Drei Takeaways und Motto"
 layout: html-section
 tags: [hold-my-beer, summary, takeaways]
 topic: hold-my-beer
@@ -7,7 +7,7 @@ version: ""
 level: intermediate
 lang: de+en
 mandatory: false
-updated: 2026-11-12
+updated: 2026-11-16
 author: Stefan Oehrli
 assets: []
 audience: [dba]

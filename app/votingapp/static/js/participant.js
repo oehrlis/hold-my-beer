@@ -7,7 +7,7 @@
   function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* optional */ } }
   var started = lsGet('olv_started') === '1';
-  var setCount = OLV.countdown($('r-count'));
+  var setCount = OLV.countdown($('r-count'), $('r-beer'));
   var setChallenge = OLV.countdown($('x-timer'));
   var setLiveCount = OLV.countdown($('live-count'));
 
@@ -77,7 +77,7 @@
       if (key !== renderedKey) { renderedKey = key; selected = null; reqId = null; msg(''); buildOptions(); }
       $('r-eyebrow').textContent = 'Runde ' + r.number + ' von ' + r.total + ' · ' + r.name + (r.runoff ? ' · Stichwahl' : '');
       $('r-title').textContent = 'Welche Aufgabe bearbeiten wir live?';
-      setCount(d.voting.remaining);
+      setCount(d.voting.remaining, d.voting.duration);
       if (d.my_vote) msg('');
       paintSelection();
     } else if (d.state === 'challenge_running' && d.challenge) {

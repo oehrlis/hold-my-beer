@@ -69,7 +69,7 @@ def test_csrf_enforced(app):
 def test_seed_data_complete_and_idempotent(app, admin):
     with app.app_context():
         assert Round.query.count() == 3 and RoundOption.query.count() == 9
-        assert Topic.query.filter_by(is_reserve=True).count() == 12
+        assert Topic.query.filter_by(is_reserve=True).count() == 13
         before = Topic.query.count()
     admin.admin("open_voting", {"duration": 30})
     c = Client(app)
