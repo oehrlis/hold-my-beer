@@ -27,7 +27,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   `hmb` needs "Gesamte Session zurücksetzen" in `/admin` - the seed never changes existing rounds
 - Slides: rules card "Wir auch" names ADB and the on-prem lab (Docker); prerequisites show the platform per
   person (Mac, Windows / WSL) and drop Data Guard; takeaways motto "AI ist kein Selbstläufer", draft TODO gone
-  (it squeezed the cards, the image ran into the third one); new photo of Martin
+  (it squeezed the cards, the image ran into the third one); new photo of Martin (head to hips, colleague in the background and number plate blurred)
 - Slides: illustration next to the motto 330 -> 290 px, rules line shortened - in the Accenture layout the wider
   font made the cards taller and the "This is fine" image ran into the third card
 - Speaker order Stefan, Martin, ACE program - in the talks repo recipe (`talks/wissen-nicht-was-sie-tun/talk.yaml`)
