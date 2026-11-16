@@ -8,6 +8,20 @@
 
   function show(id) { VIEWS.forEach(function (v) { $(v).hidden = v !== id; }); }
 
+  // Ton standardmaessig aus; der Klick gibt ihn im Browser frei und spielt einmal zur Probe (Saalanlage).
+  // Die Taste gibt es nur, wenn auf dem Host BURP_FILE gesetzt ist.
+  var soundBtn = $('s-sound');
+  if (soundBtn) soundBtn.addEventListener('click', function () {
+    var on = soundBtn.getAttribute('aria-pressed') !== 'true';
+    OLV.sound(on, soundBtn.dataset.src).then(function (ok) {
+      if (!ok) { soundBtn.textContent = 'Ton n/v'; soundBtn.disabled = true; return; }
+      soundBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      soundBtn.textContent = on ? 'Ton an' : 'Ton aus';
+      $('s-credit').hidden = !on;
+      if (on) OLV.burpSound();
+    });
+  });
+
   function render(d) {
     var r = d.round;
     $('s-round').textContent = r ? 'Runde ' + r.number + ' von ' + r.total + ' · ' + r.name : '';

@@ -116,3 +116,17 @@ def test_sqlite_wal_enabled(app):
     with app.app_context():
         assert db.session.execute(text("PRAGMA journal_mode")).scalar() == "wal"
         assert db.session.execute(text("PRAGMA busy_timeout")).scalar() == 5000
+
+
+def test_screen_burp_only_with_burp_file(app, client, tmp_path):
+    assert client.get("/screen/burp").status_code == 404
+    assert 'id="s-sound"' not in client.get("/screen").get_data(as_text=True)
+    f = tmp_path / "burp.m4a"
+    f.write_bytes(b"not really audio")
+    app.config["BURP_FILE"] = str(f)
+    page = client.get("/screen").get_data(as_text=True)
+    assert 'id="s-sound"' in page and 'data-src="/screen/burp"' in page and "hoerspielbox.de" in page
+    r = client.get("/screen/burp")
+    assert r.status_code == 200 and r.data == b"not really audio"
+    app.config["BURP_FILE"] = str(tmp_path / "missing.m4a")
+    assert client.get("/screen/burp").status_code == 404
