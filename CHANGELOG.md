@@ -43,6 +43,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 
+- App: static URLs carry `?v=<content hash>` - with a 4 h cache an open projector browser kept the old JS after a
+  deploy and the beer tube never showed
 - CI: actions on Node 24 (`checkout` v7, `setup-node` v7, `setup-python` v7, `setup-terraform` v4) - the
   Node 20 versions raised a deprecation warning in every job
 - `app/tools/loadtest.py`: "Verteilung stimmt" failed since rounds can have four options (`counts` has `"D": 0`)

@@ -1,3 +1,5 @@
+import re
+
 from conftest import Client, PASSWORD
 from votingapp.extensions import db
 from votingapp.models import Round, RoundOption, Topic
@@ -132,3 +134,10 @@ def test_screen_burp_only_with_burp_file(app, client, tmp_path):
     assert r.status_code == 200 and r.data == b"not really audio"
     app.config["BURP_FILE"] = str(tmp_path / "missing.m4a")
     assert client.get("/screen/burp").status_code == 404
+
+
+def test_static_urls_carry_content_version(client):
+    page = client.get("/screen").get_data(as_text=True)
+    urls = re.findall(r'(?:src|href)="(/static/[^"]+)"', page)
+    assert urls and all(re.search(r"\?v=[0-9a-f]{10}$", u) for u in urls), urls
+    assert client.get(urls[0]).status_code == 200

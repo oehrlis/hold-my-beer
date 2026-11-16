@@ -1,3 +1,4 @@
+import hashlib
 import logging
 import sqlite3
 from pathlib import Path
@@ -71,6 +72,23 @@ def create_app(overrides=None):
 
     from .cli import register_cli
     register_cli(app)
+
+    # Cache-Busting: ?v=<Hash des Inhalts> an jeder static-URL. Statische Dateien werden 4 h gecacht - ohne das
+    # behielt ein offener Beamer-Browser nach einem Deploy das alte JS (Bier-Roehre fehlte, 2026-11-16).
+    versions = {}
+
+    @app.url_defaults
+    def _static_version(endpoint, values):
+        name = values.get("filename") if endpoint == "static" else None
+        if not name or "v" in values:
+            return
+        if name not in versions:
+            try:
+                versions[name] = hashlib.sha256((Path(app.static_folder) / name).read_bytes()).hexdigest()[:10]
+            except OSError:
+                versions[name] = None
+        if versions[name]:
+            values["v"] = versions[name]
 
     @app.context_processor
     def _theme_ctx():
