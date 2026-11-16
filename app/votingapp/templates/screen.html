@@ -9,7 +9,7 @@
   <span id="s-round" class="s-round"></span>
   <span id="net" class="net" role="status" aria-live="polite" hidden>Verbindung gestört</span>
   {% if burp %}<button id="s-sound" class="theme-switch sound-switch" type="button" aria-pressed="false" data-src="{{ url_for('screen.burp') }}" title="Rülps-Ton beim Ablauf der Abstimmung (Klick gibt den Ton frei und spielt ihn einmal)">Ton aus</button>
-  <span id="s-credit" class="s-credit" hidden>Rülps: www.hoerspielbox.de</span>{% endif %}
+  {% if config.BURP_CREDIT %}<span id="s-credit" class="s-credit" hidden>Rülps: {{ config.BURP_CREDIT }}</span>{% endif %}{% endif %}
   <button id="quick-reset" class="btn btn-ghost btn-sm" type="button">Reset</button>
 </header>
 <main id="main" class="s-main" data-public-url="{{ public_url }}">

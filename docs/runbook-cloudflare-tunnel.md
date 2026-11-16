@@ -209,13 +209,15 @@ curl -s -o /dev/null -w '%{http_code}\n' https://hmb.oradba.ch/does-not-exist   
 
 ### Burp sound (`BURP_FILE`)
 
-The sound file never goes into the repo: hoerspielbox.de forbids offering its sounds on other servers or media
-and asks for credit (`/screen` shows "Rülps: `www.hoerspielbox.de`" while the sound is on). The edited file
-(trimmed, faded, -1 dBFS, AAC) sits on OneDrive in `media/hold-my-beer-sound/`. Without `BURP_FILE` the button
-is not shown and `/screen/burp` is 404.
+The sound file lives on the host and on OneDrive (`media/hold-my-beer-sound/`), not in the repo; audio files are
+git-ignored. Live since 2026-11-16: "The Best Burp Sample On The Internet" by scooterfort,
+<https://freesound.org/people/scooterfort/sounds/570266/>, CC0 1.0 (from the HQ preview: trimmed, faded,
+-1 dBFS, AAC). The alternative from hoerspielbox.de (`3-1-10027`) must never be redistributed and asks for credit -
+with it, set `BURP_CREDIT=www.hoerspielbox.de`. Without `BURP_FILE` the button is not shown and `/screen/burp`
+is 404.
 
 ```bash
-scp "<OneDrive>/media/hold-my-beer-sound/burp-hoerspielbox-3-1-10027.m4a" hmb:/opt/oracle-live-voting/shared/media/burp.m4a
+scp "<OneDrive>/media/hold-my-beer-sound/burp-freesound-570266-cc0.m4a" hmb:/opt/oracle-live-voting/shared/media/burp.m4a
 ssh hmb 'grep -q "^BURP_FILE=" /opt/oracle-live-voting/shared/app.env || echo "BURP_FILE=/opt/oracle-live-voting/shared/media/burp.m4a" >> /opt/oracle-live-voting/shared/app.env'
 ssh hmb 'sudo systemctl restart oracle-live-voting'
 ```

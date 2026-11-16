@@ -21,7 +21,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   "Rülps!" bubble pops up once - outside the views, so the switch to "closed" does not cut it off
 - App: the burp bubble is a cloud; `/screen` can play a burp sound ("Ton aus/an", off by default - the click
   unlocks browser audio and plays a test burp). The file comes from `BURP_FILE` on the host via `/screen/burp`
-  and is never in the repo (hoerspielbox.de licence, credit shown on `/screen`); audio files are git-ignored
+  and is never in the repo; audio files are git-ignored. Live: CC0 burp from freesound.org (570266);
+  `BURP_CREDIT` shows a credit on `/screen` for sounds that need one (hoerspielbox.de)
 
 ### Changed
 

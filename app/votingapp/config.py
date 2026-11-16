@@ -61,6 +61,8 @@ def build_config(instance_path, overrides=None):
         "SHARE_URL": (os.environ.get("SHARE_URL") or "").rstrip("/"),
         # Rülps-Ton fuer /screen (Audiodatei, nur auf dem Host, nie im Repo - Lizenz); leer = kein Ton
         "BURP_FILE": os.environ.get("BURP_FILE") or "",
+        # Quellenangabe zum Ton auf /screen, falls die Lizenz eine verlangt (z.B. "www.hoerspielbox.de"); leer = keine
+        "BURP_CREDIT": (os.environ.get("BURP_CREDIT") or "").strip(),
         # Themenpool (YAML); relativ = ab App-Verzeichnis. Siehe README "Pool-Datei".
         "POOL_FILE": os.environ.get("POOL_FILE") or DEFAULT_POOL_FILE,
         "BACKUP_DIR": os.environ.get("BACKUP_DIR") or str(Path(instance_path).parent / "backups"),
