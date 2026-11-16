@@ -125,7 +125,9 @@ def test_screen_burp_only_with_burp_file(app, client, tmp_path):
     f.write_bytes(b"not really audio")
     app.config["BURP_FILE"] = str(f)
     page = client.get("/screen").get_data(as_text=True)
-    assert 'id="s-sound"' in page and 'data-src="/screen/burp"' in page and "hoerspielbox.de" in page
+    assert 'id="s-sound"' in page and 'data-src="/screen/burp"' in page and 'id="s-credit"' not in page
+    app.config["BURP_CREDIT"] = "www.hoerspielbox.de"
+    assert "Rülps: www.hoerspielbox.de" in client.get("/screen").get_data(as_text=True)
     r = client.get("/screen/burp")
     assert r.status_code == 200 and r.data == b"not really audio"
     app.config["BURP_FILE"] = str(tmp_path / "missing.m4a")

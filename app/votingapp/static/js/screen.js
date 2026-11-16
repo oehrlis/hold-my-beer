@@ -17,7 +17,7 @@
       if (!ok) { soundBtn.textContent = 'Ton n/v'; soundBtn.disabled = true; return; }
       soundBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
       soundBtn.textContent = on ? 'Ton an' : 'Ton aus';
-      $('s-credit').hidden = !on;
+      if ($('s-credit')) $('s-credit').hidden = !on;
       if (on) OLV.burpSound();
     });
   });
