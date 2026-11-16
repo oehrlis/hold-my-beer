@@ -14,7 +14,8 @@
 - [x] Makefile: `tf-*` via `op run`, `host-env` (app secrets from 1Password), `host-deploy`, `host-check`
 - [x] Decision 2026-11-13: `terraform/` keeps the build in the repo; `hmb` stays on the shared host for the
   talk, `hmb2` is not applied for now
-- [ ] Rehearsal against `hmb` (one round, window switch, Speaker View) [P1]
+- [x] Decision 2026-11-16: no rehearsal with Martin, the talk is live; instead a 2 min tech check after
+  `make talk-start` (`/screen` sound, `/admin` login, Speaker View, QR scan)
 - [x] Session on `hmb` reset (14:47, checked in the DB: `waiting`, round 1, 0 votes); `make deck-private` built,
   voting URL and both QR codes decoded to `https://hmb.oradba.ch/`
 - [x] `/admin` during the talk: Martin
@@ -34,21 +35,23 @@
 - [x] Slide 5: new photo of Martin (cropped, no EXIF), source in the Trash
 - [x] Deployed to `hmb` 09:34 over the VPN (backup `voting-20261116-083343.db`), `host-check` green, beer markup
   served, `PUBLIC_BASE_URL` unchanged; `make deck-private` built, QR on slides 7/10/12/14 decoded to `https://hmb.oradba.ch/`
-- [ ] "Gesamte Session zurücksetzen" in `/admin` on `hmb` - Stefan or Martin; rounds 2/3 change only then [P1]
-- [ ] Lab (Martin's B topics): his own lab - CDB in ARCHIVELOG with local undo (3 B), RMAN target (2 B) [P1]
+- [x] Full session reset on `hmb` 2026-11-16 12:32 (host-side, same service function as `/admin`): rounds 2 B / 3 B
+  are RMAN CLI / Refreshable PDB Clone, state `waiting`, 0 votes
 - [x] App: beer tube with carbonation and foam, burp cloud, burp sound on `/screen` (CC0, host-only file),
   static cache-busting; `hmb` full reset 2026-11-16 12:32, new topics 2 B / 3 B live (PR #12-#15)
-- [ ] 1Password item `secrets/privesc demo` (field `password`) for `make talk-lab` - command in
-  `docs/runbook-labs-talk-day.md` "Entry point" [P1] (due: 2026-11-16)
-- [ ] Rehearse the lab switch privesc -> hmb on `seclab` once (`make talk-lab`, then `make talk-start`), fill in
-  the times, then `stage.sh weak` again (`docs/runbook-labs-talk-day.md`) [P1] (due: 2026-11-16)
-- [ ] `seclab-db26` unhealthy in the privesc state (SYSTEM login via listener fails) - must be green after the
-  switch [P1] (due: 2026-11-16)
+- [x] 1Password item `secrets/privesc demo` (field `password`) for `make talk-lab` - created and readable
+- [x] Lab switch rehearsed: `make talk-lab` 3 min 20 s after a db19 restart (Java pool, ORA-04031 in privesc m4b
+  unweak; floor 64M in oradba-labs `4431cfe`), `make talk-start` and each demo once - times in the runbook
+- [ ] seclab back to the privesc weak state - privesc entry point (`~/notes/prompts/privesc-talk-start.md`)
+  [P1] (due: 2026-11-16)
+- [ ] Tue 11:45 `make talk-lab`, 14:00 `make talk-start` + tech check, after the talk `@reset.sql` in the three
+  windows and `make reset LAB=seclab` (`docs/runbook-labs-talk-day.md`) [P1] (due: 2026-11-17)
+- [x] `seclab-db26` unhealthy only in the privesc state - fully green after the switch
 
 ## App layout: switchable brand
 
 - [x] Variant 1 Accenture, variant 2 Hold my Beer, admin default + local switch (PR #2, merged 2026-11-13)
-- [ ] Admin page in the new layout checked in a logged-in browser [P2]
+- [ ] Admin page in the new layout checked in a logged-in browser - part of the tech check Tue 14:00 [P2]
 
 ## CI
 
