@@ -14,8 +14,10 @@
 - [ ] DOAG portal: upload slides PDF, manuscript PDF and ZIP (Stefan) [P1] (due: 2026-11-18)
 - [ ] Martin: send the message in `tasks/plan-public-gate.md` with `docs/prompt-martin-session-protocol.md`;
   fill every "Input von Martin folgt" in the manuscript, rebuild, upload again [P2]
-- [ ] Public gate: decide B1 (Graphik font in the repo deck HTML), B2 (host IP in history), B3 (Martin's
-  address in commit metadata) - `tasks/plan-public-gate.md`; switch only after Stefan's go [P2]
+- [x] Public gate B1-B3 fixed in a history rewrite (font file, host IP, addresses, old photo) -
+  `tasks/plan-public-gate.md`
+- [ ] Go for the new public repo (old one deleted, one repo at the end) - steps in `tasks/plan-public-gate.md`
+  [P1]
 - [ ] oradba-labs `demos/apex/apex.sh`: `DRY_RUN=1` is silently ignored (only `TRUE` counts) - the teardown on
   2026-11-18 ran for real although a dry run was meant; accept 1/true/yes or fail on unknown values [P2]
 - [ ] APEX demo: build app 100 by click, export to `demos/apex/app/f100.sql`, README, PR in oradba-labs - or

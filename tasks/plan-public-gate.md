@@ -1,35 +1,45 @@
 # Plan: public gate for hold-my-beer
 
-Prepared 2026-11-18 after the talk. The repo stays **private** until Stefan's go - nothing below switches it.
-Order: decide the blockers, clear them, get Martin's OK, then switch and set branch protection.
+Prepared 2026-11-18 after the talk. Decision Stefan 2026-11-18: one repo at the end - the old private repo is
+replaced by a new one built from the cleaned history, nothing is kept on GitHub besides it. The switch runs only
+after Stefan's go.
 
-## Scan result (2026-11-18, `docs/post-talk-2026-11-18`)
+## Why a new repo and not a force-push
 
-- gitleaks with `.gitleaks.toml` over the full history: 0 leaks (it reported 46 of 70 commits - the rules only
-  cover OCI and Cloudflare, so a second scan by pattern ran over `git log --all -p`)
-- Absent in history and HEAD: OCIDs, PAR URLs, API key fingerprints, private keys, tunnel tokens or credentials
-  JSON, `.env`/tfvars/tfstate, `lab.env`, customer names, 172.16-31.x and 192.168.x
+GitHub keeps `refs/pull/<n>/head` of every PR (22 PRs) read-only. A force-push of a cleaned `main` would leave
+the old commits - with the font and the host IP - reachable through those refs. Deleting the old repo and
+pushing the cleaned history to a new one with the same name removes them.
+
+## Scan result
+
+- Before (old history, 2026-11-18): gitleaks 0 leaks (its rules only cover OCI and Cloudflare); pattern scan
+  over `git log --all -p` found the findings B1-B3 below and nothing else secret - no OCIDs, PAR URLs, API key
+  fingerprints, private keys, tunnel tokens, `.env`/tfvars/tfstate, `lab.env`, customer names
 - Lab passwords from `oradba-labs/labs/seclab/lab.env`: 0 hits in the session protocols and the DOAG ZIP
+- After the rewrite (checked on the rewritten repo, all commits, contents and metadata): host IP 0, SSH key
+  name 0, `accenture.com` 0, private addresses 0, Graphik font files 0 (the word stays in this plan and the
+  CHANGELOG), old photo 0 (name only in old slide markup); gitleaks 0 leaks
 
-## Blockers - decide before public
+## Blockers - done in the rewrite (2026-11-18, `git filter-repo`, one pass on a fresh clone of `main`)
 
 <!-- markdownlint-disable MD013 MD060 -->
-| # | Finding | Where | Options |
-| --- | --- | --- | --- |
-| B1 | Licensed Accenture font (Graphik) embedded in full as base64 | `slides/doag-ak-2026/wissen-nicht-was-sie-tun.html` at HEAD and in history (8 `@font-face`) | build the public deck with the hmb skin / system font only, then rewrite history (`git filter-repo --path slides/doag-ak-2026/wissen-nicht-was-sie-tun.html --invert-paths`, rebuild) - or keep the deck out of the repo. Same case as the oradba-brand font-free rewrite |
-| B2 | Public IP of the OCI host, `opc@` user and SSH key filename | history only: `cfd83e1`, `8c9ee75`, `3b7d072` (gone at HEAD) | accept (SSH only from the home IP, host is temporary) or rewrite history with `git filter-repo --replace-text` |
-| B3 | Martin's private e-mail address as author/committer | commit metadata of `cfd83e1` (app import with history) | Martin decides: accept, or `git filter-repo --mailmap` to his noreply address |
+| # | Finding | Done |
+| --- | --- | --- |
+| B1 | Licensed Accenture font (Graphik) embedded in full in `slides/doag-ak-2026/wissen-nicht-was-sie-tun.html`, all 64 versions | file removed from the whole history; the public deck is built with `DECK_THEME=oradba` (system fonts), `build.sh` 0.4.0 refuses the Accenture theme with an output inside the repo; `deck-private` stays Accenture, outside the repo |
+| B2 | Public IP of the OCI host, `opc@` user and SSH key filename (history only) | replaced in every commit (`<host-ip>`, `<ssh-key>`) |
+| B3 | Martin's private address as author | mailmap to his GitHub noreply address; on the slides LinkedIn instead (`in/martin-berger-ch`) |
+| - | Stefan's employer address as author (49 commits) and on the slides | mailmap to `oehrlis@users.noreply.github.com`; slides show `stefan.oehrli@oradba.ch` and `in/stefanoehrli` |
+| - | Old photo `slides/src/speaker-martin/martin-feuerwehr.jpg` (replaced 2026-11-16) | removed from the whole history |
 <!-- markdownlint-restore -->
 
-Any rewrite changes every SHA after the first touched commit: open PRs, the CHANGELOG references (`64254d0`)
-and Martin's clone need to follow. Do all rewrites in one pass, in a fresh clone, then force-push once (main is
-not protected yet - that is the only moment it is acceptable).
+Commit references in the docs were mapped to the new SHAs (`.git/filter-repo/commit-map`); references to other
+repos (oradba-labs, talks) are unchanged. Tags `v0.1.0` and `v0.2.0` are rewritten with the history.
 
-## Accept as is (state it, do not fix)
+## Accept as is
 
 - `oracle-dev` as the local development admin password and the dev-only fallback `SECRET_KEY` in
-  `app/votingapp/config.py` - only used when `ADMIN_PASSWORD` / `SECRET_KEY` are unset; check that the hosts
-  always set both (`app.env` from 1Password) - Martin's code, his call
+  `app/votingapp/config.py` - only used when `ADMIN_PASSWORD` / `SECRET_KEY` are unset; the hosts set both
+  (`app.env` from 1Password) - Martin's code, his call
 - OraDBA script headers (`stefan.oehrli@oradba.ch`, Muri), employer names on the speaker slides, `hmb.oradba.ch`
 - Internal CIDR `10.42.0.0/24`, OCI display names, SSH aliases `hmb` / `hmb2`, `op://` references (paths, no values)
 - `Welcome2026!` in `docs/session-2026-11-17-claude-code-lab.md` is finding S1 of the faulty demo package, no
@@ -37,24 +47,30 @@ not protected yet - that is the only moment it is acceptable).
 
 ## Steps after the go
 
-- [ ] B1-B3 decided and done (fresh clone, one force-push)
-- [ ] Martin's OK for `app/` (message below)
-- [ ] `gh repo edit oehrlis/hold-my-beer --visibility public --accept-visibility-change-consequences`
-- [ ] Branch protection (command in [`plan-ci.md`](plan-ci.md)), then `gh api repos/oehrlis/hold-my-beer/branches/main/protection`
-  shows the five checks
-- [ ] `secrets.yml` run on `main` green after the switch; README "Status" line updated
+- [ ] Backup of the old repo incl. PR refs: `git clone --mirror` -> `git bundle create --all` outside the repo
+- [ ] Token scope for the delete (Stefan, interactive): `gh auth refresh -h github.com -s delete_repo`
+- [ ] Delete `oehrlis/hold-my-beer` on GitHub (22 PRs, Actions history and release `v0.2.0` go with it)
+- [ ] `gh repo create oehrlis/hold-my-beer --private` with the same description and homepage, push `main` and
+  the tags, release `v0.2.0` again with its notes
+- [ ] Public deck rebuilt in the new local checkout (`make deck`, oradba theme), check: no `Graphik` in the file
+- [ ] CI green on `main`, then `gh repo edit oehrlis/hold-my-beer --visibility public --accept-visibility-change-consequences`
+- [ ] Branch protection (command in [`plan-ci.md`](plan-ci.md)), `gh api .../branches/main/protection` shows the
+  five checks
+- [ ] Invite Martin again (`gh api -X PUT repos/oehrlis/hold-my-beer/collaborators/martinberger-ch`); his old
+  clone must be cloned fresh
+- [ ] Local checkout: old one moved aside, fresh clone at `~/Repos/own/oehrlis/hold-my-beer` (the talks
+  recipe resolves it as a sibling)
 
 ## Message to Martin (draft, Stefan sends)
 
 ```text
 Hoi Martin, danke für gestern - deine App hat 90 Geräte und 233 Stimmen gezählt.
-Ich möchte oehrlis/hold-my-beer öffentlich machen (Deck, Pool, Doku und deine App in app/). Bevor ich das
-tue, brauche ich dein OK zu drei Punkten:
+Ich habe oehrlis/hold-my-beer für die Veröffentlichung neu aufgesetzt: History bereinigt (keine Host-IP, kein
+lizenzierter Font, keine Mailadressen - deine steht jetzt als GitHub-noreply drin, auf den Folien LinkedIn).
+Das Repo ist neu angelegt, bitte frisch klonen; die Einladung kommt neu.
 1. app/ öffentlich unter der Repo-Lizenz (Apache 2.0) - ok für dich?
-2. Dein Import-Commit trägt deine private Mailadresse als Autor. Lassen, oder soll ich sie in der History
-   auf eine noreply-Adresse umschreiben (dein Clone müsste dann neu)?
-3. Für das Manuskript (DOAG-Portal) fehlt mir deine Runde 1 (Shell Health-Check): welches Werkzeug, der Prompt,
-   was lief, was nicht - und ein Satz als dein Takeaway. Am einfachsten mit dem Prompt im Anhang, den du in
-   deinem AI-Tool laufen lässt (docs/prompt-martin-session-protocol.md).
+2. Für das Manuskript (DOAG-Portal) fehlt mir deine Runde 1 (Shell Health-Check): welches Werkzeug, der Prompt,
+   was lief, was nicht - und ein Satz als dein Takeaway. Am einfachsten mit dem Prompt in
+   docs/prompt-martin-session-protocol.md, den du in deinem AI-Tool laufen lässt.
 Gruss Stefan
 ```

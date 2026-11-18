@@ -46,6 +46,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
+- `slides/build.sh` 0.4.0: `DECK_THEME` - the public deck (`make deck`, `deck-pdf`) is built with the oradba theme
+  (system fonts), `deck-private` with the Accenture theme; the Accenture theme with an output inside the repo
+  stops the build (licensed font). `DRY_RUN` accepts `TRUE|1|yes`, any other value stops instead of building
+- Slides: speaker and closing slides show `stefan.oehrli@oradba.ch` and LinkedIn (`in/stefanoehrli`,
+  `in/martin-berger-ch`) instead of employer addresses
 - Pool: round 2 B (Martin) is now "RMAN: lokales CLI-Skript für ein Backup der DB", round 3 B "Refreshable PDB
   Clone" instead of the Data Guard switchover (no standby in the lab); AWR/ASH moves to the reserve (13 topics).
   `hmb` needs "Gesamte Session zurücksetzen" in `/admin` - the seed never changes existing rounds
@@ -58,8 +63,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Removed
 
-- `slides/src/speaker-martin/martin-feuerwehr.jpg` (gear only), replaced by `martin-portrait.jpg`; last content
-  in `64254d0`
+- `slides/src/speaker-martin/martin-feuerwehr.jpg` (gear only), replaced by `martin-portrait.jpg` - removed from
+  the whole history in the rewrite of 2026-11-18, no commit keeps it
+- History rewrite before going public (2026-11-18, `git filter-repo`, details in `tasks/plan-public-gate.md`):
+  `slides/doag-ak-2026/wissen-nicht-was-sie-tun.html` with the embedded licensed Graphik font removed from every
+  commit; host IP, SSH user and key name replaced; author addresses mapped to GitHub noreply. All SHAs and the
+  tags `v0.1.0` / `v0.2.0` changed, the repo is new on GitHub (old PRs #1-#22 are gone)
 
 ### Fixed
 
@@ -126,7 +135,7 @@ First complete state for DOAG AK 2026 ("Denn sie wissen nicht was sie tun", 2026
 
 ### Added
 
-- `app/`: voting app by Martin Berger, imported from `dswnwst` (commit `cfd83e1`) with its history
+- `app/`: voting app by Martin Berger, imported from `dswnwst` (commit `a965eca`) with its history
 - `pool/doag-ak-2026.yaml`: topic pool as single source for app seed and round slides (3 rounds, 12 reserve
   topics, optional English fields)
 - `docs/handover-app-slides.md`: contract between app and slides (QR from the app, window switch, fallback)
@@ -151,5 +160,5 @@ First complete state for DOAG AK 2026 ("Denn sie wissen nicht was sie tun", 2026
 
 ### Security
 
-- Removed host IP, SSH user and key name from the app code. They remain in the imported history (`cfd83e1`);
+- Removed host IP, SSH user and key name from the app code. They remain in the imported history (`a965eca`);
   Martin Berger accepted that on 2026-11-12, no history rewrite before the repo goes public

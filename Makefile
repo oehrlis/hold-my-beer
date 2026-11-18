@@ -152,13 +152,13 @@ talk-start: ## Session entry point: check, demos, open
 
 .PHONY: deck deck-private deck-pdf deck-dry-run
 
-deck: preflight ## Build the public deck (drawings only) into the repo
+deck: preflight ## Build the public deck (drawings only, oradba theme) into the repo
 	$(Q)$(BUILD)
 
-deck-private: preflight ## Build the deck with private photos to OneDrive (PRIVATE_OUT, outside the repo)
+deck-private: preflight ## Build the Accenture deck with private photos to OneDrive (PRIVATE_OUT, outside the repo)
 	@[ -d "$(HMB_PRIVATE_DIR)" ] || { echo "ERROR: HMB_PRIVATE_DIR not found: $(HMB_PRIVATE_DIR)" >&2; exit 1; }
 	$(Q)mkdir -p "$(dir $(PRIVATE_OUT))"
-	$(Q)HMB_PRIVATE_DIR="$(HMB_PRIVATE_DIR)" $(BUILD) -o "$(PRIVATE_OUT)"
+	$(Q)HMB_PRIVATE_DIR="$(HMB_PRIVATE_DIR)" DECK_THEME=accenture $(BUILD) -o "$(PRIVATE_OUT)"
 	@echo "OK: private deck $(PRIVATE_OUT)"
 
 deck-pdf: preflight ## Build the public deck as PDF (slides/$(EVENT)/$(TALK_SLUG).pdf)

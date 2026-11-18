@@ -9,7 +9,7 @@ the AI hallucinates, and where decades of DBA experience still win.
 By Stefan Oehrli and Martin Berger. First run: DOAG Anwenderkonferenz 2026, Nuernberg, "Denn sie wissen nicht was
 sie tun - Oracle live mit Oehrli, Berger und KI".
 
-Status: private while in preparation, public after the talk. Nothing customer-related and no credentials in here.
+Status: public since the talk (DOAG 2026-11-17). Nothing customer-related and no credentials in here.
 
 ## Layout
 
