@@ -68,15 +68,17 @@ clone of the public repo: host IP, key name, private addresses 0, gitleaks 0 lea
 `~/Repos/own/oehrlis/hold-my-beer.pre-rewrite-2026-11-18` - delete once nothing is missing. This checkout sets
 `user.email` to the noreply address locally (the global one is the employer address).
 
+Martin's OK for `app/` public under Apache 2.0: given implicitly (Stefan, 2026-11-18), not asked again.
+
 ## Message to Martin (draft, Stefan sends)
 
 ```text
 Hoi Martin, danke für gestern - deine App hat 90 Geräte und 233 Stimmen gezählt.
 Ich habe oehrlis/hold-my-beer für die Veröffentlichung neu aufgesetzt: History bereinigt (keine Host-IP, kein
 lizenzierter Font, keine Mailadressen - deine steht jetzt als GitHub-noreply drin, auf den Folien LinkedIn).
-Das Repo ist neu angelegt, bitte frisch klonen; die Einladung kommt neu.
-1. app/ öffentlich unter der Repo-Lizenz (Apache 2.0) - ok für dich?
-2. Für das Manuskript (DOAG-Portal) fehlt mir deine Runde 1 (Shell Health-Check): welches Werkzeug, der Prompt,
+Das Repo ist neu angelegt und öffentlich: bitte die Einladung annehmen, frisch klonen und den alten Clone
+löschen (aus dem alten nichts mehr pushen, der enthält die alte History).
+Für das Manuskript (DOAG-Portal) fehlt mir deine Runde 1 (Shell Health-Check): welches Werkzeug, der Prompt,
    was lief, was nicht - und ein Satz als dein Takeaway. Am einfachsten mit dem Prompt in
    docs/prompt-martin-session-protocol.md, den du in deinem AI-Tool laufen lässt.
 Gruss Stefan
