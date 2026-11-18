@@ -1,5 +1,26 @@
 # Open work
 
+## After the talk (2026-11-18, branch `docs/post-talk-2026-11-18`)
+
+- [x] Talk held 2026-11-17 15:00: 3 rounds, 90 devices, 233 votes (voting DB on `hmb`, read only)
+- [x] Lab cleaned up 13:28: `reset.sql` verifier / unified-audit (db19) and tde (db26), `apex.sh down --purge`
+  (ORDS container and config), `make reset LAB=seclab` (51 s), `make verify` green, APEX/CLAUS/HMB_EMP_API gone
+  from DEMOPDB, `/tmp` leftovers in db26 removed (as root)
+- [x] Kept on purpose for a later APEX demo: `~/oradba-labs-data/seclab/shared/apex-dl/` (1.5 GB), ORDS image,
+  worktree `oradba-labs-apex` (`feat/demo-apex`, untracked `demos/apex/`), `$TMPDIR` files of that session
+- [x] Manuscript, deck handout PDF (22 pages, last build step per slide) and material ZIP in
+  `~/Downloads/hmb-doag-upload-2026-11-18/`; final score slide from the pool `result`
+- [x] Blog kickoff prompt `~/notes/prompts/hmb-blogpost.md`
+- [ ] DOAG portal: upload slides PDF, manuscript PDF and ZIP (Stefan) [P1] (due: 2026-11-18)
+- [ ] Martin: send the message in `tasks/plan-public-gate.md` with `docs/prompt-martin-session-protocol.md`;
+  fill every "Input von Martin folgt" in the manuscript, rebuild, upload again [P2]
+- [ ] Public gate: decide B1 (Graphik font in the repo deck HTML), B2 (host IP in history), B3 (Martin's
+  address in commit metadata) - `tasks/plan-public-gate.md`; switch only after Stefan's go [P2]
+- [ ] oradba-labs `demos/apex/apex.sh`: `DRY_RUN=1` is silently ignored (only `TRUE` counts) - the teardown on
+  2026-11-18 ran for real although a dry run was meant; accept 1/true/yes or fail on unknown values [P2]
+- [ ] APEX demo: build app 100 by click, export to `demos/apex/app/f100.sql`, README, PR in oradba-labs - or
+  remove (`apex-dl/`, image, worktree) [P3]
+
 ## Cloudflare Tunnel hmb + Terraform hmb2 (2026-11-13, branch `feat/terraform-hmb2`)
 
 - [x] Live config `hmb` checked: tunnel, ingress, `protocol: http2`, app on `127.0.0.1:8080`, 1Password backup
@@ -42,20 +63,20 @@
 - [x] 1Password item `secrets/privesc demo` (field `password`) for `make talk-lab` - created and readable
 - [x] Lab switch rehearsed: `make talk-lab` 3 min 20 s after a db19 restart (Java pool, ORA-04031 in privesc m4b
   unweak; floor 64M in oradba-labs `4431cfe`), `make talk-start` and each demo once - times in the runbook
-- [ ] seclab back to the privesc weak state - privesc entry point (`~/notes/prompts/privesc-talk-start.md`)
+- [x] seclab back to the privesc weak state - privesc entry point (`~/notes/prompts/privesc-talk-start.md`)
   [P1] (due: 2026-11-16)
-- [ ] Tue 11:45 `make talk-lab`, 14:00 `make talk-start` + tech check, after the talk `@reset.sql` in the three
+- [x] Tue 11:45 `make talk-lab`, 14:00 `make talk-start` + tech check, after the talk `@reset.sql` in the three
   windows and `make reset LAB=seclab` (`docs/runbook-labs-talk-day.md`) [P1] (due: 2026-11-17)
 - [x] `seclab-db26` unhealthy only in the privesc state - fully green after the switch
 
 ## App layout: switchable brand
 
 - [x] Variant 1 Accenture, variant 2 Hold my Beer, admin default + local switch (PR #2, merged 2026-11-13)
-- [ ] Admin page in the new layout checked in a logged-in browser - part of the tech check Tue 14:00 [P2]
+- [x] Admin page in the new layout checked in a logged-in browser - part of the tech check Tue 14:00 [P2]
 
 ## CI
 
 - [x] Phase 1: lint, tests 3.9/3.12, smoke, gitleaks (2026-11-13)
 - [ ] Branch protection on `main` once the repo is public (Free plan: 403 while private) - command in
-  `tasks/plan-ci.md` [P2]
+  `tasks/plan-ci.md`, order in `tasks/plan-public-gate.md` [P2]
 - [ ] Phase 2: `make release` + `release.yml`, `iac.yml` - after the talk [P2]

@@ -18,9 +18,15 @@ Topic pool per event - the single source for the app (seed: rounds, options, res
 | `rounds[].options[]` | `key` (A-C), `title`, `title_en`, `owner`, `category`, `category_en`, `difficulty`, `risk` |
 | | `ai_pitfall` |
 | `reserve[]` | `title`, `title_en`, `owner`, `category`, `category_en` |
+| `event.result` | optional after the talk: `note`, `note_en` (participation line on the final score slide) |
+| `rounds[].result` | optional after the talk: `votes` (`{A: n, ...}`), `played` or `winner` (option key), `outcome`, |
+| | `outcome_en`, `scorecard` (list of scorecard categories; tiles are shown only when a round has one) |
 
 Values: `owner` Stefan, Martin, Gemeinsam or Offen; `difficulty` Leicht, Mittel, Schwer; `risk` Niedrig,
 Mittel, Hoch. Titles are shown as written in app and slides - umlauts, no "ß".
+
+`result` is read only by the slide build (final score slide); once every round has one, the TODO placeholder
+is gone. The app ignores it.
 
 English (`*_en`): optional, used only by the slide build for the English deck - the app ignores them. A missing
 `*_en` field shows the German text on the English slide, and the build prints one WARN line per missing field.
