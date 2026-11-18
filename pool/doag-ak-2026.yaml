@@ -67,8 +67,8 @@ rounds:
     result:
       votes: {A: 16, B: 37, C: 27}
       played: B
-      outcome: "Martin live, keine Scorecard erfasst"
-      outcome_en: "Martin live, no scorecard recorded"
+      outcome: "Martin live: Python-Dashboard für Listener und DB-Status, Alert-Log offen"
+      outcome_en: "Martin live: Python dashboard for listener and DB status, alert log open"
 
   - number: 2
     name: DBA-Alltag

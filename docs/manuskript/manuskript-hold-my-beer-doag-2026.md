@@ -79,9 +79,10 @@ Wichtig: Geladene Rules sind keine befolgten Rules. Wo die AI abgewichen ist, st
 
 ## Was AI heute kann und wo sie scheitert
 
-Belege aus drei Arbeitsaufträgen auf `seclab-db26`, DEMOPDB: Unified Audit für einen privilegierten User
-(Runde 2), ein absichtlich fehlerhaftes PL/SQL-Package für das Code-Review (Runde 3) und eine APEX-Demo, die
-in einer zweiten Session parallel ab 15:35 lief und keine abgestimmte Runde war.
+Belege aus vier Arbeitsaufträgen: ein Live-Dashboard für Listener und Datenbank per SSH (Runde 1, Martin, auf
+seinem 26ai-Host), Unified Audit für einen privilegierten User (Runde 2), ein absichtlich fehlerhaftes
+PL/SQL-Package für das Code-Review (Runde 3) - beide auf `seclab-db26`, DEMOPDB - und eine APEX-Demo, die in
+einer zweiten Session parallel ab 15:35 lief und keine abgestimmte Runde war.
 
 ### Was getragen hat
 
@@ -93,8 +94,9 @@ in einer zweiten Session parallel ab 15:35 lief und keine abgestimmte Runde war.
 | Lücke im eigenen Design belegt | Ein `execute immediate` auf `SCOTT.EMP` erfasste nur die Privilegien-Policy, nicht `ACTIONS ALL ONLY TOPLEVEL` |
 | Seiteneffekt im Hersteller-Image | Das ORDS-Image hätte bei der APEX-Installation das DEFAULT-Profil auf `PASSWORD_LIFE_TIME UNLIMITED` gesetzt. Die AI installierte APEX selbst und belegte: Profil vor und nach bei 180 |
 | Verifikation am Ergebnis | Rollback ungefragt getestet (NOAUDIT, DROP, 0 Policies übrig, dann neu eingerichtet) |
+| Widerspruch in der Ausgabe erkannt | Runde 1: Startseite HTTP 200, die API meldete aber einen SSH-Timeout. Die AI prüfte SSH separat und belegte danach `ok: true` mit Listener- und DB-Status |
 | Eigene Fehler selbst gefunden | ORA-00904 (falscher Spaltenname), zweimal `sed -i ''` gegen GNU sed, stiller Abbruch durch SIGPIPE unter `pipefail` - jeder an der Ausgabe erkannt, im nächsten Schritt behoben |
-| Tempo bei Routine | drei Policies mit Test, Report und getestetem Rückweg in 4 min 21 s; ein Package mit 16 dokumentierten Befunden und Smoke-Test in gut 5 min; APEX-Installation 3 min, ORDS-Start 41 s |
+| Tempo bei Routine | Dashboard mit SSH-Abfrage geschrieben, gestartet und geprüft in rund 4 min (15:10 bis 15:14); drei Policies mit Test, Report und getestetem Rückweg in 4 min 21 s; ein Package mit 16 dokumentierten Befunden und Smoke-Test in gut 5 min; APEX-Installation 3 min, ORDS-Start 41 s |
 | Grenze bei Daten | commitende Prozeduren im Smoke-Test bewusst nicht aufgerufen; `INHERIT PRIVILEGES` an APEX nicht vergeben |
 | Secrets | Lab-Passwörter kamen nie in den Chat oder auf die Befehlszeile; im Trail steht `identified by *` |
 <!-- markdownlint-restore -->
@@ -104,12 +106,14 @@ in einer zweiten Session parallel ab 15:35 lief und keine abgestimmte Runde war.
 <!-- markdownlint-disable MD013 MD060 -->
 | Grenze | Beleg |
 | ---------- | ------------------------------ |
+| Aufgabe verschoben | Runde 1 hiess "Shell Health-Check für Alert-Log und Listener". Der Prompt verlangte eine HTML-App - gebaut wurde ein Python-Dashboard für Listener- und DB-Status. Das Alert-Log kam nicht vor, und niemand hat es eingefordert |
 | Annahmen statt Fragen | CLAUS fehlte - die AI wählte User, PDB und Rolle selbst, ohne Rückfrage. Offen genannt, aber eine Annahme. Gefragt hat sie nur, wo der Prompt es verlangte |
 | Nicht gelaufen | Der Data-Pump-Export als Claus lief nie: Die AI wartete auf ein OK, das nicht kam. Die Data-Pump-Policy ist eingeschaltet, aber ungetestet |
 | Ohne Browser kein App Builder | Die APEX-App existiert nicht. 11 Aufrufe der internen, gewrappten Wizard-Engine scheiterten an immer neuen Annahmen (Workspace, Session, Theme), dann brach die AI ab und fragte |
 | Security-Haltung mit Lücke | `APEX_ADMINISTRATOR_ROLE` an `LAB_ADMIN` als "vorübergehend" vergeben - entzogen erst nach der Session, auf Zuruf. Das Workspace-Passwort steht in `setup.sql` als Literal im SQL-Text |
 | Rules nicht durchgehend befolgt | sechs Scripts ohne Plan, keine Task-Datei, zwei Mechanismus-Entscheide ohne Rückfrage, Skill für Script-Header nicht genutzt |
 | Zeit ist Warten | Die längsten Abschnitte waren offene Freigaben: 17 h über Nacht, einmal knapp 30 min |
+| Nachträglich rekonstruiert | Welches Werkzeug Runde 1 spielte, ist offen: Martin erinnert Codex, das Transcript zeigt Claude Code mit `claude-sonnet-5`. Live mitschreiben schlägt jedes Gedächtnis |
 | Geteiltes Lab | Am Slotende liefen zwei AI-Sessions gegen dieselbe PDB; das Lab war am nächsten Morgen noch nicht zurückgesetzt |
 <!-- markdownlint-restore -->
 
@@ -170,7 +174,20 @@ Auftrag:
 Gib mir die SQL-Statements Schritt für Schritt, jeweils mit einem Satz, was sie tun.
 ```
 
-Prompts im Wortlaut, Tippfehler belassen. Martins Prompts: **Input von Martin folgt.**
+**Kurz und offen - schnell, aber am Auftrag vorbei.** Martins drei Prompts in Runde 1 brachten in vier
+Minuten ein laufendes Dashboard. Das Alert-Log aus der abgestimmten Aufgabe stand in keinem davon - also baute
+die AI es auch nicht:
+
+```text
+connect to database server and check for process for listener tnslsnr and show me the result
+
+create a local app in html easy style, show me the process, start local app on port 8080,
+gather information in real time by ssh
+
+make it more fashionable
+```
+
+Prompts im Wortlaut, Tippfehler belassen.
 
 ## Session-Ablauf und Ergebnis
 
@@ -186,14 +203,17 @@ Prompts im Wortlaut, Tippfehler belassen. Martins Prompts: **Input von Martin fo
 
 ### Runden kompakt
 
-- **Runde 1 - Shell Health-Check (Martin):** **Input von Martin folgt** (Werkzeug, Prompt, Ergebnis).
+- **Runde 1 - Shell Health-Check (Martin):** drei Prompts, Martins 26ai-Host per SSH, WSL2. Um 15:09 der
+  Listener-Prozess per `ps` belegt, um 15:13 `dbmonitor.py` geschrieben und gestartet: lokale Seite auf Port
+  8080, Listener-, CDB- und PDB-Status alle 4 s per SSH. Der erste API-Aufruf lief in einen SSH-Timeout, die AI
+  prüfte selbst nach, um 15:14 `ok: true`. Kein Alert-Log, kein Shell-Skript; der Styling-Prompt um 15:15
+  wirkte erst nach Spielende.
 - **Runde 2 - Unified Audit (Stefan):** Statt des vorbereiteten 19c-Prompts lief ein eigener Prompt auf 26ai.
   Ergebnis: User CLAUS, drei lokale Policies (`ACTIONS ALL ONLY TOPLEVEL`, 20 kritische Systemprivilegien,
   `COMPONENT = DATAPUMP ALL`), Test, Report, getesteter Rückweg. Offen: Data-Pump-Test. Die AI arbeitete in der
   Runde rund 5 min, alle Prompts liegen zwischen 15:22 und 15:31.
 - **Runde 3 - AI-Code-Review:** Das Package `SCOTT.HMB_EMP_API` entstand zwischen 15:34 und 15:39 noch im Slot,
-  die Analyse durch Martin nicht mehr. **Input von Martin folgt** (Analyse gegen den Lösungsschlüssel).
-  Der Schlüssel in Kurzform:
+  die Analyse durch Martin nicht mehr - sie ist auch danach nicht dokumentiert. Der Schlüssel in Kurzform:
 
 <!-- markdownlint-disable MD013 MD060 -->
 | Art | Befunde |
@@ -233,7 +253,29 @@ Gemessen am Prompt, der den User Claus ausdrücklich nannte, ist Schritt 2 korre
 7 %, Vorbereitung 14 %. Die Wahl der Referenz verschiebt das Ergebnis um 15 Prozentpunkte - genau das ist der
 Punkt "Kontext ist Pflicht".
 
-Runde 1 und Runde 3: **Input von Martin folgt.** Die APEX-Session war keine Runde und wird nicht gezählt.
+### Wer hat was gemacht - Runde 1
+
+**Von Martin nachträglich aus dem Transcript gezählt**, mit eigenen Schritten - das Runbook hatte für Runde 1
+keine Referenzlösung:
+
+<!-- markdownlint-disable MD013 MD060 -->
+| # | Schritt | Marke |
+| -- | ------------------------------ | ---- |
+| 1 | SSH-Zugang und Projektstruktur bereitstellen | `P` |
+| 2 | Listener-Prozess vor der Spielzeit prüfen | `P` |
+| 3 | Dashboard-Ansatz wählen und Datei schreiben | `A` |
+| 4 | App starten und HTTP prüfen | `A` |
+| 5 | SSH-Timeout aus der Ausgabe erkennen und separat prüfen | `A` |
+| 6 | Status erneut abfragen und Erfolg belegen | `A` |
+<!-- markdownlint-restore -->
+
+- Martins Zählung (6 Schritte, das Alert-Log zählt nicht mit): AI 4 / 6 = **67 %**, Martin **0 %**,
+  Vorbereitung 2 / 6 = **33 %**
+- Gegen die abgestimmte Aufgabe gezählt, wie in Runde 2 (Alert-Log als Schritt ohne Marke, 7 Schritte): AI
+  4 / 7 = **57 %**, Vorbereitung 2 / 7 = **29 %**, ohne Marke 1 / 7 = **14 %**
+
+Die AI hat alles gemacht, was verlangt war - verlangt war aber nicht die ganze Aufgabe. Runde 3 wurde nicht
+gespielt, die APEX-Session war keine Runde; beide werden nicht gezählt.
 
 ## Takeaways und nächste Schritte
 
@@ -245,8 +287,6 @@ Runde 1 und Runde 3: **Input von Martin folgt.** Die APEX-Session war keine Rund
    Überzeugung und manchmal ohne zu fragen.
 3. **Prüfen vor Ausführen.** AUDIT braucht NOAUDIT, ein Restore ein Backup, ein Skript ein Review. Lässt ihr die
    AI ausführen, ist jede Freigabe euer Review - und was nicht gelaufen ist, muss benannt werden.
-
-Martins Takeaway ("Ausprobieren, dann automatisieren") mit einer Szene aus Runde 1: **Input von Martin folgt.**
 
 So geht ihr weiter:
 
@@ -267,8 +307,9 @@ jedem Schritt, Zeiten und Token. Das ZIP enthält keine Passwörter:
 | `loesung/18_findings_key.md` | Lösungsschlüssel zum Package: 9 Sicherheitslücken, 7 Fehler, je mit Stelle und Beleg |
 | `hmb-apex-demopdb-lab.zip` | APEX und ORDS für DEMOPDB (`apex.sh`, `compose.yml`, SQL-Scripts) |
 | `hmb-apex-app-build.zip` | Klick-Anleitung für die App im App Builder, Export- und Prüfschritte |
-| `protokolle/`, `prompts/` | Session-Protokolle 17. und 18.11. (Prompts im Wortlaut, Schritte, Zeiten, Token) und die vorbereiteten Runden-Prompts |
+| `hmb-shell-health-check-martin.zip` | Runde 1: `dbmonitor.py` (Listener- und DB-Status per SSH, lokale Seite), SSH-Ziel und Schlüssel per Umgebungsvariable |
+| `protokolle/`, `prompts/` | Session-Protokolle 17. und 18.11. (inkl. Runde 1 von Martin) (Prompts im Wortlaut, Schritte, Zeiten, Token) und die vorbereiteten Runden-Prompts |
 <!-- markdownlint-restore -->
 
-Deck, Voting-App und Themen-Pool kommen nach der Konferenz in das Repository `github.com/oehrlis/hold-my-beer`; bis dahin
-ist das ZIP die Referenz.
+Deck, Voting-App, Themen-Pool und dieses Material:
+[github.com/oehrlis/hold-my-beer](https://github.com/oehrlis/hold-my-beer).

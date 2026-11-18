@@ -7,6 +7,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- Martin's protocol of round 1 (`docs/session-2026-11-17-shell-health-check-martin.md`, made with
+  `docs/prompt-martin-session-protocol.md`): the AI built a Python dashboard for listener and DB status over SSH
+  instead of a shell health check, the alert log was never asked for. The manuscript has his prompts, the round
+  and his count (AI 67 %, against the voted task 57 %); the final score slide names the outcome. Code block
+  unwrapped to the runnable lines, transcript ID redacted
 - After the talk (2026-11-17): `docs/manuskript/manuskript-hold-my-beer-doag-2026.md` - session manuscript for
   the DOAG portal (entry, guardrails, prompts in the original wording, flow, results, share AI / prep / Stefan
   for round 2 counted afterwards from the protocol); the protocols `docs/session-2026-11-17-claude-code-lab.md`
