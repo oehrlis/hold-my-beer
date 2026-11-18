@@ -12,8 +12,10 @@
   `~/Downloads/hmb-doag-upload-2026-11-18/`; final score slide from the pool `result`
 - [x] Blog kickoff prompt `~/notes/prompts/hmb-blogpost.md`
 - [ ] DOAG portal: upload slides PDF, manuscript PDF and ZIP (Stefan) [P1] (due: 2026-11-18)
-- [ ] Martin: send the message in `tasks/plan-public-gate.md` with `docs/prompt-martin-session-protocol.md`;
-  fill every "Input von Martin folgt" in the manuscript, rebuild, upload again [P2]
+- [x] Martin's round 1 protocol in `docs/`, manuscript placeholders filled, slides / manuscript / ZIP rebuilt
+  (2026-11-18)
+- [ ] Martin: his takeaway sentence, which tool ran round 1 (Codex or Claude Code), whether he reviewed the
+  PL/SQL package - then manuscript and upload again [P3]
 - [x] Public gate B1-B3 fixed in a history rewrite (font file, host IP, addresses, old photo) -
   `tasks/plan-public-gate.md`
 - [x] New public repo (old one deleted, one repo at the end) - `tasks/plan-public-gate.md` (2026-11-18)
