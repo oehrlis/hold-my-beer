@@ -1,7 +1,7 @@
 # Session-Protokoll: Runde 1 - Shell Health-Check für Alert-Log und Listener
 
-> Vorläufig: Martin ordnet den Dashboard-Ablauf der Runde 1 zu. Das Transcript nennt Claude Code
-> und `claude-sonnet-5`; Martin erinnert Codex. Diese Werkzeugzuordnung ist ungeklärt.
+> Martin ordnet den Dashboard-Ablauf der Runde 1 zu. Das Transcript nennt Claude Code und
+> `claude-sonnet-5`; Martin erinnerte Codex. Entscheid 2026-11-18 (Stefan): es gilt das Transcript.
 > SSH-Ziel, Schlüsselpfad und lokale Bind-Adresse wurden für die öffentliche Fassung ersetzt.
 
 ## Rahmen
@@ -9,7 +9,7 @@
 | Merkmal | Befund |
 | --- | --- |
 | Datum und Zeiten | Abstimmung 2026-11-17 15:07, Spielzeit 15:11-15:17 CET (Martin). |
-| Werkzeug und Modell | Martin: Codex; zugeordnetes Transcript: Claude Code, `claude-sonnet-5`. |
+| Werkzeug und Modell | Claude Code, `claude-sonnet-5` (laut Transcript; Martin erinnerte Codex). |
 | Skills/Plugins/Rules | Projektregeln gelesen; `frontend-design` um 15:15 aufgerufen. |
 | Ausführung | Die AI führte Befehle aus, schrieb eine Datei und startete den lokalen Prozess. |
 | Umgebung | Lokal WSL2; remote Oracle 26ai, CDB DSWNWST und zwei PDBs im API-Ergebnis. |
@@ -130,11 +130,11 @@ Vorbereitung = 2 / 6 = 33,3 %. Für die Gesamtaufgabe ist keine Erfolgsquote bel
 5. Nach drei gelungenen SSH-Proben meldete die API `ok: true`.
 6. Ein Alert-Log-Check ist im Ablauf nicht belegt.
 7. Der Design-Skill lief vor Spielende an; die Dateiänderung kam erst danach.
-8. Martins Werkzeugangabe und die Modellangabe des Transcripts widersprechen sich.
+8. Martin erinnerte Codex, das Transcript belegt Claude Code mit `claude-sonnet-5` - es gilt das Transcript.
 
 ## Mein Takeaway
 
-Ausstehend - Martin wurde nach seinem eigenen Satz gefragt; die AI formuliert ihn nicht.
+Keiner - bewusst offen gelassen (2026-11-18).
 
 ## Anhang: Code im Wortlaut, Stand 15:17
 
