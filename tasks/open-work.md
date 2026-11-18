@@ -16,8 +16,7 @@
   fill every "Input von Martin folgt" in the manuscript, rebuild, upload again [P2]
 - [x] Public gate B1-B3 fixed in a history rewrite (font file, host IP, addresses, old photo) -
   `tasks/plan-public-gate.md`
-- [ ] Go for the new public repo (old one deleted, one repo at the end) - steps in `tasks/plan-public-gate.md`
-  [P1]
+- [x] New public repo (old one deleted, one repo at the end) - `tasks/plan-public-gate.md` (2026-11-18)
 - [ ] oradba-labs `demos/apex/apex.sh`: `DRY_RUN=1` is silently ignored (only `TRUE` counts) - the teardown on
   2026-11-18 ran for real although a dry run was meant; accept 1/true/yes or fail on unknown values [P2]
 - [ ] APEX demo: build app 100 by click, export to `demos/apex/app/f100.sql`, README, PR in oradba-labs - or
@@ -79,6 +78,6 @@
 ## CI
 
 - [x] Phase 1: lint, tests 3.9/3.12, smoke, gitleaks (2026-11-13)
-- [ ] Branch protection on `main` once the repo is public (Free plan: 403 while private) - command in
+- [x] Branch protection on `main` once the repo is public (Free plan: 403 while private) - command in
   `tasks/plan-ci.md`, order in `tasks/plan-public-gate.md` [P2]
 - [ ] Phase 2: `make release` + `release.yml`, `iac.yml` - after the talk [P2]

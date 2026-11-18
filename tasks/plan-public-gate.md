@@ -47,19 +47,26 @@ repos (oradba-labs, talks) are unchanged. Tags `v0.1.0` and `v0.2.0` are rewritt
 
 ## Steps after the go
 
-- [ ] Backup of the old repo incl. PR refs: `git clone --mirror` -> `git bundle create --all` outside the repo
-- [ ] Token scope for the delete (Stefan, interactive): `gh auth refresh -h github.com -s delete_repo`
-- [ ] Delete `oehrlis/hold-my-beer` on GitHub (22 PRs, Actions history and release `v0.2.0` go with it)
-- [ ] `gh repo create oehrlis/hold-my-beer --private` with the same description and homepage, push `main` and
+- [x] Backup of the old repo incl. PR refs: `git clone --mirror` -> `git bundle create --all` outside the repo
+- [x] Token scope for the delete (Stefan, interactive): `gh auth refresh -h github.com -s delete_repo`
+- [x] Delete `oehrlis/hold-my-beer` on GitHub (22 PRs, Actions history and release `v0.2.0` go with it)
+- [x] `gh repo create oehrlis/hold-my-beer --private` with the same description and homepage, push `main` and
   the tags, release `v0.2.0` again with its notes
-- [ ] Public deck rebuilt in the new local checkout (`make deck`, oradba theme), check: no `Graphik` in the file
-- [ ] CI green on `main`, then `gh repo edit oehrlis/hold-my-beer --visibility public --accept-visibility-change-consequences`
-- [ ] Branch protection (command in [`plan-ci.md`](plan-ci.md)), `gh api .../branches/main/protection` shows the
+- [x] Public deck rebuilt in the new local checkout (`make deck`, oradba theme), check: no `Graphik` in the file
+- [x] CI green on `main`, then `gh repo edit oehrlis/hold-my-beer --visibility public --accept-visibility-change-consequences`
+- [x] Branch protection (command in [`plan-ci.md`](plan-ci.md)), `gh api .../branches/main/protection` shows the
   five checks
-- [ ] Invite Martin again (`gh api -X PUT repos/oehrlis/hold-my-beer/collaborators/martinberger-ch`); his old
+- [x] Invite Martin again (`gh api -X PUT repos/oehrlis/hold-my-beer/collaborators/martinberger-ch`); his old
   clone must be cloned fresh
-- [ ] Local checkout: old one moved aside, fresh clone at `~/Repos/own/oehrlis/hold-my-beer` (the talks
+- [x] Local checkout: old one moved aside, fresh clone at `~/Repos/own/oehrlis/hold-my-beer` (the talks
   recipe resolves it as a sibling)
+
+Done 2026-11-18 15:00: backup `~/Downloads/hold-my-beer-pre-rewrite-2026-11-18.bundle` (all refs incl. 22 PR
+refs), old repo deleted, new repo public, release `v0.2.0` again without the deck asset (it embedded the font),
+public deck PR #1 (`89c990c`), branch protection with the five checks, Martin invited. Checked on an anonymous
+clone of the public repo: host IP, key name, private addresses 0, gitleaks 0 leaks. Old local checkout kept at
+`~/Repos/own/oehrlis/hold-my-beer.pre-rewrite-2026-11-18` - delete once nothing is missing. This checkout sets
+`user.email` to the noreply address locally (the global one is the employer address).
 
 ## Message to Martin (draft, Stefan sends)
 
