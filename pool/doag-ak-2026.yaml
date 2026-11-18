@@ -13,6 +13,10 @@ event:
   lang: de
   title: "Denn sie wissen nicht was sie tun - Oracle live mit Oehrli, Berger und KI"
   title_en: "They Know Not What They Do - Oracle live with Oehrli, Berger and AI"  # proposal
+  # talk result (2026-11-17, voting DB on hmb): shown on the final score slide
+  result:
+    note: "90 Geräte, 233 Stimmen. Ablauf, Prompts und Material: Manuskript und ZIP im DOAG-Portal."
+    note_en: "90 devices, 233 votes. Flow, prompts and material: manuscript and ZIP on the DOAG portal."
 
 format:
   voting_seconds: 60
@@ -60,6 +64,12 @@ rounds:
         difficulty: Leicht
         risk: Niedrig
         ai_pitfall: veraltete exp/imp-Muster
+    result:
+      votes: {A: 16, B: 37, C: 27}
+      played: B
+      outcome: "Martin live, keine Scorecard erfasst"
+      outcome_en: "Martin live, no scorecard recorded"
+
   - number: 2
     name: DBA-Alltag
     name_en: Everyday DBA work
@@ -91,6 +101,12 @@ rounds:
         difficulty: Leicht
         risk: Niedrig
         ai_pitfall: Parameter pro Release verwechselt
+    result:
+      votes: {A: 29, B: 24, C: 25}
+      played: A
+      outcome: "Aufgabe teilweise abgeschlossen"
+      outcome_en: "task partly completed"
+
   - number: 3
     name: Bruchstelle
     name_en: Breaking point
@@ -122,6 +138,11 @@ rounds:
         difficulty: Mittel
         risk: Niedrig
         ai_pitfall: übersieht Logikfehler
+    result:
+      votes: {A: 10, B: 24, C: 41}
+      winner: C
+      outcome: "Slot zu Ende, nicht mehr gespielt"
+      outcome_en: "out of time, not played"
 
 # Reserve: the admin can assign these to a slot of a not yet played round (state waiting).
 # The former round "Automation" lives here since the talk runs 3 rounds.

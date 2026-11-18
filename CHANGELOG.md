@@ -7,6 +7,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- After the talk (2026-11-17): `docs/manuskript/manuskript-hold-my-beer-doag-2026.md` - session manuscript for
+  the DOAG portal (entry, guardrails, prompts in the original wording, flow, results, share AI / prep / Stefan
+  for round 2 counted afterwards from the protocol); the protocols `docs/session-2026-11-17-claude-code-lab.md`
+  (Unified Audit for CLAUS, faulty PL/SQL package) and `docs/session-2026-11-18-apex-demopdb.md` (APEX + ORDS
+  on DEMOPDB, app not built), transcript paths redacted; `docs/prompt-martin-session-protocol.md` (Martin
+  collects his sessions in the same shape); `tasks/plan-public-gate.md` (scan result, blockers, steps, message
+  to Martin)
+- Pool: optional `result` per round (votes, played or winner, outcome) and per event (participation note).
+  The final score slide shows them and drops the TODO once every round has one; the score tiles only appear
+  with a counted scorecard. `pool/doag-ak-2026.yaml` carries the talk result from the voting DB (90 devices,
+  233 votes)
 - `scripts/talk-start.sh` 0.1.0 + `make talk-check | talk-lab | talk-demos | talk-open | talk-start`: one entry
   point for the session - read-only check (app, lab, privesc leftovers, demo starting points, stale deck), the lab
   switch from the privesc state (asks first, `DEMO_PWD` via environment or `op read`), demo `setup.sql`, and

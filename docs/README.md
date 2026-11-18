@@ -9,3 +9,7 @@ Format, storyline, roles, rehearsal notes.
 | `runbook-cloudflare-tunnel.md` | voting app behind the Cloudflare Tunnel (`hmb.oradba.ch`) |
 | `runbook-terraform-host.md` | own host as code (`hmb2`) |
 | `handover-app-slides.md` | handover between voting app and slides |
+| `manuskript/manuskript-hold-my-beer-doag-2026.md` | manuscript (DE), DOAG portal: entry, guardrails, prompts |
+| `session-2026-11-17-claude-code-lab.md` | protocol: Unified Audit for CLAUS, faulty PL/SQL package |
+| `session-2026-11-18-apex-demopdb.md` | protocol: APEX 26.2 + ORDS on DEMOPDB, the app itself was not built |
+| `prompt-martin-session-protocol.md` | prompt for Martin: protocol of his sessions in the same shape |

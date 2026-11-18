@@ -271,12 +271,12 @@ def icon(i: int) -> str:
     )
 
 
-def score_tiles(cats: list[tuple[str, str]], final: bool) -> str:
-    """Scoreboard tiles: icon, category, punchline (intro) or an open score (final)."""
+def score_tiles(cats: list[tuple[str, str]], final: bool, scores: list[int] | None = None) -> str:
+    """Scoreboard tiles: icon, category, punchline (intro) or the score (final; ``?`` while open)."""
     tiles = []
     for i, (de, en) in enumerate(cats):
         if final:
-            extra = '<span class="q">?</span>'
+            extra = f'<span class="q">{scores[i] if scores else "?"}</span>'
         else:
             q = SCORE_QUIP.get(de)
             extra = f'<span class="s">{bi(*q)}</span>' if q else ""
@@ -538,23 +538,46 @@ def reserve_topics(reserve: list[dict]) -> str:
 """
 
 
-def scorecard_result(cats: list[tuple[str, str]], rounds: list[dict]) -> str:
-    tiles = score_tiles(cats, final=True)
-    lis = "\n".join(
-        f"      <li>{bi(f'Runde {r[0]} - {r[1]}: gespielt wurde ____', f'Round {r[0]} - {r[2]}: played ____')}</li>"
-        for r in ((r["number"], r["name"], en_text(r, "name", f"round {r['number']}")) for r in rounds)
-    )
+def result_line(rnd: dict) -> str:
+    """One round of the final score: placeholder, or votes, played option and outcome from ``result``."""
+    num, res = rnd["number"], rnd.get("result")
+    name_en = en_text(rnd, "name", f"round {num}")
+    if not res:
+        return bi(f"Runde {num} - {rnd['name']}: gespielt wurde ____", f"Round {num} - {name_en}: played ____")
+    where = f"round {num} result"
+    votes = res.get("votes") or {}
+    tally = " · ".join(f"{k} {votes[k]}" for k in sorted(votes))
+    opt = {o["key"]: o for o in rnd["options"]}.get(res.get("played") or res.get("winner"))
+    topic_de = f"{opt['key']} {opt['title']}" if opt else ""
+    topic_en = f"{opt['key']} {en_text(opt, 'title', where)}" if opt else ""
+    verb_de, verb_en = ("gespielt", "played") if res.get("played") else ("gewählt", "chosen")
+    de = f"Runde {num} - {rnd['name']} ({tally}): {verb_de} {topic_de} - {res.get('outcome', '')}"
+    en = f"Round {num} - {name_en} ({tally}): {verb_en} {topic_en} - {en_text(res, 'outcome', where)}"
+    return bi(de, en)
+
+
+def scorecard_result(cats: list[tuple[str, str]], rounds: list[dict], event: dict) -> str:
+    counted = [r["result"]["scorecard"] for r in rounds if (r.get("result") or {}).get("scorecard")]
+    done = all(r.get("result") for r in rounds)
+    grid = ""
+    # tiles only while open or with a counted scorecard: four zeros would read as "AI never right"
+    if counted or not done:
+        scores = [sum(de in s for s in counted) for de, _ in cats] if counted else None
+        grid = f'  <div class="{grid_class(len(cats), 4)} score">\n{score_tiles(cats, True, scores)}\n  </div>\n'
+    lis = "\n".join(f"      <li>{result_line(r)}</li>" for r in rounds)
+    if not done:
+        note = TODO + " " + bi("Platzhalter: Endstand live eintragen (Scorecard aus /admin bzw. Strichliste).",
+                              "Placeholder: enter the final score live (scorecard from /admin or tally).")
+    else:
+        part = event.get("result") or {}
+        note = bi(part.get("note", ""), en_text(part, "note", "event result")) if part else ""
     return f"""<!-- atom: hold-my-beer/scorecard-endstand (generated) -->
 <section class="hmb">
   <div class="sh"><span class="kicker">{bi("Fazit", "Wrap-up")}</span><h2>{bi("Endstand: AI gegen DBA", "Final score: AI vs. DBA")}</h2></div>
-  <div class="{grid_class(len(cats), 4)} score">
-{tiles}
-  </div>
-  <ul>
+{grid}  <ul>
 {lis}
   </ul>
-  <p class="note">{TODO} {bi("Platzhalter: Endstand live eintragen (Scorecard aus /admin bzw. Strichliste).",
-                             "Placeholder: enter the final score live (scorecard from /admin or tally).")}</p>
+  <p class="note">{note}</p>
   <aside class="notes">Welche Kategorie hat gewonnen, welches Tool war wo stark.</aside>
 </section>
 """
@@ -628,7 +651,7 @@ def main() -> int:
             meta_yaml(f"Runde {rnd['number']} - {rnd['name']}", "Drei Optionen mit Live-QR", tags + ["round"]),
         )
     write_atom(
-        args.out, "scorecard-endstand", scorecard_result(cats, rounds),
+        args.out, "scorecard-endstand", scorecard_result(cats, rounds, ev),
         meta_yaml("Scorecard - Endstand", "Platzhalter fuer den Endstand", tags + ["scorecard"]),
     )
     write_atom(
