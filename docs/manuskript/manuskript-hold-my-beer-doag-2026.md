@@ -35,7 +35,7 @@ im ZIP zu dieser Session (siehe "Nächste Schritte").
 <!-- markdownlint-disable MD013 MD060 -->
 | Baustein | In der Session |
 | ---------- | ------------------------------ |
-| AI | Claude Code (CLI), Modell Claude Opus 5.5; weitere Tools bereit (Codex, GitHub Copilot, ChatGPT, Microsoft Copilot) |
+| AI | Claude Code (CLI): Stefan mit Claude Opus 5.5, Martin in Runde 1 mit Claude Sonnet 5; weitere Tools bereit (Codex, GitHub Copilot, ChatGPT, Microsoft Copilot) |
 | Fachwissen für die AI | Skill `oracle-audit` (Unified Auditing, Namenskonventionen, 19c/26ai-Unterschiede), von der AI selbst geladen |
 | Lab | `seclab` aus `oradba-labs`: Docker, Oracle Database 19c (19.27) und Oracle AI Database 26ai Free (23.26.3), PDB `DEMOPDB` mit `SCOTT` und `TVD_HR`, Pure Unified Auditing |
 | Reset | Restore Point `LAB_BASELINE`, `make reset LAB=seclab` setzt per Flashback zurück |
@@ -113,7 +113,7 @@ einer zweiten Session parallel ab 15:35 lief und keine abgestimmte Runde war.
 | Security-Haltung mit Lücke | `APEX_ADMINISTRATOR_ROLE` an `LAB_ADMIN` als "vorübergehend" vergeben - entzogen erst nach der Session, auf Zuruf. Das Workspace-Passwort steht in `setup.sql` als Literal im SQL-Text |
 | Rules nicht durchgehend befolgt | sechs Scripts ohne Plan, keine Task-Datei, zwei Mechanismus-Entscheide ohne Rückfrage, Skill für Script-Header nicht genutzt |
 | Zeit ist Warten | Die längsten Abschnitte waren offene Freigaben: 17 h über Nacht, einmal knapp 30 min |
-| Nachträglich rekonstruiert | Welches Werkzeug Runde 1 spielte, ist offen: Martin erinnert Codex, das Transcript zeigt Claude Code mit `claude-sonnet-5`. Live mitschreiben schlägt jedes Gedächtnis |
+| Nachträglich rekonstruiert | Runde 1 lief laut Transcript mit Claude Code und `claude-sonnet-5` - in Erinnerung war Codex. Live mitschreiben schlägt jedes Gedächtnis |
 | Geteiltes Lab | Am Slotende liefen zwei AI-Sessions gegen dieselbe PDB; das Lab war am nächsten Morgen noch nicht zurückgesetzt |
 <!-- markdownlint-restore -->
 
@@ -203,7 +203,8 @@ Prompts im Wortlaut, Tippfehler belassen.
 
 ### Runden kompakt
 
-- **Runde 1 - Shell Health-Check (Martin):** drei Prompts, Martins 26ai-Host per SSH, WSL2. Um 15:09 der
+- **Runde 1 - Shell Health-Check (Martin):** Claude Code mit `claude-sonnet-5`, drei Prompts, Martins 26ai-Host
+  per SSH, WSL2. Um 15:09 der
   Listener-Prozess per `ps` belegt, um 15:13 `dbmonitor.py` geschrieben und gestartet: lokale Seite auf Port
   8080, Listener-, CDB- und PDB-Status alle 4 s per SSH. Der erste API-Aufruf lief in einen SSH-Timeout, die AI
   prüfte selbst nach, um 15:14 `ok: true`. Kein Alert-Log, kein Shell-Skript; der Styling-Prompt um 15:15
@@ -213,7 +214,7 @@ Prompts im Wortlaut, Tippfehler belassen.
   `COMPONENT = DATAPUMP ALL`), Test, Report, getesteter Rückweg. Offen: Data-Pump-Test. Die AI arbeitete in der
   Runde rund 5 min, alle Prompts liegen zwischen 15:22 und 15:31.
 - **Runde 3 - AI-Code-Review:** Das Package `SCOTT.HMB_EMP_API` entstand zwischen 15:34 und 15:39 noch im Slot,
-  die Analyse durch Martin nicht mehr - sie ist auch danach nicht dokumentiert. Der Schlüssel in Kurzform:
+  die Analyse durch Martin nicht mehr und auch danach nicht. Der Schlüssel in Kurzform:
 
 <!-- markdownlint-disable MD013 MD060 -->
 | Art | Befunde |
