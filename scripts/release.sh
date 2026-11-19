@@ -6,7 +6,7 @@
 # Author.....: Stefan Oehrli (oes) stefan.oehrli@oradba.ch
 # Editor.....: Stefan Oehrli
 # Date.......: 2026-11-19
-# Version....: 0.1.0
+# Version....: 0.1.1
 # Purpose....: The one way to release hold-my-beer: gates, CHANGELOG rollover,
 #              VERSION bump, annotated tag, push of branch AND tag, verify.
 # Notes......: Called by 'make release VERSION=x.y.z'. DRY_RUN=TRUE|1|yes runs the
@@ -18,6 +18,7 @@
 # ------------------------------------------------------------------------------
 # CHANGE LOG:
 # 2026-11-19  oes  Initial release                                    0.1.0
+# 2026-11-19  oes  Named error when gh run list fails                 0.1.1
 # ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
@@ -134,7 +135,8 @@ main() {
     head_sha="$(git rev-parse HEAD)"
     for wf in ci.yml secrets.yml; do
         ok="$(gh run list --commit "${head_sha}" --workflow "${wf}" --json conclusion \
-            --jq '[.[] | select(.conclusion == "success")] | length')"
+            --jq '[.[] | select(.conclusion == "success")] | length')" \
+            || die "gh run list for ${wf} failed (network or gh auth) - CI state of HEAD unknown, try again"
         [[ "${ok:-0}" -gt 0 ]] || die "${wf} is not green for HEAD ${head_sha:0:7} (gh run list --commit ${head_sha:0:7})"
     done
     info "gates ok: version, branch, clean tree, up to date, tag free, CHANGELOG, CI green"

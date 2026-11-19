@@ -7,7 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
-- CI phase 2 (`docs/ci-release.md`): `make release VERSION=x.y.z` (`scripts/release.sh` 0.1.0) - read-only
+- CI phase 2 (`docs/ci-release.md`): `make release VERSION=x.y.z` (`scripts/release.sh` 0.1.1) - read-only
   gates (version, branch, clean tree, up to date, tag free locally and remote, CHANGELOG, CI green for HEAD,
   `make lint app-test`), CHANGELOG rollover, `VERSION` + Makefile header, annotated tag, push of branch **and**
   tag, verify on the remote; `DRY_RUN=TRUE|1|yes` and `--dry-run` run the gates and show the rest.
