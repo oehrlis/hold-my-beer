@@ -4,8 +4,8 @@
 # Name.......: Makefile
 # Author.....: Stefan Oehrli (oes) stefan.oehrli@oradba.ch
 # Editor.....: Stefan Oehrli
-# Date.......: 13.11.2026
-# Version....: v0.2.0
+# Date.......: 19.11.2026
+# Version....: v0.3.0
 # Purpose....: Build the hold-my-beer frame deck (public / private), run the
 #              voting app locally, build and deploy the voting host (terraform).
 # Notes......: Overrides via environment or .env. Use 'make help' for targets.
