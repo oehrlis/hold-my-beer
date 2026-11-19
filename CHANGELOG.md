@@ -7,6 +7,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- CI phase 2 (`docs/ci-release.md`): `make release VERSION=x.y.z` (`scripts/release.sh` 0.1.0) - read-only
+  gates (version, branch, clean tree, up to date, tag free locally and remote, CHANGELOG, CI green for HEAD,
+  `make lint app-test`), CHANGELOG rollover, `VERSION` + Makefile header, annotated tag, push of branch **and**
+  tag, verify on the remote; `DRY_RUN=TRUE|1|yes` and `--dry-run` run the gates and show the rest.
+  `release.yml` on a tag: guard (tag = `v$(cat VERSION)`, commit on `main`), `ci` + `secrets` + `iac` again via
+  `workflow_call`, GitHub release with CHANGELOG notes, app package + `.sha256` and the public deck HTML.
+  `iac.yml` and `make lint-iac`: `tflint` 0.55.1 and `trivy config` 0.58.2 as images pinned by digest (trivy's
+  release assets for 0.58.2 are gone, the image is not), both clean on `terraform/`
 - Martin's protocol of round 1 (`docs/session-2026-11-17-shell-health-check-martin.md`, made with
   `docs/prompt-martin-session-protocol.md`): the AI built a Python dashboard for listener and DB status over SSH
   instead of a shell health check, the alert log was never asked for. The manuscript has his prompts, the round
@@ -68,6 +76,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Removed
 
+- `tasks/state-2026-11-13.md`, `tasks/state-2026-11-16.md`: park states before the talk, every open point in them
+  is done or dropped. Last content in `c204942` and `dfa1e00`
+- `tasks/plan-ci.md`: done - phase 1 and 2 built, deploy from CI decided against (manual, `hmb2` dropped); the
+  current state is `docs/ci-release.md`. Last content in `f681486` (`git show f681486:tasks/plan-ci.md`)
 - `tasks/plan-public-gate.md`: done - history rewritten, new public repo, branch protection, Martin invited
   (2026-11-18). Last content in `ad179d5` (`git show ad179d5:tasks/plan-public-gate.md`)
 - `slides/src/speaker-martin/martin-feuerwehr.jpg` (gear only), replaced by `martin-portrait.jpg` - removed from

@@ -1,16 +1,18 @@
-# CI phase 1 (tasks/plan-ci.md): every job calls the same make target as on the Mac.
+# CI: every job calls the same make target as on the Mac (docs/ci-release.md). release.yml calls it again
+# on the tag commit (workflow_call).
 name: ci
 
 on:
   push:
     branches: [main]
   pull_request:
+  workflow_call:
 
 permissions:
   contents: read
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 env:
