@@ -7,6 +7,7 @@ Format, storyline, roles, rehearsal notes.
 | `runbook-labs-talk-day.md` | Stefan's labs: switch from privesc, session steps, share AI / prep / Stefan |
 | `prompts-stefan-rounds.md` | the prompts Stefan types live in rounds 1-3 (A) |
 | `runbook-cloudflare-tunnel.md` | voting app behind the Cloudflare Tunnel (`hmb.oradba.ch`) |
+| `ci-release.md` | CI workflows, `make release`, `release.yml` |
 | `runbook-terraform-host.md` | own host as code (`hmb2`) |
 | `handover-app-slides.md` | handover between voting app and slides |
 | `manuskript/manuskript-hold-my-beer-doag-2026.md` | manuscript (DE), DOAG portal: entry, guardrails, prompts |

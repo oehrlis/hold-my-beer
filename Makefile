@@ -69,6 +69,10 @@ MARKDOWNLINT := $(shell PATH="$(PATH)" command -v markdownlint 2>/dev/null || \
                          PATH="$(PATH)" command -v markdownlint-cli 2>/dev/null)
 TALK         := $(shell PATH="$(PATH)" command -v talk 2>/dev/null)
 GIT          := $(shell PATH="$(PATH)" command -v git 2>/dev/null)
+DOCKER       := $(shell PATH="$(PATH)" command -v docker 2>/dev/null)
+# IaC linters run as pinned images - the same digest on the Mac and in CI (iac.yml)
+TFLINT_IMAGE ?= ghcr.io/terraform-linters/tflint:v0.55.1@sha256:4136a6ec3d6659551f2b8f63be8bd413c8c1d842506a5597a26bf4e8bc1eac16
+TRIVY_IMAGE  ?= aquasec/trivy:0.58.2@sha256:665030f4d33a82c1e8d9d5e0453365842236723c1ee5cc3becca698268e66a56
 
 # Verbosity control (V=1 for verbose output)
 V ?=
@@ -250,7 +254,7 @@ host-up: host-secrets host-env host-deploy host-check ## New host after tf-apply
 # Quality
 # ==============================================================================
 
-.PHONY: lint lint-markdown lint-shell lint-python lint-terraform
+.PHONY: lint lint-markdown lint-shell lint-python lint-terraform lint-iac
 
 lint: lint-markdown lint-shell lint-python lint-terraform ## Run all linters
 
@@ -272,9 +276,26 @@ lint-terraform: ## terraform fmt -check and validate (no cloud access)
 	$(Q)terraform -chdir=$(TF_DIR) validate -no-color
 	@echo "OK: terraform"
 
+lint-iac: ## tflint and trivy config on terraform/ (pinned images, no cloud access)
+	@[ -n "$(DOCKER)" ] || { echo "ERROR: docker not found - lint-iac runs tflint and trivy as images" >&2; exit 1; }
+	$(Q)docker run --rm -v "$(CURDIR)/$(TF_DIR):/data" -w /data "$(TFLINT_IMAGE)" --format compact
+	@echo "OK: tflint"
+	$(Q)docker run --rm -v "$(CURDIR)/$(TF_DIR):/src:ro" "$(TRIVY_IMAGE)" config --quiet --exit-code 1 /src
+	@echo "OK: trivy config"
+
 lint-python: ## Syntax check of the slide generators
 	$(Q)python3 -m py_compile "$(SLIDES_DIR)/generate.py" "$(SLIDES_DIR)/img/brain.py" "$(SLIDES_DIR)/img/gen_phone.py"
 	@echo "OK: py_compile"
+
+# ==============================================================================
+# Release
+# ==============================================================================
+
+.PHONY: release
+
+release: ## Release VERSION=x.y.z: gates, CHANGELOG, tag, push branch + tag (DRY_RUN=1 shows only)
+	@[ -n "$(VERSION)" ] || { echo "ERROR: VERSION=x.y.z missing (current $$(cat VERSION))" >&2; exit 1; }
+	$(Q)VERSION="$(VERSION)" DRY_RUN="$(DRY_RUN)" scripts/release.sh
 
 # ==============================================================================
 # Cleanup and info

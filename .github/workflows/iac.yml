@@ -1,0 +1,30 @@
+# IaC checks on terraform/ (docs/ci-release.md): fmt, validate, tflint and trivy config - the same make targets
+# and the same pinned images as on the Mac. No cloud access, no state, no secrets.
+name: iac
+
+on:
+  push:
+    branches: [main]
+    paths: ["terraform/**", ".github/workflows/iac.yml", "Makefile"]
+  pull_request:
+    paths: ["terraform/**", ".github/workflows/iac.yml", "Makefile"]
+  workflow_call:
+
+permissions:
+  contents: read
+
+env:
+  TERRAFORM_VERSION: "1.17.2"
+
+jobs:
+  iac:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
+      - run: make lint-terraform
+      # tflint and trivy run as images pinned by digest in the Makefile (TFLINT_IMAGE, TRIVY_IMAGE)
+      - run: make lint-iac
