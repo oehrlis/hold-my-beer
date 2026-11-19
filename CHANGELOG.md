@@ -68,6 +68,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Removed
 
+- `tasks/plan-public-gate.md`: done - history rewritten, new public repo, branch protection, Martin invited
+  (2026-11-18). Last content in `ad179d5` (`git show ad179d5:tasks/plan-public-gate.md`)
 - `slides/src/speaker-martin/martin-feuerwehr.jpg` (gear only), replaced by `martin-portrait.jpg` - removed from
   the whole history in the rewrite of 2026-11-18, no commit keeps it
 - History rewrite before going public (2026-11-18, `git filter-repo`, details in `tasks/plan-public-gate.md`):
