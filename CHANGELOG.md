@@ -84,7 +84,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   (2026-11-18). Last content in `ad179d5` (`git show ad179d5:tasks/plan-public-gate.md`)
 - `slides/src/speaker-martin/martin-feuerwehr.jpg` (gear only), replaced by `martin-portrait.jpg` - removed from
   the whole history in the rewrite of 2026-11-18, no commit keeps it
-- History rewrite before going public (2026-11-18, `git filter-repo`, details in `tasks/plan-public-gate.md`):
+- History rewrite before going public (2026-11-18, `git filter-repo`, details in the removed public-gate plan):
   `slides/doag-ak-2026/wissen-nicht-was-sie-tun.html` with the embedded licensed Graphik font removed from every
   commit; host IP, SSH user and key name replaced; author addresses mapped to GitHub noreply. All SHAs and the
   tags `v0.1.0` / `v0.2.0` changed, the repo is new on GitHub (old PRs #1-#22 are gone)
