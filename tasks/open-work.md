@@ -17,12 +17,12 @@
 - [x] Martin's open points settled 2026-11-18: no takeaway, round 1 tool as in the transcript (Claude Code,
   `claude-sonnet-5`), the PL/SQL package was not reviewed
 - [x] Public gate B1-B3 fixed in a history rewrite (font file, host IP, addresses, old photo) -
-  `tasks/plan-public-gate.md`
-- [x] New public repo (old one deleted, one repo at the end) - `tasks/plan-public-gate.md` (2026-11-18)
-- [ ] oradba-labs `demos/apex/apex.sh`: `DRY_RUN=1` is silently ignored (only `TRUE` counts) - the teardown on
-  2026-11-18 ran for real although a dry run was meant; accept 1/true/yes or fail on unknown values [P2]
-- [ ] APEX demo: build app 100 by click, export to `demos/apex/app/f100.sql`, README, PR in oradba-labs - or
-  remove (`apex-dl/`, image, worktree) [P3]
+  the removed `plan-public-gate.md` (CHANGELOG, `ad179d5`)
+- [x] New public repo (old one deleted, one repo at the end) - the removed `plan-public-gate.md` (CHANGELOG, `ad179d5`) (2026-11-18)
+- [x] `apex.sh` 0.1.1: `DRY_RUN=TRUE|1|yes`, unknown values stop - fixed in the published package
+  `hmb-apex-demopdb-lab.zip` (DOAG material ZIP), tested without the lab (2026-11-19)
+- [x] APEX demo dropped (Stefan 2026-11-19): no app 100; ORDS image, worktree `oradba-labs-apex` and branch
+  `feat/demo-apex` removed, the code stays only in the DOAG package
 
 ## Cloudflare Tunnel hmb + Terraform hmb2 (2026-11-13, branch `feat/terraform-hmb2`)
 
@@ -43,8 +43,7 @@
 - [x] Session on `hmb` reset (14:47, checked in the DB: `waiting`, round 1, 0 votes); `make deck-private` built,
   voting URL and both QR codes decoded to `https://hmb.oradba.ch/`
 - [x] `/admin` during the talk: Martin
-- [ ] Later, if `hmb2` is wanted: Cloudflare token (`Account - Cloudflare Tunnel - Edit` + `Zone - DNS - Edit`
-  for oradba.ch) in `secrets/hmb terraform cloudflare`, then `make tf-apply` and `make host-up HOST=hmb2` [P3]
+- [x] `hmb2` dropped (Stefan 2026-11-19): no own host; `terraform/` stays as a build in the repo
 
 ## Feedback deck + app (2026-11-16, before the talk 2026-11-17 15:00)
 
@@ -81,5 +80,5 @@
 
 - [x] Phase 1: lint, tests 3.9/3.12, smoke, gitleaks (2026-11-13)
 - [x] Branch protection on `main` once the repo is public (Free plan: 403 while private) - command in
-  `tasks/plan-ci.md`, order in `tasks/plan-public-gate.md` [P2]
+  `tasks/plan-ci.md` [P2]
 - [ ] Phase 2: `make release` + `release.yml`, `iac.yml` - after the talk [P2]
