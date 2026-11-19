@@ -11,7 +11,7 @@
 - [x] Manuscript, deck handout PDF (22 pages, last build step per slide) and material ZIP in
   `~/Downloads/hmb-doag-upload-2026-11-18/`; final score slide from the pool `result`
 - [x] Blog kickoff prompt `~/notes/prompts/hmb-blogpost.md`
-- [ ] DOAG portal: upload slides PDF, manuscript PDF and ZIP (Stefan) [P1] (due: 2026-11-18)
+- [x] DOAG portal: slides PDF, manuscript PDF and ZIP uploaded (Stefan, 2026-11-19)
 - [x] Martin's round 1 protocol in `docs/`, manuscript placeholders filled, slides / manuscript / ZIP rebuilt
   (2026-11-18)
 - [x] Martin's open points settled 2026-11-18: no takeaway, round 1 tool as in the transcript (Claude Code,
